@@ -398,8 +398,9 @@ pub(crate) enum ExprKind {
         name: String,
         value: Box<Expr>,
     },
-    /// A clang atomic builtin, operands in clang's order: pointer, memory
-    /// order, then the values the operation takes.
+    /// A clang atomic builtin, operands in clang's storage order: pointer,
+    /// memory order, then whichever of value, failure order, second value
+    /// and weak flag the operation takes.
     Atomic {
         op: String,
         operands: Vec<Expr>,

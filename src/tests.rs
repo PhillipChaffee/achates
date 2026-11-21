@@ -462,6 +462,8 @@ int range(int x) { switch (x) { case 1 ... 3: return 1; } return 0; }
 int computed(int i) { static void *t[] = { &&a, &&b }; goto *t[i]; a: return 1; b: return 2; }
 unsigned long anon_size(void) { return sizeof anon_global; }
 unsigned long off(void) { return offsetof(struct pt, y); }
+int local_size(void) { struct loc2 { int q; } l = {0}; return sizeof l; }
+int literal_anon(void) { return (struct { int z; }){ 3 }.z; }
 void cleanup_fn(void) { void done(int *); int v __attribute__((cleanup(done))) = 0; (void)v; }
 ";
     let (_dir, entries) = fixture(&[("main.c", src)]);
@@ -480,6 +482,7 @@ void cleanup_fn(void) { void done(int *); int v __attribute__((cleanup(done))) =
         ("anon_size", "UnaryExprOrTypeTraitExpr"),
         ("off", "OffsetOfExpr"),
         ("cleanup_fn", "VarDecl"),
+        ("literal_anon", "type"),
     ];
     for (name, kind) in expect {
         let row = s
@@ -497,6 +500,18 @@ void cleanup_fn(void) { void done(int *); int v __attribute__((cleanup(done))) =
             );
         }
     }
+    // clang rejects `sizeof(struct loc2)` at file scope, so the probe for it
+    // fails alone and the other probes still get answers.
+    let local = s.rows.iter().find(|r| r.name == "local_size").unwrap();
+    assert!(
+        local
+            .counts
+            .keys()
+            .any(|(k, why)| k == "UnaryExprOrTypeTraitExpr"
+                && why.starts_with("clang could not evaluate it")),
+        "{:?}",
+        local.counts
+    );
     let computed = s.rows.iter().find(|r| r.name == "computed").unwrap();
     assert!(
         computed.counts.keys().any(|(k, _)| k == "IndirectGotoStmt"),

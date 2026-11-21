@@ -7,7 +7,7 @@ use crate::ir::{
     Decl, EnumDef, Expr, ExprKind, Function, RecordDef, Stmt, TraitArg, TranslationUnit,
     Unsupported,
 };
-use crate::types::{QualType, Type, walk};
+use crate::types::{QualType, TagName, Type, walk};
 
 #[derive(Debug, Default)]
 struct Found<'a> {
@@ -217,8 +217,21 @@ pub(crate) fn unsupported_of(f: &Function, tu: &TranslationUnit) -> Vec<Unsuppor
         }
     }
     let (records, enums) = reachable(f, tu);
-    for fld in records.iter().filter_map(|r| r.fields.as_ref()).flatten() {
-        type_unsupported(&fld.ty, &mut out);
+    for r in &records {
+        match &r.fields {
+            Some(fields) => fields
+                .iter()
+                .for_each(|fld| type_unsupported(&fld.ty, &mut out)),
+            // A named record without a definition is an opaque type, which
+            // is exact. An anonymous one was defined somewhere Achates did
+            // not look, such as inside an expression.
+            None if matches!(r.name, TagName::Anon(_)) => out.push(Unsupported {
+                clang_kind: "type".into(),
+                reason: format!("{} {}: definition not found", r.kind.keyword(), r.name),
+                loc: None,
+            }),
+            None => {}
+        }
     }
     for e in enums {
         if let Err(reason) = &e.underlying {
