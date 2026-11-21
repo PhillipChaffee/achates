@@ -1,7 +1,8 @@
 .PHONY: fmt lint test lean pilot-emit pilot-build ci
 
-# Lean is installed by elan or unpacked under ~/.local/lean; either works.
-export PATH := $(HOME)/.local/lean/bin:$(PATH)
+# Lean may be unpacked under ~/.local/lean. It goes last: that directory also
+# holds a clang without system headers, which must not shadow the real one.
+export PATH := $(PATH):$(HOME)/.local/lean/bin
 
 # The compilation database of the mpv build the pilot translates. The step
 # that needs it is skipped, with a message, where the file does not exist.

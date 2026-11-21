@@ -105,8 +105,8 @@ fn run(cli: Cli) -> Result<String> {
         } => {
             let entries = compdb::load(&compile_commands)?;
             let picked = compdb::select(&entries, &select)?;
-            let runtime =
-                runtime.unwrap_or_else(|| PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/lean")));
+            let runtime = runtime
+                .unwrap_or_else(|| PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/lean")));
             emit::run(&picked, &emit::Options { out, name, runtime })
         }
         Command::Dump {

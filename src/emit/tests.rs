@@ -31,7 +31,7 @@ fn sh(cmd: &mut Command, what: &str) -> Result<String, String> {
     let lean_bin = std::env::var("HOME")
         .map(|h| format!("{h}/.local/lean/bin"))
         .unwrap_or_default();
-    let path = format!("{lean_bin}:{}", std::env::var("PATH").unwrap_or_default());
+    let path = format!("{}:{lean_bin}", std::env::var("PATH").unwrap_or_default());
     let out = cmd
         .env("PATH", path)
         .output()

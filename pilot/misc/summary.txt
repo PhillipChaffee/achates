@@ -1,0 +1,312 @@
+../.mpv/misc/bstr.c:30 bstrcmp: emitted
+../.mpv/misc/bstr.c:47 bstrcasecmp: emitted
+../.mpv/misc/bstr.c:64 bstrchr: emitted
+../.mpv/misc/bstr.c:72 bstrrchr: emitted
+../.mpv/misc/bstr.c:87 bstrcspn: emitted
+../.mpv/misc/bstr.c:96 bstrspn: emitted
+../.mpv/misc/bstr.c:105 bstr_find: emitted
+../.mpv/misc/bstr.c:113 bstr_lstrip: emitted
+../.mpv/misc/bstr.c:122 bstr_strip: emitted
+../.mpv/misc/bstr.c:130 bstr_split: emitted
+../.mpv/misc/bstr.c:147 bstr_split_tok: emitted
+../.mpv/misc/bstr.c:158 bstr_splice: emitted
+../.mpv/misc/bstr.c:175 bstrtoll: emitted
+../.mpv/misc/bstr.c:189 bstrtod: emitted
+../.mpv/misc/bstr.c:203 bstr_splitchar: emitted
+../.mpv/misc/bstr.c:213 bstr_strip_linebreaks: emitted
+../.mpv/misc/bstr.c:223 bstr_eatstart: emitted
+../.mpv/misc/bstr.c:231 bstr_eatend: emitted
+../.mpv/misc/bstr.c:239 bstr_lower: emitted
+../.mpv/misc/bstr.c:245 bstr_sscanf: not emitted: variadic function definition: reading `...` arguments is not modelled; variadic argument handling (va_start and friends) is not modelled
+../.mpv/misc/bstr.c:256 bstr_parse_utf8_code_length: emitted
+../.mpv/misc/bstr.c:264 bstr_decode_partial_utf8: emitted
+../.mpv/misc/bstr.c:295 bstr_decode_utf8: emitted
+../.mpv/misc/bstr.c:303 bstr_split_utf8: emitted
+../.mpv/misc/bstr.c:314 bstr_validate_utf8: emitted
+../.mpv/misc/bstr.c:339 bstr_sanitize_utf8_latin1: emitted
+../.mpv/misc/bstr.c:361 resize_append: emitted
+../.mpv/misc/bstr.c:374 bstr_xappend: emitted
+../.mpv/misc/bstr.c:384 bstr_xappend_asprintf: not emitted: variadic function definition: reading `...` arguments is not modelled; variadic argument handling (va_start and friends) is not modelled
+../.mpv/misc/bstr.c:393 bstr_xappend_vasprintf: not emitted: variadic argument handling (va_start and friends) is not modelled
+../.mpv/misc/bstr.c:415 bstr_case_startswith: emitted
+../.mpv/misc/bstr.c:421 bstr_case_endswith: emitted
+../.mpv/misc/bstr.c:427 h_to_i: emitted
+../.mpv/misc/bstr.c:439 bstr_decode_hex: emitted
+../.mpv/misc/bstr.c:464 bstr_find_in_list0: emitted
+../.mpv/misc/bstr.c:473 bstr_in_list0: emitted
+../.mpv/misc/bstr.h:61 bstr0: emitted
+../.mpv/misc/bstr.h:226 bstr_cut: emitted
+../.mpv/misc/bstr.h:250 bstr_endswith: emitted
+../.mpv/misc/bstr.h:257 bstr_endswith0: emitted
+../.mpv/misc/bstr.h:238 bstr_startswith: emitted
+../.mpv/misc/bstr.h:280 bstrcasecmp0: emitted
+../.mpv/misc/bstr.h:262 bstrcmp0: emitted
+../.mpv/misc/bstr.h:39 bstrdup0: emitted
+../.mpv/misc/ctype.h:8 mp_isspace: emitted
+../.mpv/misc/ctype.h:16 mp_tolower: emitted
+../.mpv/misc/ctype.h:10 mp_isupper: emitted
+../.mpv/ta/ta.h:161 ta_oom_p: emitted
+../.mpv/misc/charset_conv.c:41 mp_charset_is_utf8: emitted
+../.mpv/misc/charset_conv.c:47 mp_charset_is_utf16: emitted
+../.mpv/misc/charset_conv.c:57 ms_bom_guess: emitted
+../.mpv/misc/charset_conv.c:101 mp_charset_guess: emitted
+../.mpv/misc/charset_conv.c:150 mp_iconv_to_utf8: emitted
+../.mpv/misc/bstr.h:245 bstr_startswith0: emitted
+../.mpv/misc/codepoint_width.c:617 ucdLookup: emitted
+../.mpv/misc/codepoint_width.c:625 ucdGraphemeJoins: emitted
+../.mpv/misc/codepoint_width.c:631 ucdGraphemeDone: emitted
+../.mpv/misc/codepoint_width.c:635 ucdToCharacterWidth: emitted
+../.mpv/misc/codepoint_width.c:664 is_valid_partial_sequence: emitted
+../.mpv/misc/codepoint_width.c:680 term_disp_width: emitted
+../.mpv/misc/bstr.h:290 bstr_eatstart0: emitted
+../.mpv/misc/dispatch.c:63 queue_dtor: emitted
+../.mpv/misc/dispatch.c:83 mp_dispatch_create: emitted
+../.mpv/misc/dispatch.c:102 mp_dispatch_set_wakeup_fn: emitted
+../.mpv/misc/dispatch.c:118 mp_dispatch_set_onlock_fn: emitted
+../.mpv/misc/dispatch.c:126 mp_dispatch_append: emitted
+../.mpv/misc/dispatch.c:168 mp_dispatch_enqueue: emitted
+../.mpv/misc/dispatch.c:184 mp_dispatch_enqueue_autofree: emitted
+../.mpv/misc/dispatch.c:197 mp_dispatch_enqueue_notify: emitted
+../.mpv/misc/dispatch.c:218 mp_dispatch_cancel_fn: emitted
+../.mpv/misc/dispatch.c:241 mp_dispatch_run: emitted
+../.mpv/misc/dispatch.c:272 mp_dispatch_queue_process: emitted
+../.mpv/misc/dispatch.c:331 mp_dispatch_interrupt: emitted
+../.mpv/misc/dispatch.c:347 mp_dispatch_adjust_timeout: emitted
+../.mpv/misc/dispatch.c:364 mp_dispatch_lock: emitted
+../.mpv/misc/dispatch.c:402 mp_dispatch_unlock: emitted
+../.mpv/osdep/threads-posix.h:165 mp_cond_broadcast: emitted
+../.mpv/osdep/threads-posix.h:159 mp_cond_destroy: emitted
+../.mpv/osdep/threads-posix.h:138 mp_cond_init: emitted
+../.mpv/osdep/threads-posix.h:204 mp_cond_timedwait_until: emitted
+../.mpv/osdep/threads-posix.h:183 mp_cond_timedwait: emitted
+../.mpv/osdep/threads-posix.h:177 mp_cond_wait: emitted
+../.mpv/osdep/threads-posix.h:112 mp_mutex_init: emitted
+../.mpv/misc/hash.c:25 mp_hash_to_bstr: emitted
+../.mpv/misc/io_utils.c:34 mp_mkostemps: emitted
+../.mpv/misc/io_utils.c:61 mp_save_to_file: emitted
+../.mpv/ta/ta.h:174 ta_oom_s: emitted
+../.mpv/misc/json.c:59 eat_c: emitted
+../.mpv/misc/json.c:68 eat_ws: emitted
+../.mpv/misc/json.c:78 json_skip_whitespace: emitted
+../.mpv/misc/json.c:83 read_id: emitted
+../.mpv/misc/json.c:101 read_str: emitted
+../.mpv/misc/json.c:135 read_sub: emitted
+../.mpv/misc/json.c:189 json_parse: emitted
+../.mpv/misc/json.c:258 write_json_str: emitted
+../.mpv/misc/json.c:285 add_indent: emitted
+../.mpv/misc/json.c:294 json_append: emitted
+../.mpv/misc/json.c:341 json_append_str: emitted
+../.mpv/misc/json.c:354 json_write: emitted
+../.mpv/misc/json.c:360 json_write_pretty: emitted
+../.mpv/misc/ctype.h:14 mp_isalnum: emitted
+../.mpv/misc/ctype.h:13 mp_isalpha: emitted
+../.mpv/misc/ctype.h:12 mp_isdigit: emitted
+../.mpv/misc/ctype.h:11 mp_islower: emitted
+../.mpv/misc/language.c:241 lang_compare: emitted
+../.mpv/misc/language.c:247 canonicalize: emitted
+../.mpv/misc/language.c:254 mp_match_lang: not emitted: an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
+../.mpv/misc/language.c:303 mp_guess_lang_from_filename: emitted
+/usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h:20 bsearch: emitted
+../.mpv/misc/natural_sort.c:26 mp_natural_sort_cmp: emitted
+../.mpv/misc/node.c:12 node_init: emitted
+../.mpv/misc/node.c:36 node_array_add: not emitted: an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
+../.mpv/misc/node.c:48 node_map_add: emitted
+../.mpv/misc/node.c:54 node_map_badd: not emitted: an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
+../.mpv/misc/node.c:70 node_map_add_string: emitted
+../.mpv/misc/node.c:79 node_map_add_bstr: emitted
+../.mpv/misc/node.c:88 node_map_add_int64: emitted
+../.mpv/misc/node.c:93 node_map_add_double: emitted
+../.mpv/misc/node.c:98 node_map_add_flag: emitted
+../.mpv/misc/node.c:103 node_map_get: emitted
+../.mpv/misc/node.c:108 node_map_bget: emitted
+../.mpv/misc/node.c:123 equal_mpv_value: emitted
+../.mpv/misc/node.c:166 equal_mpv_node: emitted
+../.mpv/misc/bstr.h:275 bstr_equals0: emitted
+../.mpv/misc/bstr.h:267 bstr_equals: emitted
+../.mpv/misc/bstr.h:45 bstrto0: emitted
+../.mpv/misc/path_utils.c:42 mp_basename_bstr: emitted
+../.mpv/misc/path_utils.c:62 mp_basename: emitted
+../.mpv/misc/path_utils.c:67 mp_dirname: emitted
+../.mpv/misc/path_utils.c:85 mp_path_strip_trailing_separator: emitted
+../.mpv/misc/path_utils.c:96 split_ext: emitted
+../.mpv/misc/path_utils.c:113 mp_strip_ext: emitted
+../.mpv/misc/path_utils.c:120 mp_get_ext: emitted
+../.mpv/misc/path_utils.c:125 mp_path_is_absolute: emitted
+../.mpv/misc/path_utils.c:142 mp_path_join_bstr: emitted
+../.mpv/misc/path_utils.c:163 mp_path_join: emitted
+../.mpv/misc/path_utils.c:168 mp_getcwd: emitted
+../.mpv/misc/path_utils.c:190 mp_normalize_path: emitted
+../.mpv/misc/path_utils.c:276 mp_path_exists: emitted
+../.mpv/misc/path_utils.c:282 mp_path_isdir: emitted
+../.mpv/misc/path_utils.c:289 mp_is_url: emitted
+../.mpv/misc/path_utils.c:309 mp_split_proto: emitted
+../.mpv/misc/path_utils.c:318 mp_mkdirp: emitted
+../.mpv/misc/bstr.h:285 bstr_find0: emitted
+../.mpv/misc/random.c:31 rotl_u64: emitted
+../.mpv/misc/random.c:36 splitmix64: emitted
+../.mpv/misc/random.c:44 mp_rand_seed: emitted
+../.mpv/misc/random.c:67 mp_rand_next: emitted
+../.mpv/misc/random.c:85 mp_rand_next_double: emitted
+../.mpv/misc/random.c:92 mp_rand_in_range32: emitted
+../.mpv/misc/rendezvous.c:32 mp_rendezvous: emitted
+../.mpv/misc/thread_pool.c:51 worker_thread: emitted
+../.mpv/misc/thread_pool.c:115 thread_pool_dtor: emitted
+../.mpv/misc/thread_pool.c:142 add_thread: emitted
+../.mpv/misc/thread_pool.c:153 mp_thread_pool_create: emitted
+../.mpv/misc/thread_pool.c:181 thread_pool_add: emitted
+../.mpv/misc/thread_pool.c:213 mp_thread_pool_queue: emitted
+../.mpv/misc/thread_pool.c:219 mp_thread_pool_run: emitted
+../.mpv/osdep/threads-posix.h:171 mp_cond_signal: emitted
+../.mpv/osdep/threads-posix.h:221 mp_thread_set_name: emitted
+../.mpv/misc/thread_tools.c:35 mp_waiter_wait: emitted
+../.mpv/misc/thread_tools.c:60 mp_waiter_wakeup: emitted
+../.mpv/misc/thread_tools.c:70 mp_waiter_poll: emitted
+../.mpv/misc/thread_tools.c:101 cancel_destroy: emitted
+../.mpv/misc/thread_tools.c:123 mp_cancel_new: emitted
+../.mpv/misc/thread_tools.c:136 trigger_locked: emitted
+../.mpv/misc/thread_tools.c:157 mp_cancel_trigger: emitted
+../.mpv/misc/thread_tools.c:164 mp_cancel_reset: emitted
+../.mpv/misc/thread_tools.c:187 mp_cancel_test: emitted
+../.mpv/misc/thread_tools.c:192 mp_cancel_wait: emitted
+../.mpv/misc/thread_tools.c:207 retrigger_locked: emitted
+../.mpv/misc/thread_tools.c:213 mp_cancel_set_cb: emitted
+../.mpv/misc/thread_tools.c:222 mp_cancel_set_parent: emitted
+../.mpv/misc/thread_tools.c:243 mp_cancel_get_fd: emitted
+
+Selected functions, emitted of total, per file:
+    33 / 36   ../.mpv/misc/bstr.c
+     5 / 5    ../.mpv/misc/charset_conv.c
+     6 / 6    ../.mpv/misc/codepoint_width.c
+    15 / 15   ../.mpv/misc/dispatch.c
+     1 / 1    ../.mpv/misc/hash.c
+     2 / 2    ../.mpv/misc/io_utils.c
+    13 / 13   ../.mpv/misc/json.c
+     3 / 4    ../.mpv/misc/language.c
+     1 / 1    ../.mpv/misc/natural_sort.c
+    11 / 13   ../.mpv/misc/node.c
+    17 / 17   ../.mpv/misc/path_utils.c
+     6 / 6    ../.mpv/misc/random.c
+     1 / 1    ../.mpv/misc/rendezvous.c
+     7 / 7    ../.mpv/misc/thread_pool.c
+    14 / 14   ../.mpv/misc/thread_tools.c
+   135 / 141  total
+
+Header functions, emitted of total, per file:
+    14 / 14   ../.mpv/misc/bstr.h
+     7 / 7    ../.mpv/misc/ctype.h
+     9 / 9    ../.mpv/osdep/threads-posix.h
+     2 / 2    ../.mpv/ta/ta.h
+     1 / 1    /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h
+    33 / 33   total
+
+Emitted without taking any selection function as a parameter: 146
+
+Reasons a function was not emitted, by number of functions:
+     3  an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
+     3  variadic argument handling (va_start and friends) is not modelled
+     2  variadic function definition: reading `...` arguments is not modelled
+
+Assumptions, by number of emitted functions that rest on them:
+    32  talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported
+    31  cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign
+    26  alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported
+    11  sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs
+     3  external-order: where C leaves the order of two operands open and one calls a function taken as a parameter while the other reads memory, that function does not write what the other reads; operands are evaluated left to right
+     1  signed-zeros: compiled with -fno-signed-zeros, so the compiled C may differ from this definition in the sign of a zero
+
+Modelled functions, by number of emitted functions that depend on them:
+    61  __assert_fail
+    44  strlen
+    30  abort
+    27  memcmp
+    26  ta_dbg_set_loc
+    19  ta_get_size
+    19  ta_xrealloc_size
+    14  strchr
+    13  memmove
+    13  ta_free
+    10  ta_calc_array_size
+     8  ta_alloc_size
+     7  ta_calc_prealloc_elems
+     4  memcpy
+     4  strcmp
+     4  strncmp
+     4  ta_zalloc_size
+     3  memchr
+     3  ta_set_destructor
+     2  ta_steal_
+     1  free
+     1  memset
+     1  ta_new_context
+
+Functions taken as parameters, by number of emitted functions that depend on them:
+    30  pthread_mutex_lock
+    30  pthread_mutex_unlock
+    20  pthread_cond_broadcast
+    19  pthread_cond_destroy
+    18  pthread_mutex_destroy
+    10  pthread_cond_wait
+     9  mp_log2
+     9  pthread_join
+     9  strncasecmp
+     9  ta_xstrndup
+     8  Misc.Thread_tools_c.cancel_destroy (in the selection: not emitted, or in a call cycle across files)
+     8  close
+     8  memrchr
+     7  Misc.Thread_pool_c.thread_pool_dtor (in the selection: not emitted, or in a call cycle across files)
+     7  __errno_location
+     7  write
+     6  bstr_xappend_asprintf (in the selection: not emitted, or in a call cycle across files)
+     6  node_map_badd (in the selection: not emitted, or in a call cycle across files)
+     6  ta_xstrdup
+     5  clock_gettime
+     5  pthread_cond_signal
+     5  pthread_cond_timedwait
+     5  pthread_create
+     5  pthread_self
+     5  stat
+     4  mp_time_ns
+     4  pthread_cond_init
+     4  pthread_condattr_destroy
+     4  pthread_condattr_init
+     4  pthread_condattr_setclock
+     4  pthread_mutex_init
+     4  pthread_mutexattr_destroy
+     4  pthread_mutexattr_init
+     4  pthread_mutexattr_settype
+     4  ta_asprintf
+     3  av_random_bytes
+     3  mp_append_escaped_string
+     3  mp_raw_time_ns
+     3  strtod
+     3  strtoll
+     2  Misc.Language_c.lang_compare (in the selection: not emitted, or in a call cycle across files)
+     2  getcwd
+     2  getenv
+     2  mp_append_utf8_bstr
+     2  mp_time_ns_add
+     2  mp_tprintf_buf
+     2  open
+     2  pthread_setname_np
+     2  strcasecmp
+     2  strncpy
+     1  av_hash_alloc
+     1  av_hash_final
+     1  av_hash_freep
+     1  av_hash_get_size
+     1  av_hash_init
+     1  av_hash_update
+     1  fclose
+     1  fdopen
+     1  fwrite
+     1  mkdir
+     1  mp_make_wakeup_pipe
+     1  mp_msg
+     1  mp_round_next_power_of_2
+     1  pthread_detach
+     1  read
+     1  realpath
+     1  rename
+     1  ta_talloc_strdup_append_buffer
+     1  ta_talloc_strndup_append_buffer
+     1  unlink

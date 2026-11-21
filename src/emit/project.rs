@@ -261,6 +261,7 @@ struct Status<'a> {
     line: u64,
     origin: Origin,
     lean: Option<String>,
+    #[serde(rename = "status")]
     outcome: &'static str,
     reasons: &'a [String],
     assumptions: &'a BTreeSet<String>,
