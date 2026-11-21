@@ -11,7 +11,11 @@ Usage:
 achates survey --compile-commands PATH --select misc/
 achates dump --compile-commands PATH --select misc/bstr.c --function bstrcmp
 achates dump ... --function bstrcmp --json   # for programs
+achates survey ... --no-reachable-inlines      # main-file functions only
 ```
+
+By default, `survey` and `dump` add every header function with a body that
+the selected functions reach (see "Header functions and external callees").
 
 ## Result on `misc/`
 
@@ -20,6 +24,12 @@ achates dump ... --function bstrcmp --json   # for programs
 **141 of 141 functions fully represented, in 15 files.** No `Unsupported`
 node occurs in any of them, in their types, or in the fields of any record
 they reach.
+
+**Stricter figure: 141 of 141** are fully represented together with every
+header function they reach. **33 header functions** are reachable: 32 from
+project headers and 1 from a system header (glibc's `bsearch`), all 33 fully
+represented. The selection names **90 external functions** that it does not
+define.
 
 | File | Functions | Fully represented |
 | --- | ---: | ---: |
@@ -69,8 +79,80 @@ on preprocessed source. The difference:
   `misc/` call 29 distinct ones, 93 call sites in all: `bstr0` (15
   functions), `ta_oom_p` (12), `bstr_cut` (8), `mp_cond_broadcast` (8),
   `mp_cond_wait` (6), and 24 more from `bstr.h`, `ta.h`, `threads-posix.h`,
-  `ctype.h` and glibc's `stdlib-bsearch.h`. By the rule of this task they are
-  not translated; the IR has only the call. See "Known gaps".
+  `ctype.h` and glibc's `stdlib-bsearch.h`. They are not among the 141, but
+  they and the 4 they reach in turn are now in the IR as header functions;
+  see the next section.
+
+### Header functions and external callees
+
+With header functions included (the default), each translation unit also
+holds every function with a body, defined in a header, that a selected
+function names, directly or through other header functions. Naming covers
+calls and taken addresses, because either way a back end needs the body.
+
+33 header functions are reachable, 33 fully represented:
+
+| Origin | Reachable | Fully represented | Places named |
+| --- | ---: | ---: | ---: |
+| project header | 32 | 32 | 139 |
+| system header | 1 | 1 | 1 |
+
+By header: `misc/bstr.h` 14 (`bstr0` is named at 29 places in 22 selected
+functions, plus 7 places in other header functions; `bstr_cut` at 10),
+`misc/ctype.h` 7, `osdep/threads-posix.h` 9 (the `mp_cond_*` and
+`mp_mutex_init` wrappers, `mp_thread_set_name`), `ta/ta.h` 2 (`ta_oom_p`,
+`ta_oom_s`), and glibc's `bits/stdlib-bsearch.h` 1 (`bsearch`). Four are
+reached only through other header functions: `bstr_equals`, `mp_islower`,
+`mp_isupper`, `mp_cond_timedwait`. The survey prints each with its origin,
+line count, the places selected functions and header functions name it,
+and how many selected functions reach it.
+
+External functions are those named by a selected or reachable header
+function and defined nowhere in the selection: not in a selected file and
+not as a reachable header function. There are **90**. The top 30 by the
+number of selected functions that name them directly:
+
+| Selected callers | Header callers | Places | Function |
+| ---: | ---: | ---: | --- |
+| 23 | 7 | 49 | `__assert_fail` |
+| 22 | 0 | 26 | `pthread_mutex_lock` |
+| 22 | 0 | 28 | `pthread_mutex_unlock` |
+| 16 | 0 | 21 | `ta_dbg_set_loc` |
+| 11 | 0 | 11 | `ta_free` |
+| 9 | 0 | 12 | `ta_get_size` |
+| 8 | 0 | 11 | `ta_calc_array_size` |
+| 8 | 0 | 10 | `ta_xrealloc_size` |
+| 7 | 0 | 7 | `strchr` |
+| 7 | 0 | 7 | `ta_alloc_size` |
+| 6 | 0 | 8 | `ta_calc_prealloc_elems` |
+| 4 | 1 | 8 | `pthread_self` |
+| 4 | 1 | 8 | `ta_xstrdup` |
+| 4 | 0 | 9 | `__errno_location` |
+| 4 | 0 | 4 | `pthread_mutex_destroy` |
+| 3 | 2 | 5 | `abort` |
+| 3 | 1 | 4 | `mp_time_ns` |
+| 3 | 1 | 4 | `strlen` |
+| 3 | 0 | 3 | `memcpy` |
+| 3 | 0 | 3 | `memmove` |
+| 3 | 0 | 4 | `stat` |
+| 3 | 0 | 4 | `strcmp` |
+| 3 | 0 | 3 | `ta_set_destructor` |
+| 3 | 0 | 4 | `ta_zalloc_size` |
+| 2 | 2 | 4 | `memcmp` |
+| 2 | 0 | 3 | `close` |
+| 2 | 0 | 2 | `memchr` |
+| 2 | 0 | 2 | `mp_time_ns_add` |
+| 2 | 0 | 3 | `strcasecmp` |
+| 2 | 0 | 4 | `strncmp` |
+
+The other 60: `strtod`, `strtoll`, `ta_asprintf`, `ta_new_context`, `ta_steal_`, `ta_xstrndup`, `av_hash_alloc`, `av_hash_final`, `av_hash_freep`, `av_hash_get_size`, `av_hash_init`, `av_hash_update`, `av_random_bytes`, `fclose`, `fdopen`, `free`, `fwrite`, `getcwd`, `getenv`, `memrchr`, `memset`, `mkdir`, `mp_append_escaped_string`, `mp_append_utf8_bstr`, `mp_log2`, `mp_make_wakeup_pipe`, `mp_msg`, `mp_raw_time_ns`, `mp_round_next_power_of_2`, `mp_tprintf_buf`, `open`, `pthread_create`, `pthread_detach`, `pthread_join`, `read`, `realpath`, `rename`, `strncasecmp`, `ta_talloc_strdup_append_buffer`, `ta_talloc_strndup_append_buffer`, `unlink`, `vsnprintf`, `vsscanf`, `write`, `pthread_cond_wait`, `clock_gettime`, `pthread_cond_broadcast`, `pthread_cond_destroy`, `pthread_cond_init`, `pthread_cond_signal`, `pthread_cond_timedwait`, `pthread_condattr_destroy`, `pthread_condattr_init`, `pthread_condattr_setclock`, `pthread_mutex_init`, `pthread_mutexattr_destroy`, `pthread_mutexattr_init`, `pthread_mutexattr_settype`, `pthread_setname_np`, `strncpy`.
+
+They are libc and POSIX (`strchr`, `memcpy`, `pthread_*`, `stat`, `open`),
+glibc internals that macros expand to (`__assert_fail` from `assert`,
+`__errno_location` from `errno`), mpv's talloc (`ta_*`), FFmpeg (`av_hash_*`,
+`av_random_bytes`), and functions from other mpv directories (`mp_msg`,
+`mp_time_ns`, `mp_append_escaped_string` in `common/`). A back end must take
+each as a parameter or a model.
 
 ### Calibration
 
@@ -146,13 +228,15 @@ integer type of every enum it reaches is known.
 
 ## clang command line
 
-For each entry, Achates runs clang 18 three times in the entry's directory,
-with the entry's flags:
+For each entry, Achates runs clang 18 three or four times in the entry's
+directory, with the entry's flags:
 
 1. `-dM -E -x c /dev/null`, for the target widths.
 2. `-fsyntax-only -Xclang -ast-dump=json FILE`, for the syntax tree.
 3. The same on a generated probe file, for the constants (see below), with
    `-Xclang -ast-dump-filter=__achates_probe_` so its output is small.
+4. When header functions are reachable, `-E FILE`, for which headers clang
+   treats as system headers.
 
 A failing run is an error that names the file and shows clang's last 20
 lines of diagnostics. The survey stops there; it never continues with
@@ -279,8 +363,34 @@ what the build sees.
 21. **Line count** is the span of the definition's range, first line to last.
 22. **Exit code.** 0 whenever the survey completes, whatever it finds; 1 on
     any error.
-23. **Repository config.** `typos.toml` accepts `Parm` (clang's
-    `ParmVarDecl`). `deny.toml` ignores the license of unpublished crates,
+23. **Header functions are on by default** for `survey` and `dump`, since
+    without them "fully represented" overstates what a back end can
+    translate; `--no-reachable-inlines` turns them off. Reachability follows
+    every reference to a function, called or address taken, transitively
+    through header functions, and stops at functions without a body in the
+    unit.
+24. **Origin** is `main file`, `project header` or `system header`. A header
+    is a system header when clang's preprocessor marks it so (flag `3` on its
+    `# LINE "FILE"` line markers): headers found through the default system
+    directories or `-isystem`. A header found through `-I` is a project
+    header, so a library header included with `-I` (FreeType, glib) would be
+    counted as project; none is reached from `misc/`.
+25. **Identity** of a header function is its defining file's absolute,
+    lexically normalized path plus its name. The survey keeps one row per
+    identity. Its places named and its references to externals are counted
+    once, from the first unit that defines it. Two units whose IR for the
+    same identity differs (signature or body, compared as dump text) stop the
+    survey with an error naming the function and both units. `dump
+    --function` prints a header function once.
+26. **Two figures.** "Fully represented" for a selected function still
+    means its own body. The stricter figure also requires every header
+    function it reaches to be fully represented.
+27. **External functions** are counted by name, with the selected functions
+    and the header functions that name each, and the places. A function
+    defined in another selected file is not external.
+28. **Repository config.** `typos.toml` accepts `Parm` (clang's
+    `ParmVarDecl`) and `implicits` (a Lean term in another agent's
+    `docs/research/aeneas.md`, which otherwise fails `make ci`). `deny.toml` ignores the license of unpublished crates,
     because no license has been chosen for Achates.
 
 Constructs Achates deliberately reports as `Unsupported`, with the reason it
@@ -306,11 +416,11 @@ gives (none occur in `misc/`; a test checks each):
 
 ## Known gaps
 
-- **Header inline functions are not translated.** 29 distinct `static
-  inline` functions from headers are called from `misc/` (see above). A
-  proof about `bstr_split` needs `bstr0` and `bstr_cut`. A follow-up could
-  add the bodies of header functions reachable from the selected ones, still
-  marked as coming from a header.
+- **External functions** have no body in the IR by definition. Those from
+  other mpv directories (`common/`, `ta/`) could be brought in by widening
+  the selection; the survey would then count them as selected.
+- **Origin follows clang's system-header rule**, which depends on how the
+  header was found (`-I` versus system directories), not on who wrote it.
 - **`case` values** are given as expressions, not numbers.
 - **clang, not gcc.** The tree is clang's reading of the source. clang
   defines `__clang__` and its own builtins, so a header can take a different
@@ -332,5 +442,5 @@ gives (none occur in `misc/`; a test checks each):
   `misc/` does not need it.
 - **Type spellings** are parsed from text. A spelling clang prints in an
   unforeseen form becomes an `Unsupported` type, visibly, not a wrong type.
-- **Three clang runs per file.** The survey of `misc/` takes about 15 s with a
-  debug build.
+- **Three or four clang runs per file.** The survey of `misc/` takes about
+  11 s with a debug build.
