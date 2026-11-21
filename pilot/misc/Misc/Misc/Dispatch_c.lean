@@ -57,7 +57,7 @@ def queue_dtor [Ext.pthread_cond_destroy] [Ext.pthread_mutex_destroy] (fuel : Na
   pure ()
 
 /-- C function `mp_dispatch_create`, ../.mpv/misc/dispatch.c:83.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def mp_dispatch_create [Ext.pthread_cond_init] [Ext.pthread_condattr_destroy] [Ext.pthread_condattr_init] [Ext.pthread_condattr_setclock] [Ext.pthread_mutex_init] [Ext.pthread_mutexattr_destroy] [Ext.pthread_mutexattr_init] [Ext.pthread_mutexattr_settype] (fuel : Nat) (ta_parent : Ptr) : M Ptr := do
@@ -213,7 +213,7 @@ def mp_dispatch_append [Ext.Misc_Thread_pool_c_thread_pool_dtor] [Ext.Misc_Threa
   pure ()
 
 /-- C function `mp_dispatch_enqueue`, ../.mpv/misc/dispatch.c:168.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def mp_dispatch_enqueue [Ext.Misc_Thread_pool_c_thread_pool_dtor] [Ext.Misc_Thread_tools_c_cancel_destroy] [Ext.pthread_cond_broadcast] [Ext.pthread_cond_destroy] [Ext.pthread_mutex_destroy] [Ext.pthread_mutex_lock] [Ext.pthread_mutex_unlock] (fuel : Nat) (queue : Ptr) (fn : Ptr) (fn_data : Ptr) : M Unit := do
@@ -247,7 +247,7 @@ def mp_dispatch_enqueue [Ext.Misc_Thread_pool_c_thread_pool_dtor] [Ext.Misc_Thre
   pure result
 
 /-- C function `mp_dispatch_enqueue_autofree`, ../.mpv/misc/dispatch.c:184.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def mp_dispatch_enqueue_autofree [Ext.Misc_Thread_pool_c_thread_pool_dtor] [Ext.Misc_Thread_tools_c_cancel_destroy] [Ext.pthread_cond_broadcast] [Ext.pthread_cond_destroy] [Ext.pthread_mutex_destroy] [Ext.pthread_mutex_lock] [Ext.pthread_mutex_unlock] (fuel : Nat) (queue : Ptr) (fn : Ptr) (fn_data : Ptr) : M Unit := do
@@ -282,7 +282,7 @@ def mp_dispatch_enqueue_autofree [Ext.Misc_Thread_pool_c_thread_pool_dtor] [Ext.
   pure result
 
 /-- C function `mp_dispatch_enqueue_notify`, ../.mpv/misc/dispatch.c:197.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def mp_dispatch_enqueue_notify [Ext.Misc_Thread_pool_c_thread_pool_dtor] [Ext.Misc_Thread_tools_c_cancel_destroy] [Ext.pthread_cond_broadcast] [Ext.pthread_cond_destroy] [Ext.pthread_mutex_destroy] [Ext.pthread_mutex_lock] [Ext.pthread_mutex_unlock] (fuel : Nat) (queue : Ptr) (fn : Ptr) (fn_data : Ptr) : M Unit := do

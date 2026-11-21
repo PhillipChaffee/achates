@@ -232,7 +232,7 @@ def worker_thread [Ext.Misc_Thread_tools_c_cancel_destroy] [Ext.clock_gettime] [
   pure result
 
 /-- C function `add_thread`, ../.mpv/misc/thread_pool.c:142.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def add_thread [Ext.pthread_create] (fuel : Nat) (pool : Ptr) : M Bool := do
@@ -285,7 +285,7 @@ def add_thread [Ext.pthread_create] (fuel : Nat) (pool : Ptr) : M Bool := do
   pure result
 
 /-- C function `mp_thread_pool_create`, ../.mpv/misc/thread_pool.c:153.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def mp_thread_pool_create [Ext.pthread_cond_init] [Ext.pthread_condattr_destroy] [Ext.pthread_condattr_init] [Ext.pthread_condattr_setclock] [Ext.pthread_create] [Ext.pthread_mutex_init] [Ext.pthread_mutex_lock] [Ext.pthread_mutex_unlock] [Ext.pthread_mutexattr_destroy] [Ext.pthread_mutexattr_init] [Ext.pthread_mutexattr_settype] (fuel : Nat) (ta_parent : Ptr) (init_threads : I32) (min_threads : I32) (max_threads : I32) : M Ptr := do
@@ -365,7 +365,7 @@ def mp_thread_pool_create [Ext.pthread_cond_init] [Ext.pthread_condattr_destroy]
   pure result
 
 /-- C function `thread_pool_add`, ../.mpv/misc/thread_pool.c:181.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def thread_pool_add [Ext.pthread_cond_signal] [Ext.pthread_create] [Ext.pthread_mutex_lock] [Ext.pthread_mutex_unlock] (fuel : Nat) (pool : Ptr) (fn : Ptr) (fn_ctx : Ptr) (allow_queue : Bool) : M Bool := do
@@ -477,7 +477,7 @@ def thread_pool_add [Ext.pthread_cond_signal] [Ext.pthread_create] [Ext.pthread_
   pure result
 
 /-- C function `mp_thread_pool_queue`, ../.mpv/misc/thread_pool.c:213.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def mp_thread_pool_queue [Ext.pthread_cond_signal] [Ext.pthread_create] [Ext.pthread_mutex_lock] [Ext.pthread_mutex_unlock] (fuel : Nat) (pool : Ptr) (fn : Ptr) (fn_ctx : Ptr) : M Bool := do
@@ -488,7 +488,7 @@ def mp_thread_pool_queue [Ext.pthread_cond_signal] [Ext.pthread_create] [Ext.pth
   return t1
 
 /-- C function `mp_thread_pool_run`, ../.mpv/misc/thread_pool.c:219.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def mp_thread_pool_run [Ext.pthread_cond_signal] [Ext.pthread_create] [Ext.pthread_mutex_lock] [Ext.pthread_mutex_unlock] (fuel : Nat) (pool : Ptr) (fn : Ptr) (fn_ctx : Ptr) : M Bool := do

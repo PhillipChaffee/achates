@@ -269,8 +269,9 @@ only when the C declaration maps to the model's Lean type:
 
 What the talloc model omits: destructors are recorded but never run, and
 freeing an allocation that has one (directly or through a parent) fails as
-`unsupported`; allocation never fails (2^47 bytes or more fails as
-`unsupported`); the leak report and the canaries do not exist;
+`unsupported`; allocation never fails (2^26 bytes or more fails as
+`unsupported`; this was 2^47 until `achates check` ran out of memory on a
+request the model tried to hold, see `docs/check-report.md`); the leak report and the canaries do not exist;
 `ta_realloc_size` always moves the block. Parent ownership is modelled.
 
 A function of the selection that is not emitted is also taken as a

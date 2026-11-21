@@ -8,8 +8,8 @@ Not modelled, and reported when reached:
 - destructors: `ta_set_destructor` records the function, and freeing an
   allocation that has one fails as unsupported, because the model cannot
   call back into emitted code;
-- running out of memory: every allocation below 2^47 bytes succeeds, larger
-  ones fail as unsupported.
+- running out of memory: every allocation below `Mem.allocLimit` (2^26
+  bytes) succeeds, larger ones fail as unsupported.
 The leak report and the debugging canaries have no counterpart.
 -/
 namespace Achates.Talloc
@@ -97,7 +97,7 @@ def ta_free_children (p : Ptr) : M Unit := do
 old one becomes dangling, as C says it may. Children, parent and destructor
 follow the allocation. -/
 def ta_realloc_size (parent p : Ptr) (size : U64) : M Ptr := do
-  if size.toNat ≥ 2 ^ 47 then unsupported s!"allocation of {size.toNat} bytes"
+  if size.toNat ≥ Mem.allocLimit then unsupported s!"allocation of {size.toNat} bytes"
   if size.toNat = 0 then
     ta_free p
     return .null

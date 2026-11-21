@@ -443,7 +443,7 @@ def bstr_case_endswith [Ext.strncasecmp] (fuel : Nat) (s : Agg) (suffix : Agg) :
   pure result
 
 /-- C function `bstr_decode_hex`, ../.mpv/misc/bstr.c:439.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def bstr_decode_hex (fuel : Nat) (talloc_ctx : Ptr) (hex : Agg) (out : Ptr) : M Bool := do

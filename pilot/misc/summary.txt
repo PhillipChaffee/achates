@@ -209,7 +209,7 @@ Reasons a function was not emitted, by number of functions:
 Assumptions, by number of emitted functions that rest on them:
     32  talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported
     31  cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign
-    26  alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported
+    26  alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported
     11  sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs
      3  external-order: where C leaves the order of two operands open and one calls a function taken as a parameter while the other reads memory, that function does not write what the other reads; operands are evaluated left to right
      1  signed-zeros: compiled with -fno-signed-zeros, so the compiled C may differ from this definition in the sign of a zero

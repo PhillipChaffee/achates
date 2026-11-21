@@ -327,7 +327,7 @@ termination_by structural fuel
 end
 
 /-- C function `mp_cancel_new`, ../.mpv/misc/thread_tools.c:123.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/

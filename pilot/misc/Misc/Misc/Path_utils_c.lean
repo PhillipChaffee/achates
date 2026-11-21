@@ -285,7 +285,7 @@ def mp_path_join [Ext.ta_asprintf] [Ext.ta_xstrndup] (fuel : Nat) (talloc_ctx : 
   return t3
 
 /-- C function `mp_getcwd`, ../.mpv/misc/path_utils.c:168.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def mp_getcwd [Ext.«__errno_location»] [Ext.getcwd] [Ext.getenv] [Ext.stat] [Ext.ta_xstrdup] (fuel : Nat) (talloc_ctx : Ptr) : M Ptr := do
@@ -389,7 +389,7 @@ def mp_is_url (fuel : Nat) (path : Agg) : M Bool := do
   pure result
 
 /-- C function `mp_normalize_path`, ../.mpv/misc/path_utils.c:190.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
