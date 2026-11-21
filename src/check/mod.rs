@@ -678,7 +678,12 @@ impl Ctx<'_> {
         let a = std::fs::read_to_string(&base).unwrap_or_default();
         let b = std::fs::read_to_string(&mine)
             .unwrap_or_default()
-            .replace(&copy.display().to_string(), &original.display().to_string());
+            .replace(&copy.display().to_string(), &original.display().to_string())
+            // talloc's macros record the harness's own path.
+            .replace(
+                &mdir.join("harness.c").display().to_string(),
+                &dir.join("harness.c").display().to_string(),
+            );
         Ok((!a.is_empty() && a == b).then(|| {
             "the preprocessed text is unchanged: the change is in a branch of `#if` this build does not compile".to_owned()
         }))

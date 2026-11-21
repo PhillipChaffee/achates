@@ -92,17 +92,22 @@ def newInput (kind : BlockKind) (bytes : Array MByte) (align : Nat) (buffer : Bo
   pure p
 
 /-- A byte buffer: `N` is the null pointer, `H<hex>` an object holding those
-bytes, with a terminating zero added when `nul`. A talloc buffer is one the
+bytes, with a terminating zero added when `nul`; `H<hex>:<k>` adds `k`
+indeterminate bytes of room to a talloc buffer. A talloc buffer is one the
 C side allocates with talloc, so the function may resize or free it; its
 final contents are reported through whatever still points to it. -/
 def buffer (talloc nul : Bool) : H (Ptr × Nat) := do
   let t ← tok
   if t == "N" then return (.null, 0)
   match t.toList with
-  | 'H' :: hex =>
+  | 'H' :: body =>
+    let (hex, room) := match List.splitOn ':' body with
+      | [h, k] => (h, (String.ofList k).toNat?.getD 0)
+      | _ => (body, 0)
     let some bs := hexBytes hex [] | bad s!"`{t}` is not a hexadecimal buffer"
     let bs := if nul then bs ++ [0] else bs
-    let p ← newInput (if talloc then .talloc else .malloc) (bs.toArray.map .byte)
+    let room := if talloc then Array.replicate room MByte.undef else #[]
+    let p ← newInput (if talloc then .talloc else .malloc) (bs.toArray.map .byte ++ room)
       (if talloc then 16 else 1) true
     pure (p, if nul then bs.length - 1 else bs.length)
   | _ => bad s!"`{t}` is not a buffer"

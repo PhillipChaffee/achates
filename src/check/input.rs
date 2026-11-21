@@ -3,7 +3,8 @@
 //!
 //! Token grammar, shared with the Lean driver and the C harness: an integer
 //! is decimal; a float is the hexadecimal bit pattern; a buffer is `N`
-//! (null) or `H` followed by hexadecimal bytes; a pointer to an object is
+//! (null) or `H` followed by hexadecimal bytes, and for a `bstr` optionally
+//! `:<k>`, room for `k` more bytes when it is a talloc buffer; a pointer to an object is
 //! `N` or `P` followed by the object's tokens; a talloc context is `N` or
 //! `C`; a struct is its members in order.
 
@@ -341,7 +342,15 @@ impl<'d> Gen<'d> {
                     out.push("N".into());
                 } else {
                     let b = self.bytes(true);
-                    out.push(hex(&b));
+                    // Room past the contents matters only to a talloc
+                    // buffer (a `bstr` the function may append to), where
+                    // mpv's buffers usually have it.
+                    let room = if self.rng.chance(1, 2) {
+                        format!(":{}", self.rng.pick(&[1, 2, 7, 16, 40]).unwrap_or(1))
+                    } else {
+                        String::new()
+                    };
+                    out.push(format!("{}{room}", hex(&b)));
                 }
             }
             Shape::CStr => {
@@ -420,6 +429,7 @@ mod tests {
         let bstrs: Vec<&str> = cases.iter().map(|c| c[0].as_str()).collect();
         let cstrs: Vec<&str> = cases.iter().map(|c| c[1].as_str()).collect();
         let bytes = |t: &str| -> Vec<u8> {
+            let t = t.split(':').next().unwrap_or("");
             (1..t.len())
                 .step_by(2)
                 .map(|i| u8::from_str_radix(&t[i..i + 2], 16).unwrap())

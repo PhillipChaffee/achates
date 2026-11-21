@@ -293,17 +293,22 @@ static int ck_hex(char c) { return c <= '9' ? c - '0' : c - 'a' + 10; }
 #endif
 
 /* `N` is the null pointer; `H<hex>` is a buffer of exactly those bytes,
-   plus a terminator when `nul`. */
+   plus a terminator when `nul`, and `H<hex>:<k>` the same with k bytes of
+   uninitialised room after them when it is a talloc buffer. */
 static void *ck_buf(int talloc, int nul, size_t *len)
 {
     const char *t = ck_tok();
     *len = 0;
     if (t[0] == 'N')
         return NULL;
-    size_t n = strlen(t + 1) / 2;
+    const char *colon = strchr(t, ':');
+    size_t n = (colon ? (size_t)(colon - t - 1) : strlen(t + 1)) / 2;
     size_t size = n + (nul ? 1 : 0);
     unsigned char *p;
 #ifdef CK_TALLOC
+    /* `:<k>` gives a talloc buffer k bytes of room past its contents. */
+    if (talloc && colon)
+        size += strtoull(colon + 1, NULL, 10);
     if (talloc)
         p = ta_alloc_size(NULL, size);
     else
