@@ -134,7 +134,11 @@ pub(crate) fn run(
 
 /// Evaluates each integer constant expression with clang. An expression
 /// clang rejects gets its error message, and the rest are asked again.
-fn ask(entry: &Entry, args: &ClangArgs, questions: &[String]) -> Result<Vec<Result<u64, String>>> {
+pub(crate) fn ask(
+    entry: &Entry,
+    args: &ClangArgs,
+    questions: &[String],
+) -> Result<Vec<Result<u64, String>>> {
     let mut answers: Vec<Option<Result<u64, String>>> = vec![None; questions.len()];
     if questions.is_empty() {
         return Ok(vec![]);

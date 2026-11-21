@@ -184,10 +184,14 @@ def undefine (p : Ptr) (n : Nat) : M Unit := fill p n .undef
 def storeList {α : Type} [CVal α] (p : Ptr) (vs : List α) : M Unit :=
   storeBytes p (vs.foldl (init := #[]) fun acc v => acc ++ CVal.encode v) (CVal.align α)
 
+/-- Stores plain bytes, as a string literal initialises a character array. -/
+def storeRaw (p : Ptr) (bytes : List Nat) : M Unit :=
+  storeBytes p (bytes.toArray.map fun b => .byte (UInt8.ofNat b))
+
 /-- A string literal: `bytes` followed by zeros up to `size`, read-only. -/
 def allocString (expect : Nat) (bytes : List Nat) (size : Nat) : M Unit := do
   allocStatic expect size 1
-  storeBytes (.obj expect 0) (bytes.toArray.map fun b => .byte (UInt8.ofNat b))
+  storeRaw (.obj expect 0) bytes
   setReadonly expect
 
 /-- One defined byte, as the `mem*` and `str*` functions read memory. -/

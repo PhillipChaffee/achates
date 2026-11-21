@@ -4,6 +4,7 @@ mod clang;
 mod compdb;
 mod convert;
 mod dump;
+mod emit;
 mod frontend;
 mod ir;
 mod probe;
@@ -41,6 +42,24 @@ enum Command {
         #[command(flatten)]
         inlines: Inlines,
     },
+    /// Write Lean definitions for the selected functions as a Lake project,
+    /// and say for each function whether it was emitted and why not.
+    Emit {
+        #[arg(long)]
+        compile_commands: PathBuf,
+        #[arg(long)]
+        select: String,
+        /// Directory of the Lake project to write.
+        #[arg(long)]
+        out: PathBuf,
+        /// Root namespace of the emitted Lean.
+        #[arg(long, default_value = "Emitted")]
+        name: String,
+        /// The Lean runtime the project depends on; defaults to the one in
+        /// the Achates source tree this binary was built from.
+        #[arg(long)]
+        runtime: Option<PathBuf>,
+    },
     /// Print one function's IR.
     Dump {
         #[arg(long)]
@@ -76,6 +95,19 @@ fn run(cli: Cli) -> Result<String> {
             let picked = compdb::select(&entries, &select)?;
             let with = !inlines.no_reachable_inlines;
             Ok(survey::render(&survey::run(&picked, with)?))
+        }
+        Command::Emit {
+            compile_commands,
+            select,
+            out,
+            name,
+            runtime,
+        } => {
+            let entries = compdb::load(&compile_commands)?;
+            let picked = compdb::select(&entries, &select)?;
+            let runtime =
+                runtime.unwrap_or_else(|| PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/lean")));
+            emit::run(&picked, &emit::Options { out, name, runtime })
         }
         Command::Dump {
             compile_commands,
