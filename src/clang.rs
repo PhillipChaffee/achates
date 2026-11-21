@@ -5,7 +5,7 @@
 //! dump. [`LocState`] replays that rule so that every location object comes
 //! out self-contained, whatever node it sits in.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::fmt;
 use std::path::PathBuf;
 use std::process::Command;
@@ -101,6 +101,8 @@ impl LocState {
 pub(crate) struct RawTu {
     /// Function definitions whose name is in the main file.
     pub(crate) functions: Vec<Value>,
+    /// Function definitions whose name is in a header.
+    pub(crate) header_functions: Vec<Value>,
     /// Records, enums, typedefs and file-scope variables from every file.
     pub(crate) decls: Vec<Value>,
     /// Every function declaration by id, for resolving linkage across redeclarations.
@@ -218,6 +220,8 @@ impl Sink<'_> {
                 let in_main = node_loc(&v).is_some_and(|l| self.is_main(&l.file));
                 if has_body && in_main {
                     self.tu.functions.push(v);
+                } else if has_body {
+                    self.tu.header_functions.push(v);
                 }
             }
             "RecordDecl" | "EnumDecl" | "TypedefDecl" | "VarDecl" => self.tu.decls.push(v),
@@ -296,4 +300,43 @@ pub(crate) fn parse_many(json: &[u8]) -> Result<Vec<Value>> {
         out.push(v);
     }
     Ok(out)
+}
+
+/// The files clang's preprocessor treats as system headers, from the flag
+/// `3` on its line markers (`# 1 "/usr/include/stdio.h" 1 3 4`).
+pub(crate) fn system_files(entry: &Entry, args: &ClangArgs) -> Result<HashSet<PathBuf>> {
+    let mut cmd = args.flags.clone();
+    cmd.push("-E".into());
+    cmd.push(entry.file.clone());
+    let out = run(entry, &cmd, "preprocessor")?;
+    let text = String::from_utf8_lossy(&out);
+    let mut files = HashSet::new();
+    for line in text.lines() {
+        if let Some((file, flags)) = line_marker(line)
+            && flags.split_whitespace().any(|f| f == "3")
+        {
+            files.insert(normalize(&entry.directory.join(file)));
+        }
+    }
+    Ok(files)
+}
+
+/// Splits `# LINE "FILE" FLAGS` into the unescaped file and the flags.
+fn line_marker(line: &str) -> Option<(String, &str)> {
+    let rest = line.strip_prefix("# ")?;
+    let (num, rest) = rest.split_once(' ')?;
+    if !num.bytes().all(|b| b.is_ascii_digit()) {
+        return None;
+    }
+    let rest = rest.strip_prefix('"')?;
+    let mut file = String::new();
+    let mut chars = rest.char_indices();
+    while let Some((i, c)) = chars.next() {
+        match c {
+            '\\' => file.push(chars.next()?.1),
+            '"' => return Some((file, rest.get(i + 1..).unwrap_or(""))),
+            c => file.push(c),
+        }
+    }
+    None
 }

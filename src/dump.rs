@@ -4,8 +4,8 @@
 use std::fmt::Write as _;
 
 use crate::ir::{
-    BinOp, Decl, Expr, ExprKind, Function, Linkage, LocalVar, LogicalOp, Stmt, Storage, TraitArg,
-    TranslationUnit, TypeTrait, UnaryOp, Unsupported, VarRef,
+    BinOp, Decl, Expr, ExprKind, Function, Linkage, LocalVar, LogicalOp, Origin, Stmt, Storage,
+    TraitArg, TranslationUnit, TypeTrait, UnaryOp, Unsupported, VarRef,
 };
 use crate::scan;
 
@@ -326,6 +326,29 @@ fn label(k: &ExprKind) -> String {
     }
 }
 
+/// The function's signature and body, without the function's own location,
+/// to compare one header function across translation units.
+pub(crate) fn fingerprint(f: &Function) -> String {
+    let mut o = Out::default();
+    let params: Vec<String> = f
+        .params
+        .iter()
+        .map(|p| format!("{}: {}", p.name, p.ty))
+        .collect();
+    o.line(
+        0,
+        &format!(
+            "{}({}) -> {} variadic {}",
+            f.name,
+            params.join(", "),
+            f.ret,
+            f.variadic
+        ),
+    );
+    o.stmt(0, &f.body);
+    o.s
+}
+
 pub(crate) fn function(f: &Function, tu: &TranslationUnit) -> String {
     let mut o = Out::default();
     let params: Vec<String> = f
@@ -342,7 +365,12 @@ pub(crate) fn function(f: &Function, tu: &TranslationUnit) -> String {
         Linkage::Internal => "internal",
     };
     o.line(0, &format!("function {}({params}) -> {}", f.name, f.ret));
-    let mut facts = vec![format!("linkage {linkage}")];
+    let origin = match f.origin {
+        Origin::MainFile => "main file",
+        Origin::ProjectHeader => "project header",
+        Origin::SystemHeader => "system header",
+    };
+    let mut facts = vec![format!("linkage {linkage}"), format!("defined in {origin}")];
     if f.inline {
         facts.push("inline".into());
     }
@@ -359,6 +387,16 @@ pub(crate) fn function(f: &Function, tu: &TranslationUnit) -> String {
     }
     o.stmt(0, &f.body);
     used(&mut o, f, tu);
+    let reached: Vec<&str> = scan::reaches(f, tu)
+        .iter()
+        .map(|h| h.name.as_str())
+        .collect();
+    if !reached.is_empty() {
+        o.line(
+            0,
+            &format!("reaches header functions: {}", reached.join(", ")),
+        );
+    }
     o.s
 }
 

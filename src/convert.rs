@@ -7,7 +7,8 @@ use serde_json::Value;
 use crate::clang::{FnDeclInfo, RawTu, node_loc, range_lines};
 use crate::ir::{
     BinOp, CastKind, Decl, EnumDef, Expr, ExprKind, Field, Function, Global, Linkage, LocalVar,
-    LogicalOp, Param, RecordDef, Stmt, Storage, TraitArg, TypeTrait, UnaryOp, Unsupported, VarRef,
+    LogicalOp, Origin, Param, RecordDef, Stmt, Storage, TraitArg, TypeTrait, UnaryOp, Unsupported,
+    VarRef,
 };
 use crate::types::{IntType, QualType, RecordKind, TagKind, TagName, Type, TypeCtx};
 
@@ -326,7 +327,7 @@ impl<'r> Unit<'r> {
         }
     }
 
-    pub(crate) fn function(&mut self, v: &Value) -> Function {
+    pub(crate) fn function(&mut self, v: &Value, origin: Origin, def_file: String) -> Function {
         let mut fx = FnCx::new(self);
         fx.collect_labels(v);
         let fty = type_of(&mut fx.unit.types, v.get("type"));
@@ -358,6 +359,8 @@ impl<'r> Unit<'r> {
         let lines = range_lines(v).map_or(0, |(a, b)| b.saturating_sub(a) + 1);
         Function {
             name: text(v, "name").unwrap_or("").to_owned(),
+            origin,
+            def_file,
             linkage: fx.unit.linkage(text(v, "id"), v),
             inline: flag(v, "inline"),
             params,
@@ -1165,4 +1168,23 @@ pub(crate) fn tags_in(
         }
         _ => {}
     });
+}
+
+/// Names of the functions `v` refers to, called or with their address taken.
+pub(crate) fn raw_function_refs(v: &Value, out: &mut BTreeSet<String>) {
+    if kind(v) == "DeclRefExpr"
+        && let Some(r) = v.get("referencedDecl")
+        && kind(r) == "FunctionDecl"
+        && let Some(n) = text(r, "name")
+    {
+        out.insert(n.to_owned());
+    }
+    for c in inner(v) {
+        raw_function_refs(c, out);
+    }
+    if let Some(a) = v.get("array_filler").and_then(Value::as_array) {
+        for c in a {
+            raw_function_refs(c, out);
+        }
+    }
 }

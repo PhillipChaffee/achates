@@ -79,9 +79,24 @@ pub(crate) enum Linkage {
     Internal,
 }
 
+/// Where a function is defined, which tells a back end whether to
+/// translate it or to model it.
+#[derive(serde::Serialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub(crate) enum Origin {
+    MainFile,
+    /// A header clang does not treat as a system header.
+    ProjectHeader,
+    /// A header clang treats as a system header (`/usr/include`, ...).
+    SystemHeader,
+}
+
 #[derive(serde::Serialize, Debug)]
 pub(crate) struct Function {
     pub(crate) name: String,
+    pub(crate) origin: Origin,
+    /// Absolute path of the file holding the definition; with the name, the
+    /// function's identity across translation units.
+    pub(crate) def_file: String,
     pub(crate) linkage: Linkage,
     pub(crate) inline: bool,
     pub(crate) params: Vec<Param>,

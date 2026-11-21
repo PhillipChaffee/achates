@@ -38,6 +38,8 @@ enum Command {
         /// Path prefix such as `misc/`, or a glob such as `misc/b*.c`.
         #[arg(long)]
         select: String,
+        #[command(flatten)]
+        inlines: Inlines,
     },
     /// Print one function's IR.
     Dump {
@@ -47,10 +49,20 @@ enum Command {
         select: String,
         #[arg(long)]
         function: String,
+        #[command(flatten)]
+        inlines: Inlines,
         /// Print JSON for programs instead of text for people.
         #[arg(long)]
         json: bool,
     },
+}
+
+#[derive(Debug, clap::Args)]
+struct Inlines {
+    /// Leave out the header functions with a body that the selected
+    /// functions reach through calls; by default they are added.
+    #[arg(long)]
+    no_reachable_inlines: bool,
 }
 
 fn run(cli: Cli) -> Result<String> {
@@ -58,23 +70,31 @@ fn run(cli: Cli) -> Result<String> {
         Command::Survey {
             compile_commands,
             select,
+            inlines,
         } => {
             let entries = compdb::load(&compile_commands)?;
             let picked = compdb::select(&entries, &select)?;
-            Ok(survey::render(&survey::run(&picked)?))
+            let with = !inlines.no_reachable_inlines;
+            Ok(survey::render(&survey::run(&picked, with)?))
         }
         Command::Dump {
             compile_commands,
             select,
             function,
+            inlines,
             json,
         } => {
             let entries = compdb::load(&compile_commands)?;
             let picked = compdb::select(&entries, &select)?;
             let mut out = String::new();
+            // A header function reached from several files is printed once.
+            let mut printed = std::collections::BTreeSet::new();
             for e in picked {
-                let loaded = frontend::load(e)?;
+                let loaded = frontend::load(e, !inlines.no_reachable_inlines)?;
                 for f in loaded.tu.functions.iter().filter(|f| f.name == function) {
+                    if !printed.insert((f.def_file.clone(), f.name.clone())) {
+                        continue;
+                    }
                     if json {
                         out.push_str(&dump::json(f, &loaded.tu)?);
                     } else {

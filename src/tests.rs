@@ -5,6 +5,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 
 use crate::compdb::{self, Entry};
 use crate::frontend::{self, Loaded};
+use crate::ir::Origin;
 use crate::{dump, scan, survey};
 
 static N: AtomicUsize = AtomicUsize::new(0);
@@ -34,7 +35,7 @@ fn fixture(files: &[(&str, &str)]) -> (PathBuf, Vec<Entry>) {
 fn load(files: &[(&str, &str)]) -> Loaded {
     let (_dir, entries) = fixture(files);
     let picked = compdb::select(&entries, "main.c").unwrap();
-    frontend::load(picked.first().unwrap()).unwrap()
+    frontend::load(picked.first().unwrap(), true).unwrap()
 }
 
 fn dump_of(src: &str, name: &str) -> String {
@@ -48,7 +49,37 @@ fn dump_of(src: &str, name: &str) -> String {
 }
 
 fn names(l: &Loaded) -> Vec<&str> {
-    l.tu.functions.iter().map(|f| f.name.as_str()).collect()
+    l.tu.functions
+        .iter()
+        .filter(|f| f.origin == Origin::MainFile)
+        .map(|f| f.name.as_str())
+        .collect()
+}
+
+fn header_names(l: &Loaded) -> Vec<(&str, Origin)> {
+    l.tu.functions
+        .iter()
+        .filter(|f| f.origin != Origin::MainFile)
+        .map(|f| (f.name.as_str(), f.origin))
+        .collect()
+}
+
+/// Like [`fixture`], with one database entry per `(file, extra flags)`.
+fn fixture_multi(files: &[(&str, &str)], units: &[(&str, &str)]) -> (PathBuf, Vec<Entry>) {
+    let (dir, _) = fixture(files);
+    let entries: Vec<String> = units
+        .iter()
+        .map(|(f, flags)| {
+            format!(
+                r#"{{"directory": "{}", "file": "{f}", "command": "cc -std=c11 -O2 {flags} -c {f}"}}"#,
+                dir.display()
+            )
+        })
+        .collect();
+    let db = dir.join("compile_commands.json");
+    std::fs::write(&db, format!("[{}]", entries.join(","))).unwrap();
+    let entries = compdb::load(&db).unwrap();
+    (dir, entries)
 }
 
 /// Asserts that `want` appear in `text` as consecutive lines, ignoring
@@ -70,6 +101,7 @@ fn only_functions_defined_in_the_main_file_are_listed() {
 #define BODY(x) ((x) * 2)
 static inline int header_helper(int x) { return x + 1; }
 static inline int header_helper2(int x) { return BODY(x); }
+static inline int never_called(void) { return 0; }
 ";
     let main = "\
 int before(int a) { return a; }
@@ -81,6 +113,13 @@ int last(void) { return header_helper2(1); }
 ";
     let l = load(&[("h.h", header), ("main.c", main)]);
     assert_eq!(names(&l), ["before", "after", "get_seven", "last"]);
+    assert_eq!(
+        header_names(&l),
+        [
+            ("header_helper", Origin::ProjectHeader),
+            ("header_helper2", Origin::ProjectHeader)
+        ]
+    );
     let after = l.tu.functions.iter().find(|f| f.name == "after").unwrap();
     assert_eq!(after.lines, 1);
     assert_eq!(after.loc.as_ref().unwrap().line, 3);
@@ -381,7 +420,7 @@ fn variadic_argument_reads_are_unsupported_and_visible() {
     );
 
     let (_dir, entries) = fixture(&[("main.c", src)]);
-    let s = survey::run(&compdb::select(&entries, "main.c").unwrap()).unwrap();
+    let s = survey::run(&compdb::select(&entries, "main.c").unwrap(), true).unwrap();
     let status: Vec<(&str, bool)> = s
         .rows
         .iter()
@@ -435,8 +474,11 @@ fn enums_globals_and_literals() {
 #[test]
 fn a_clang_failure_is_an_error_naming_the_file() {
     let (_dir, entries) = fixture(&[("main.c", "int f(void) { return undeclared; }")]);
-    let e =
-        frontend::load(compdb::select(&entries, "main.c").unwrap().first().unwrap()).unwrap_err();
+    let e = frontend::load(
+        compdb::select(&entries, "main.c").unwrap().first().unwrap(),
+        true,
+    )
+    .unwrap_err();
     let msg = format!("{e:#}");
     assert!(
         msg.contains("main.c") && msg.contains("undeclared"),
@@ -467,7 +509,7 @@ int literal_anon(void) { return (struct { int z; }){ 3 }.z; }
 void cleanup_fn(void) { void done(int *); int v __attribute__((cleanup(done))) = 0; (void)v; }
 ";
     let (_dir, entries) = fixture(&[("main.c", src)]);
-    let s = survey::run(&compdb::select(&entries, "main.c").unwrap()).unwrap();
+    let s = survey::run(&compdb::select(&entries, "main.c").unwrap(), true).unwrap();
     let expect = [
         ("ok_fn", ""),
         ("ld", "type"),
@@ -539,5 +581,120 @@ fn sizeof_a_typedef_named_anonymous_struct() {
             "sizeof = 8 (operand not evaluated) : unsigned long:u64",
             "unary deref * : struct (typedef T) lvalue",
         ],
+    );
+}
+
+#[test]
+fn reachable_header_functions_are_added_transitively() {
+    let header = "\
+static inline int leaf(int x) { return x * 2; }
+static inline int mid(int x) { return leaf(x) + 1; }
+static inline int unused(int x) { return leaf(x); }
+";
+    let main = "#include \"h.h\"\nint top(int a) { return mid(a); }\n";
+    let l = load(&[("h.h", header), ("main.c", main)]);
+    assert_eq!(
+        header_names(&l),
+        [
+            ("mid", Origin::ProjectHeader),
+            ("leaf", Origin::ProjectHeader)
+        ]
+    );
+    let top = l.tu.functions.iter().find(|f| f.name == "top").unwrap();
+    let d = dump::function(top, &l.tu);
+    assert!(d.contains("reaches header functions: leaf, mid"), "{d}");
+    let leaf = l.tu.functions.iter().find(|f| f.name == "leaf").unwrap();
+    assert!(leaf.def_file.ends_with("/h.h"), "{}", leaf.def_file);
+    assert!(dump::function(leaf, &l.tu).contains("defined in project header"));
+
+    let (_dir, entries) = fixture(&[("h.h", header), ("main.c", main)]);
+    let picked = compdb::select(&entries, "main.c").unwrap();
+    let without = frontend::load(picked.first().unwrap(), false).unwrap();
+    assert!(header_names(&without).is_empty());
+}
+
+#[test]
+fn glibc_inlines_are_system_header_functions() {
+    let main = "#include <stdlib.h>\n\
+                static int cmp(const void *a, const void *b) { return *(const int *)a - *(const int *)b; }\n\
+                int *find(int *v, unsigned long n, int k) { return bsearch(&k, v, n, sizeof *v, cmp); }\n";
+    let l = load(&[("main.c", main)]);
+    assert!(
+        header_names(&l).contains(&("bsearch", Origin::SystemHeader)),
+        "{:?}",
+        header_names(&l)
+    );
+}
+
+#[test]
+fn a_header_function_reached_from_two_units_is_one_definition() {
+    let header =
+        "static inline int shared(int x) { return x + 1; }\nint other(int);\nint ext_fn(int);\n";
+    let a = "#include \"h.h\"\nint one(int x) { return shared(x) + other(x) + ext_fn(x); }\n";
+    let b = "#include \"h.h\"\nint other(int x) { return shared(shared(x)) + ext_fn(1); }\n";
+    let (_dir, entries) = fixture_multi(
+        &[("h.h", header), ("a.c", a), ("b.c", b)],
+        &[("a.c", ""), ("b.c", "")],
+    );
+    let s = survey::run(&compdb::select(&entries, "*.c").unwrap(), true).unwrap();
+    assert_eq!(s.rows.len(), 2);
+    assert_eq!(s.headers.len(), 1);
+    let h = s.headers.values().next().unwrap();
+    assert_eq!((h.sites_from_selected, h.reached_by), (3, 2));
+    // `other` is defined in the selection; `ext_fn` is not.
+    assert_eq!(s.externals.keys().collect::<Vec<_>>(), ["ext_fn"]);
+    let ext = s.externals.get("ext_fn").unwrap();
+    assert_eq!((ext.selected_callers.len(), ext.sites), (2, 2));
+    let text = survey::render(&s);
+    assert!(
+        text.contains("external functions: 1 named but defined nowhere in the selection"),
+        "{text}"
+    );
+    assert!(
+        text.contains("project header: 1 reachable, 1 fully represented, named at 3 places"),
+        "{text}"
+    );
+}
+
+#[test]
+fn two_bodies_under_one_identity_are_an_error() {
+    let header = "static inline int k(void) { return V; }\n";
+    let a = "#include \"h.h\"\nint fa(void) { return k(); }\n";
+    let b = "#include \"h.h\"\nint fb(void) { return k(); }\n";
+    let (_dir, entries) = fixture_multi(
+        &[("h.h", header), ("a.c", a), ("b.c", b)],
+        &[("a.c", "-DV=1"), ("b.c", "-DV=2")],
+    );
+    let e = survey::run(&compdb::select(&entries, "*.c").unwrap(), true).unwrap_err();
+    let msg = format!("{e:#}");
+    assert!(
+        msg.contains("`k`") && msg.contains("different bodies"),
+        "{msg}"
+    );
+}
+
+#[test]
+fn an_unsupported_header_function_fails_only_the_strict_figure() {
+    let header = "static inline int gnu(int a) { return ({ int b = a; b + 1; }); }\n";
+    let main =
+        "#include \"h.h\"\nint caller(int a) { return gnu(a); }\nint alone(int a) { return a; }\n";
+    let (_dir, entries) = fixture(&[("h.h", header), ("main.c", main)]);
+    let s = survey::run(&compdb::select(&entries, "main.c").unwrap(), true).unwrap();
+    let caller = s.rows.iter().find(|r| r.name == "caller").unwrap();
+    assert!(caller.counts.is_empty(), "{:?}", caller.counts);
+    assert!(!s.strictly_ok(caller));
+    assert!(s.strictly_ok(s.rows.iter().find(|r| r.name == "alone").unwrap()));
+    let text = survey::render(&s);
+    assert!(
+        text.contains("total: 2 of 2 functions fully represented"),
+        "{text}"
+    );
+    assert!(
+        text.contains("1 of 2 functions fully represented together with every header function"),
+        "{text}"
+    );
+    assert!(
+        text.contains("project header: 1 reachable, 0 fully represented"),
+        "{text}"
     );
 }

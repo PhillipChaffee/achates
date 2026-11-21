@@ -1,10 +1,10 @@
 //! Walks over a function's IR: the types it mentions and the constructs it
 //! does not represent.
 
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 use crate::ir::{
-    Decl, EnumDef, Expr, ExprKind, Function, RecordDef, Stmt, TraitArg, TranslationUnit,
+    Decl, EnumDef, Expr, ExprKind, Function, Origin, RecordDef, Stmt, TraitArg, TranslationUnit,
     Unsupported,
 };
 use crate::types::{QualType, TagName, Type, walk};
@@ -14,6 +14,7 @@ struct Found<'a> {
     unsupported: Vec<&'a Unsupported>,
     types: Vec<&'a QualType>,
     builtins: BTreeSet<String>,
+    refs: BTreeMap<String, usize>,
 }
 
 impl<'a> Found<'a> {
@@ -95,6 +96,12 @@ impl<'a> Found<'a> {
                 builtin: true,
             } => {
                 self.builtins.insert(name.clone());
+            }
+            ExprKind::Func {
+                name,
+                builtin: false,
+            } => {
+                *self.refs.entry(name.clone()).or_default() += 1;
             }
             ExprKind::Atomic { op, .. } => {
                 self.builtins.insert(op.clone());
@@ -249,4 +256,34 @@ pub(crate) fn unsupported_of(f: &Function, tu: &TranslationUnit) -> Vec<Unsuppor
 /// but a back end needs a model of each.
 pub(crate) fn builtins_of(f: &Function) -> BTreeSet<String> {
     found(f).builtins
+}
+
+/// The non-builtin functions `f` names, called or with their address
+/// taken, with the number of places it names each.
+pub(crate) fn refs_of(f: &Function) -> BTreeMap<String, usize> {
+    found(f).refs
+}
+
+/// The header functions of `tu` that `f` reaches through references,
+/// transitively, in name order.
+pub(crate) fn reaches<'t>(f: &Function, tu: &'t TranslationUnit) -> Vec<&'t Function> {
+    let headers: BTreeMap<&str, &Function> = tu
+        .functions
+        .iter()
+        .filter(|h| h.origin != Origin::MainFile)
+        .map(|h| (h.name.as_str(), h))
+        .collect();
+    let mut todo: Vec<String> = refs_of(f).into_keys().collect();
+    let mut seen = BTreeSet::new();
+    let mut out = BTreeMap::new();
+    while let Some(n) = todo.pop() {
+        if !seen.insert(n.clone()) {
+            continue;
+        }
+        if let Some(h) = headers.get(n.as_str()) {
+            out.insert(n, *h);
+            todo.extend(refs_of(h).into_keys().filter(|m| !seen.contains(m)));
+        }
+    }
+    out.into_values().collect()
 }
