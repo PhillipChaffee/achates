@@ -5,6 +5,8 @@
 //! so the order of effects is the order of the lines. Terms returned here
 //! are atomic: a name, or something in parentheses.
 
+use std::fmt::Write as _;
+
 use crate::emit::func::{FnEmitter, VarInfo};
 use crate::emit::names::{self, Sig, float_ty, int_ns, int_ty};
 use crate::emit::order::var_key;
@@ -39,13 +41,14 @@ impl FnEmitter<'_> {
             Type::Float { kind, .. } => K::Float(*kind),
             Type::Pointer(_) => K::Ptr,
             Type::Array { .. } | Type::Record { .. } => K::Agg,
-            Type::Enum(n) => match self.u.tu.enums.get(n).map(|e| e.underlying.clone()) {
-                Some(Ok(i)) => K::Int(i),
-                _ => {
+            Type::Enum(n) => {
+                if let Some(Ok(i)) = self.u.tu.enums.get(n).map(|e| e.underlying.clone()) {
+                    K::Int(i)
+                } else {
                     self.refuse(format!("enum {n} without a known integer type"));
                     K::Bad
                 }
-            },
+            }
             Type::Atomic(inner) => {
                 self.res.assumptions.insert(ATOMIC.to_owned());
                 self.kind(inner)
@@ -78,6 +81,10 @@ impl FnEmitter<'_> {
         };
         match self.u.lay.size_align(&t) {
             Ok(x) => Some(x),
+            Err(e) if e.contains("__va_list_tag") => {
+                self.refuse("variadic argument handling (va_start and friends) is not modelled");
+                None
+            }
             Err(e) => {
                 self.refuse(format!("layout: {e}"));
                 None
@@ -100,9 +107,19 @@ impl FnEmitter<'_> {
 
     pub(crate) fn lit(&mut self, v: i128, i: IntType) -> String {
         let (lo, hi) = if i.signed {
-            (-(1i128 << (i.bits - 1).min(126)), (1i128 << (i.bits - 1).min(126)) - 1)
+            (
+                -(1i128 << (i.bits - 1).min(126)),
+                (1i128 << (i.bits - 1).min(126)) - 1,
+            )
         } else {
-            (0, if i.bits >= 127 { i128::MAX } else { (1i128 << i.bits) - 1 })
+            (
+                0,
+                if i.bits >= 127 {
+                    i128::MAX
+                } else {
+                    (1i128 << i.bits) - 1
+                },
+            )
         };
         if v < lo || v > hi {
             return self.refuse(format!("constant {v} outside its type"));
@@ -180,7 +197,9 @@ impl FnEmitter<'_> {
 
     /// Offset of a member, as clang laid the record out.
     fn field_offset(&mut self, rec: &QualType, field: &str, fty: &QualType) -> u64 {
-        let Some(key) = self.record_of(rec) else { return 0 };
+        let Some(key) = self.record_of(rec) else {
+            return 0;
+        };
         let pos = self.u.tu.records.get(&key).and_then(|d| {
             d.fields.as_ref()?.iter().position(|f| {
                 // An anonymous member has no name; its type identifies it.
@@ -209,10 +228,18 @@ impl FnEmitter<'_> {
             };
         }
         let term = match v {
-            VarRef::Local { id, .. } => self.statics.get(id).cloned().ok_or_else(|| "local without storage".to_owned()),
+            VarRef::Local { id, .. } => self
+                .statics
+                .get(id)
+                .cloned()
+                .ok_or_else(|| "local without storage".to_owned()),
             VarRef::Global { name } => match self.u.globals.get(name) {
                 None => Err(format!("object `{name}` is defined outside the selection")),
-                Some(key) => self.w.statics.term(key).map_err(|e| format!("object `{name}`: {e}")),
+                Some(key) => self
+                    .w
+                    .statics
+                    .term(key)
+                    .map_err(|e| format!("object `{name}`: {e}")),
             },
             VarRef::Param { name, .. } => Err(format!("parameter `{name}` without storage")),
         };
@@ -223,10 +250,14 @@ impl FnEmitter<'_> {
     }
 
     fn index_lv(&mut self, e: &Expr, lhs: &Expr, rhs: &Expr) -> Lv {
-        let (p, i) = if self.kind(&lhs.ty) == K::Ptr { (lhs, rhs) } else { (rhs, lhs) };
+        let (p, i) = if self.kind(&lhs.ty) == K::Ptr {
+            (lhs, rhs)
+        } else {
+            (rhs, lhs)
+        };
         let pt = self.rv(p);
         let it = self.rv(i);
-        let n = self.to_int(&it, &i.ty);
+        let n = self.int_value(&it, &i.ty);
         let size = self.size_align(&e.ty).map_or(1, |x| x.0);
         Lv::Mem(self.bind("Ptr", &format!("Ptr.add {pt} {size} {n}")), 0)
     }
@@ -269,7 +300,10 @@ impl FnEmitter<'_> {
             }
             ExprKind::Predefined { value, .. } => self.lv(value),
             ExprKind::CompoundLiteral(init) => self.compound_literal(e, init),
-            _ => Lv::Mem(self.refuse("expression used as an object that Achates does not treat as one"), 0),
+            _ => Lv::Mem(
+                self.refuse("expression used as an object that Achates does not treat as one"),
+                0,
+            ),
         }
     }
 
@@ -286,7 +320,7 @@ impl FnEmitter<'_> {
         Lv::Mem(name, 0)
     }
 
-    fn to_int(&mut self, term: &str, t: &QualType) -> String {
+    fn int_value(&mut self, term: &str, t: &QualType) -> String {
         match self.kind(t) {
             K::Int(i) => format!("({}.toInt {term})", int_ns(i)),
             _ => self.refuse("integer expected"),
@@ -315,27 +349,39 @@ impl FnEmitter<'_> {
     }
 
     /// Converts between scalar types the way the C conversion does.
-    pub(crate) fn convert(&mut self, v: &str, from: &QualType, to: &QualType) -> String {
-        let (a, b) = (self.kind(from), self.kind(to));
-        match (a, b) {
-            _ if a == b => v.to_owned(),
+    pub(crate) fn convert(&mut self, val: &str, from: &QualType, to: &QualType) -> String {
+        let (src, dst) = (self.kind(from), self.kind(to));
+        match (src, dst) {
+            _ if src == dst => val.to_owned(),
             (K::Int(x), K::Int(y)) => {
-                format!("({}.to{} {} {v})", int_ns(x), if y.signed { 'S' } else { 'U' }, y.bits)
+                format!(
+                    "({}.to{} {} {val})",
+                    int_ns(x),
+                    if y.signed { 'S' } else { 'U' },
+                    y.bits
+                )
             }
-            (K::Bool, K::Int(y)) => format!("({}.ofBool {} {v})", int_ns(y), y.bits),
-            (K::Int(_) | K::Float(_), K::Bool) => format!("({v} != 0)"),
-            (K::Ptr, K::Bool) => format!("({v} != Ptr.null)"),
+            (K::Bool, K::Int(y)) => format!("({}.ofBool {} {val})", int_ns(y), y.bits),
+            (K::Int(_) | K::Float(_), K::Bool) => format!("({val} != 0)"),
+            (K::Ptr, K::Bool) => format!("({val} != Ptr.null)"),
             (K::Int(x), K::Float(k)) => {
-                let f = if x.signed { "ofS" } else { "ofU" };
-                self.bind(float_ty(k), &format!("{}.{f} {v}", float_ty(k)))
+                let conv = if x.signed { "ofS" } else { "ofU" };
+                self.bind(float_ty(k), &format!("{}.{conv} {val}", float_ty(k)))
             }
             (K::Float(k), K::Int(y)) => {
-                let f = if y.signed { "toS" } else { "toU" };
-                self.bind(&int_ty(y), &format!("{}.{f} {} {v}", float_ty(k), y.bits))
+                let conv = if y.signed { "toS" } else { "toU" };
+                self.bind(
+                    &int_ty(y),
+                    &format!("{}.{conv} {} {val}", float_ty(k), y.bits),
+                )
             }
-            (K::Float(FloatKind::Float), K::Float(FloatKind::Double)) => format!("(Float32.toFloat {v})"),
-            (K::Float(FloatKind::Double), K::Float(FloatKind::Float)) => format!("(Float.toFloat32 {v})"),
-            (K::Bool, K::Float(k)) => format!("(if {v} then (1 : {}) else 0)", float_ty(k)),
+            (K::Float(FloatKind::Float), K::Float(FloatKind::Double)) => {
+                format!("(Float32.toFloat {val})")
+            }
+            (K::Float(FloatKind::Double), K::Float(FloatKind::Float)) => {
+                format!("(Float.toFloat32 {val})")
+            }
+            (K::Bool, K::Float(k)) => format!("(if {val} then (1 : {}) else 0)", float_ty(k)),
             _ => self.refuse(format!("conversion from {from} to {to}")),
         }
     }
@@ -346,7 +392,9 @@ impl FnEmitter<'_> {
                 let l = self.lv(operand);
                 self.load(l, &e.ty)
             }
-            CastKind::NoOp | CastKind::NonAtomicToAtomic | CastKind::AtomicToNonAtomic => self.rv(operand),
+            CastKind::NoOp | CastKind::NonAtomicToAtomic | CastKind::AtomicToNonAtomic => {
+                self.rv(operand)
+            }
             CastKind::BitCast => {
                 if self.kind(&operand.ty) != K::Ptr || self.kind(&e.ty) != K::Ptr {
                     return self.refuse("bit cast between non-pointer types");
@@ -398,8 +446,15 @@ impl FnEmitter<'_> {
     /// The address of a function: a pointer that carries the function's key.
     fn fn_value(&mut self, e: &Expr) -> String {
         match &e.kind {
-            ExprKind::Func { name, builtin: false } => {
-                let id = self.u.fn_key(self.w, name).cloned().unwrap_or_else(|| name.clone());
+            ExprKind::Func {
+                name,
+                builtin: false,
+            } => {
+                let id = self
+                    .u
+                    .fn_key(self.w, name)
+                    .cloned()
+                    .unwrap_or_else(|| name.clone());
                 let sig = match &e.ty.ty {
                     Type::Function(ft) => self.sig_of(ft),
                     _ => None,
@@ -429,7 +484,7 @@ impl FnEmitter<'_> {
         })
     }
 
-    fn arith(&mut self, op: BinOp, t: &QualType, a: &str, b: &str, bt: &QualType) -> String {
+    fn arith(&mut self, op: BinOp, t: &QualType, lhs: &str, rhs: &str, bt: &QualType) -> String {
         let name = match op {
             BinOp::Add => "add",
             BinOp::Sub => "sub",
@@ -454,18 +509,22 @@ impl FnEmitter<'_> {
                 let ns = int_ns(i);
                 let ty = int_ty(i);
                 match op {
-                    BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor => format!("({ns}.{name} {a} {b})"),
-                    BinOp::Shl | BinOp::Shr => {
-                        let n = self.to_int(b, bt);
-                        self.bind(&ty, &format!("{ns}.{name} {a} {n}"))
+                    BinOp::BitAnd | BinOp::BitOr | BinOp::BitXor => {
+                        format!("({ns}.{name} {lhs} {rhs})")
                     }
-                    BinOp::Add | BinOp::Sub | BinOp::Mul if !i.signed => format!("({a} {sym} {b})"),
-                    _ => self.bind(&ty, &format!("{ns}.{name} {a} {b}")),
+                    BinOp::Shl | BinOp::Shr => {
+                        let n = self.int_value(rhs, bt);
+                        self.bind(&ty, &format!("{ns}.{name} {lhs} {n}"))
+                    }
+                    BinOp::Add | BinOp::Sub | BinOp::Mul if !i.signed => {
+                        format!("({lhs} {sym} {rhs})")
+                    }
+                    _ => self.bind(&ty, &format!("{ns}.{name} {lhs} {rhs}")),
                 }
             }
             K::Float(_) if matches!(op, BinOp::Add | BinOp::Sub | BinOp::Mul | BinOp::Div) => {
                 self.float_op();
-                format!("({a} {sym} {b})")
+                format!("({lhs} {sym} {rhs})")
             }
             _ => self.refuse(format!("operator on {t}")),
         }
@@ -497,12 +556,12 @@ impl FnEmitter<'_> {
 
     fn pointer_arith(&mut self, e: &Expr, op: BinOp, lhs: &Expr, rhs: &Expr) -> String {
         let (lk, rk) = (self.kind(&lhs.ty), self.kind(&rhs.ty));
-        let a = self.rv(lhs);
-        let b = self.rv(rhs);
+        let lv = self.rv(lhs);
+        let rv = self.rv(rhs);
         match (op, lk, rk) {
             (BinOp::Sub, K::Ptr, K::Ptr) => {
                 let size = self.elem_size(&lhs.ty);
-                let d = self.bind("I64", &format!("Ptr.diff {a} {b} {size}"));
+                let d = self.bind("I64", &format!("Ptr.diff {lv} {rv} {size}"));
                 let long = QualType::plain(Type::Int(IntType {
                     kind: crate::types::IntKind::Long,
                     bits: 64,
@@ -512,21 +571,24 @@ impl FnEmitter<'_> {
             }
             (BinOp::Add | BinOp::Sub, K::Ptr, K::Int(_)) => {
                 let size = self.elem_size(&lhs.ty);
-                let n = self.to_int(&b, &rhs.ty);
-                let f = if op == BinOp::Add { "add" } else { "sub" };
-                self.bind("Ptr", &format!("Ptr.{f} {a} {size} {n}"))
+                let n = self.int_value(&rv, &rhs.ty);
+                let func = if op == BinOp::Add { "add" } else { "sub" };
+                self.bind("Ptr", &format!("Ptr.{func} {lv} {size} {n}"))
             }
             (BinOp::Add, K::Int(_), K::Ptr) => {
                 let size = self.elem_size(&rhs.ty);
-                let n = self.to_int(&a, &lhs.ty);
-                self.bind("Ptr", &format!("Ptr.add {b} {size} {n}"))
+                let n = self.int_value(&lv, &lhs.ty);
+                self.bind("Ptr", &format!("Ptr.add {rv} {size} {n}"))
             }
             _ => self.refuse("pointer arithmetic Achates does not recognise"),
         }
     }
 
     fn binary(&mut self, e: &Expr, op: BinOp, lhs: &Expr, rhs: &Expr) -> String {
-        if matches!(op, BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge | BinOp::Eq | BinOp::Ne) {
+        if matches!(
+            op,
+            BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge | BinOp::Eq | BinOp::Ne
+        ) {
             let c = self.compare(op, lhs, rhs);
             return self.of_bool(&c, &e.ty);
         }
@@ -564,21 +626,21 @@ impl FnEmitter<'_> {
 
     fn conditional(&mut self, e: &Expr, cond: &Expr, then: &Expr, els: &Expr) -> String {
         let c = self.cond(cond);
-        let (a, la) = self.capture(1, |s| s.rv(then));
-        let (b, lb) = self.capture(1, |s| s.rv(els));
+        let (yes, la) = self.capture(1, |s| s.rv(then));
+        let (no, lb) = self.capture(1, |s| s.rv(els));
         let void = self.kind(&e.ty) == K::Void;
         if la.is_empty() && lb.is_empty() && !void {
-            return format!("(if {c} then {a} else {b})");
+            return format!("(if {c} then {yes} else {no})");
         }
         let ty = self.lty(&e.ty);
         let t = self.fresh("t");
         self.line(format!("let mut {t} : {ty} := default"));
         self.line(format!("if {c} then"));
         self.out.extend(la);
-        self.line(format!("  {t} := {a}"));
+        self.line(format!("  {t} := {yes}"));
         self.line("else");
         self.out.extend(lb);
-        self.line(format!("  {t} := {b}"));
+        self.line(format!("  {t} := {no}"));
         t
     }
 
@@ -684,7 +746,7 @@ impl FnEmitter<'_> {
         let r = self.rv(rhs);
         let new = if self.kind(&lhs.ty) == K::Ptr {
             let size = self.elem_size(&lhs.ty);
-            let n = self.to_int(&r, &rhs.ty);
+            let n = self.int_value(&r, &rhs.ty);
             let f = if *op == BinOp::Add { "add" } else { "sub" };
             if !matches!(op, BinOp::Add | BinOp::Sub) {
                 self.refuse("compound assignment to a pointer other than += and -=");
@@ -742,7 +804,9 @@ impl FnEmitter<'_> {
                 self.addr(l)
             }
             UnaryOp::Deref => self.refuse("dereference used as a value without a load"),
-            UnaryOp::PreInc | UnaryOp::PreDec | UnaryOp::PostInc | UnaryOp::PostDec => self.incdec(op, operand),
+            UnaryOp::PreInc | UnaryOp::PreDec | UnaryOp::PostInc | UnaryOp::PostDec => {
+                self.incdec(op, operand)
+            }
         }
     }
 
@@ -784,10 +848,10 @@ impl FnEmitter<'_> {
         match self.kind(&e.ty) {
             K::Float(FloatKind::Double) => format!("(Float.ofBits 0x{bits:016x})"),
             // Parsed again at single precision: rounding the double would round twice.
-            K::Float(FloatKind::Float) => match text.parse::<f32>() {
-                Ok(f) => format!("(Float32.ofBits 0x{:08x})", f.to_bits()),
-                Err(_) => self.refuse(format!("float literal `{text}`")),
-            },
+            K::Float(FloatKind::Float) => text.parse::<f32>().map_or_else(
+                |_| self.refuse(format!("float literal `{text}`")),
+                |f| format!("(Float32.ofBits 0x{:08x})", f.to_bits()),
+            ),
             _ => self.refuse("floating literal of a non-floating type"),
         }
     }
@@ -799,6 +863,22 @@ impl FnEmitter<'_> {
         }
     }
 
+    /// clang prints a character constant as the unsigned reading of its
+    /// bits, so `'\xff'`, an `int` of value -1, arrives as 4294967295.
+    fn char_const(&mut self, e: &Expr, v: i128) -> String {
+        match self.kind(&e.ty) {
+            K::Int(i)
+                if i.signed
+                    && i.bits < 127
+                    && v >= (1i128 << (i.bits - 1))
+                    && v < (1i128 << i.bits) =>
+            {
+                self.lit(v - (1i128 << i.bits), i)
+            }
+            _ => self.int_const(e, v),
+        }
+    }
+
     /// The value of `e`, after emitting whatever computes it.
     pub(crate) fn rv(&mut self, e: &Expr) -> String {
         match &e.kind {
@@ -806,7 +886,7 @@ impl FnEmitter<'_> {
                 Ok(v) => self.int_const(e, v),
                 Err(_) => self.refuse("integer literal too large"),
             },
-            ExprKind::CharLit(v) => self.int_const(e, i128::from(*v)),
+            ExprKind::CharLit(v) => self.char_const(e, i128::from(*v)),
             ExprKind::EnumConst { value, .. } => self.int_const(e, *value),
             ExprKind::TypeTrait { value, .. } => self.int_const(e, i128::from(*value)),
             ExprKind::FloatLit { text, bits } => self.float_lit(e, text, *bits),
@@ -823,14 +903,22 @@ impl FnEmitter<'_> {
             ExprKind::Assign { lhs, rhs } => self.assign(lhs, rhs),
             ExprKind::CompoundAssign { .. } => self.compound_assign(e),
             ExprKind::Cond { cond, then, els } => self.conditional(e, cond, then, els),
-            ExprKind::Call { callee, args, direct } => self.call(e, callee, args, direct.as_deref()),
-            ExprKind::Member { base, field, arrow: false } if !e.lvalue => self.member_value(e, base, field),
+            ExprKind::Call {
+                callee,
+                args,
+                direct,
+            } => self.call(e, callee, args, direct.as_deref()),
+            ExprKind::Member {
+                base,
+                field,
+                arrow: false,
+            } if !e.lvalue => self.member_value(e, base, field),
             ExprKind::Cast { kind, operand, .. } => self.cast(e, *kind, operand),
             ExprKind::Atomic { op, operands } => self.atomic(op, operands),
             ExprKind::Unsupported(u) => self.refuse(format!("{}: {}", u.clang_kind, u.reason)),
-            ExprKind::CompoundLiteral(_) | ExprKind::InitList { .. } | ExprKind::ImplicitValueInit => {
-                self.refuse("initialiser used as a value")
-            }
+            ExprKind::CompoundLiteral(_)
+            | ExprKind::InitList { .. }
+            | ExprKind::ImplicitValueInit => self.refuse("initialiser used as a value"),
             _ => self.refuse("object used as a value without a load"),
         }
     }
@@ -839,7 +927,10 @@ impl FnEmitter<'_> {
     pub(crate) fn cond(&mut self, e: &Expr) -> String {
         match &e.kind {
             ExprKind::Binary { op, lhs, rhs }
-                if matches!(op, BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge | BinOp::Eq | BinOp::Ne) =>
+                if matches!(
+                    op,
+                    BinOp::Lt | BinOp::Gt | BinOp::Le | BinOp::Ge | BinOp::Eq | BinOp::Ne
+                ) =>
             {
                 self.compare(*op, lhs, rhs)
             }
@@ -881,14 +972,28 @@ impl FnEmitter<'_> {
         }
     }
 
-    fn init_array(&mut self, ptr: &str, off: u64, elem: &QualType, len: u64, elems: &[Expr], filler: Option<&Expr>) {
-        let Some((esize, _)) = self.size_align(elem) else { return };
+    fn init_array(
+        &mut self,
+        ptr: &str,
+        off: u64,
+        elem: &QualType,
+        len: u64,
+        elems: &[Expr],
+        filler: Option<&Expr>,
+    ) {
+        let Some((esize, _)) = self.size_align(elem) else {
+            return;
+        };
         let scalar = !matches!(self.kind(elem), K::Agg | K::Void | K::Bad);
         let mut batch: Vec<String> = Vec::new();
         let mut batch_at = off;
         let mut at = off;
         for e in elems {
-            let direct = scalar && !matches!(e.kind, ExprKind::InitList { .. } | ExprKind::ImplicitValueInit);
+            let direct = scalar
+                && !matches!(
+                    e.kind,
+                    ExprKind::InitList { .. } | ExprKind::ImplicitValueInit
+                );
             if direct {
                 let (v, lines) = self.capture(0, |s| s.rv(e));
                 if !lines.is_empty() || batch.len() >= 64 {
@@ -932,9 +1037,22 @@ impl FnEmitter<'_> {
         batch.clear();
     }
 
-    fn init_record(&mut self, ptr: &str, off: u64, t: &QualType, elems: &[Expr], union_field: Option<&str>) {
+    fn init_record(
+        &mut self,
+        ptr: &str,
+        off: u64,
+        t: &QualType,
+        elems: &[Expr],
+        union_field: Option<&str>,
+    ) {
         let Some(key) = self.record_of(t) else { return };
-        let fields = self.u.tu.records.get(&key).and_then(|d| d.fields.clone()).unwrap_or_default();
+        let fields = self
+            .u
+            .tu
+            .records
+            .get(&key)
+            .and_then(|d| d.fields.clone())
+            .unwrap_or_default();
         if fields.iter().any(|f| f.bit_width.is_some()) {
             self.refuse("initialiser of a record with bit-fields");
             return;
@@ -943,8 +1061,8 @@ impl FnEmitter<'_> {
             let f = union_field.and_then(|n| fields.iter().find(|f| f.name == n));
             match (f, elems.first()) {
                 (Some(f), Some(e)) => {
-                    let fo = self.field_offset(t, &f.name, &f.ty);
-                    self.init_at(ptr, off + fo, &f.ty, e);
+                    let field_off = self.field_offset(t, &f.name, &f.ty);
+                    self.init_at(ptr, off + field_off, &f.ty, e);
                 }
                 (None, None) => {}
                 _ => {
@@ -957,8 +1075,8 @@ impl FnEmitter<'_> {
             self.refuse("more initialisers than members");
         }
         for (f, e) in fields.iter().zip(elems) {
-            let fo = self.field_offset(t, &f.name, &f.ty);
-            self.init_at(ptr, off + fo, &f.ty, e);
+            let field_off = self.field_offset(t, &f.name, &f.ty);
+            self.init_at(ptr, off + field_off, &f.ty, e);
         }
     }
 
@@ -968,7 +1086,12 @@ impl FnEmitter<'_> {
             (ExprKind::InitList { elems, filler, .. }, Type::Array { elem, len: Some(n) }) => {
                 self.init_array(ptr, off, elem, *n, elems, filler.as_deref());
             }
-            (ExprKind::InitList { elems, union_field, .. }, Type::Record { .. }) => {
+            (
+                ExprKind::InitList {
+                    elems, union_field, ..
+                },
+                Type::Record { .. },
+            ) => {
                 self.init_record(ptr, off, t, elems, union_field.as_deref());
             }
             (ExprKind::InitList { elems, .. }, _) => match elems.first() {
@@ -985,7 +1108,11 @@ impl FnEmitter<'_> {
             }
             (ExprKind::StringLit(bytes), Type::Array { len: Some(n), .. }) => {
                 let p = self.at(ptr, off);
-                let keep: Vec<String> = bytes.iter().take(usize::try_from(*n).unwrap_or(0)).map(u8::to_string).collect();
+                let keep: Vec<String> = bytes
+                    .iter()
+                    .take(usize::try_from(*n).unwrap_or(0))
+                    .map(u8::to_string)
+                    .collect();
                 self.line(format!("Mem.zero {p} {n}"));
                 if !keep.is_empty() {
                     self.line(format!("Mem.storeRaw {p} [{}]", keep.join(", ")));
@@ -1011,9 +1138,15 @@ impl FnEmitter<'_> {
                 self.line("ub \"__builtin_unreachable was reached\"");
                 "()".into()
             }
-            ("__builtin_isfinite" | "__builtin_isnan", [x]) if matches!(self.kind(&x.ty), K::Float(_)) => {
+            ("__builtin_isfinite" | "__builtin_isnan", [x])
+                if matches!(self.kind(&x.ty), K::Float(_)) =>
+            {
                 let v = self.rv(x);
-                let f = if name == "__builtin_isnan" { "isNaN" } else { "isFinite" };
+                let f = if name == "__builtin_isnan" {
+                    "isNaN"
+                } else {
+                    "isFinite"
+                };
                 self.of_bool(&format!("({v}.{f})"), &e.ty)
             }
             _ if name.starts_with("__builtin_va_") => {
@@ -1036,12 +1169,19 @@ impl FnEmitter<'_> {
 
     /// The Lean application for a call to what `name` means here.
     fn callee_text(&mut self, name: &str, sig: &Sig) -> Option<String> {
-        let (u, module) = (self.u, self.module.clone());
-        let target = match u.target(self.w, name, &module) {
-            Target::Emitted(meta) => Ok((meta.key.clone(), meta.module.clone(), meta.name.clone(), meta.sig.clone())),
+        let (u, from) = (self.u, self.key.clone());
+        let target = match u.target(self.w, name, &from) {
+            Target::Emitted(meta) => Ok((
+                meta.key.clone(),
+                meta.module.clone(),
+                meta.name.clone(),
+                meta.sig.clone(),
+            )),
             Target::Model(m) if m.sig == sig.arrow() => {
                 self.res.models.insert(m.name.to_owned());
-                self.res.assumptions.extend(m.assumes.iter().map(|a| (*a).to_owned()));
+                self.res
+                    .assumptions
+                    .extend(m.assumes.iter().map(|a| (*a).to_owned()));
                 return Some(m.lean.to_owned());
             }
             Target::Model(m) => Err(m.name.to_owned()),
@@ -1077,9 +1217,15 @@ impl FnEmitter<'_> {
         let mut text = format!("(match {p} with");
         for id in cands {
             // A key names a selection function; anything else is a C name.
-            let by_key = self.w.fns.get(&id).map(|m| (m.key.clone(), m.module.clone(), m.name.clone()));
+            let by_key = self
+                .w
+                .fns
+                .get(&id)
+                .map(|m| (m.key.clone(), m.module.clone(), m.name.clone()));
             let app = match by_key {
-                Some((key, module, fname)) if !self.w.refused.contains(&key) && self.w.importable(&self.module, &module) => {
+                Some((key, module, fname))
+                    if !self.w.refused.contains(&key) && self.w.importable(&self.key, &key) =>
+                {
                     self.res.callees.insert(key);
                     Some(format!("{module}.{} fuel", names::ident(&fname)))
                 }
@@ -1090,14 +1236,18 @@ impl FnEmitter<'_> {
                 None => self.callee_text(&id, sig),
             };
             if let Some(app) = app {
-                text.push_str(&format!("\n{}  | Ptr.fn \"{id}\" => {app} ARGS", "  ".repeat(self.ind)));
+                let _ = write!(
+                    text,
+                    "\n{}  | Ptr.fn \"{id}\" => {app} ARGS",
+                    "  ".repeat(self.ind)
+                );
             }
         }
         let pad = "  ".repeat(self.ind);
-        text.push_str(&format!("\n{pad}  | Ptr.null => ub \"call through a null pointer\""));
-        text.push_str(&format!(
-            "\n{pad}  | _ => unsupported \"call through a pointer to a function the selection does not know with this type\")"
-        ));
+        let _ = write!(
+            text,
+            "\n{pad}  | Ptr.null => ub \"call through a null pointer\"\n{pad}  | _ => unsupported \"call through a pointer to a function the selection does not know with this type\")"
+        );
         text
     }
 
@@ -1143,8 +1293,15 @@ impl FnEmitter<'_> {
         if sig.variadic {
             fixed.push(format!("[{}]", extra.join(", ")));
         }
-        let Some(head) = head else { return "default".into() };
-        let app = head.replace(" ARGS", &fixed.iter().map(|a| format!(" {a}")).collect::<String>());
+        let Some(head) = head else {
+            return "default".into();
+        };
+        let mut applied = String::new();
+        for a in &fixed {
+            applied.push(' ');
+            applied.push_str(a);
+        }
+        let app = head.replace(" ARGS", &applied);
         if sig.ret == "Unit" {
             self.line(app);
             "()".into()

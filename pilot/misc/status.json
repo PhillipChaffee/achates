@@ -1,0 +1,3231 @@
+[
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstrcmp",
+    "line": 30,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstrcmp",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstrcasecmp",
+    "line": 47,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstrcasecmp",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "strncasecmp"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstrchr",
+    "line": 64,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstrchr",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": [
+      "memchr"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstrrchr",
+    "line": 72,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstrrchr",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "memrchr"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstrcspn",
+    "line": 87,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstrcspn",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": [
+      "strchr"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstrspn",
+    "line": 96,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstrspn",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": [
+      "strchr"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_find",
+    "line": 105,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_find",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_lstrip",
+    "line": 113,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_lstrip",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_strip",
+    "line": 122,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_strip",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_split",
+    "line": 130,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_split",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": [
+      "strchr"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_split_tok",
+    "line": 147,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_split_tok",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_splice",
+    "line": 158,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_splice",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstrtoll",
+    "line": 175,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstrtoll",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "strtoll"
+    ],
+    "models": [
+      "memcpy"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstrtod",
+    "line": 189,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstrtod",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "strtod"
+    ],
+    "models": [
+      "memcpy"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_splitchar",
+    "line": 203,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_splitchar",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": [
+      "memchr"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_strip_linebreaks",
+    "line": 213,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_strip_linebreaks",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_eatstart",
+    "line": 223,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_eatstart",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_eatend",
+    "line": 231,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_eatend",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_lower",
+    "line": 239,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_lower",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_sscanf",
+    "line": 245,
+    "origin": "MainFile",
+    "lean": null,
+    "status": "not emitted",
+    "reasons": [
+      "variadic function definition: reading `...` arguments is not modelled",
+      "variadic argument handling (va_start and friends) is not modelled"
+    ],
+    "assumptions": [
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "ta_xstrndup",
+      "vsscanf"
+    ],
+    "models": [
+      "ta_free"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_parse_utf8_code_length",
+    "line": 256,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_parse_utf8_code_length",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "mp_log2"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_decode_partial_utf8",
+    "line": 264,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_decode_partial_utf8",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "mp_log2"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_decode_utf8",
+    "line": 295,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_decode_utf8",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "mp_log2"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_split_utf8",
+    "line": 303,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_split_utf8",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "mp_log2"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_validate_utf8",
+    "line": 314,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_validate_utf8",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "mp_log2"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_sanitize_utf8_latin1",
+    "line": 339,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_sanitize_utf8_latin1",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "mp_append_utf8_bstr",
+      "mp_log2"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memmove",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "resize_append",
+    "line": 361,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.resize_append",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_xappend",
+    "line": 374,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_xappend",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memmove",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_xappend_asprintf",
+    "line": 384,
+    "origin": "MainFile",
+    "lean": null,
+    "status": "not emitted",
+    "reasons": [
+      "variadic function definition: reading `...` arguments is not modelled",
+      "variadic argument handling (va_start and friends) is not modelled"
+    ],
+    "assumptions": [],
+    "externals": [
+      "bstr_xappend_vasprintf"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_xappend_vasprintf",
+    "line": 393,
+    "origin": "MainFile",
+    "lean": null,
+    "status": "not emitted",
+    "reasons": [
+      "variadic argument handling (va_start and friends) is not modelled"
+    ],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "vsnprintf"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_case_startswith",
+    "line": 415,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_case_startswith",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "strncasecmp"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_case_endswith",
+    "line": 421,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_case_endswith",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "strncasecmp"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "h_to_i",
+    "line": 427,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.h_to_i",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_decode_hex",
+    "line": 439,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_decode_hex",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [],
+    "models": [
+      "abort",
+      "ta_alloc_size",
+      "ta_calc_array_size",
+      "ta_dbg_set_loc",
+      "ta_free"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_find_in_list0",
+    "line": 464,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_find_in_list0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [
+      "strncasecmp"
+    ],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.c",
+    "function": "bstr_in_list0",
+    "line": 473,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Bstr_c.bstr_in_list0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [
+      "strncasecmp"
+    ],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstr0",
+    "line": 61,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstr0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": [
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstr_cut",
+    "line": 226,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstr_cut",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstr_endswith",
+    "line": 250,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstr_endswith",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstr_endswith0",
+    "line": 257,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstr_endswith0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstr_startswith",
+    "line": 238,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstr_startswith",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstrcasecmp0",
+    "line": 280,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstrcasecmp0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "strncasecmp"
+    ],
+    "models": [
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstrcmp0",
+    "line": 262,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstrcmp0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstrdup0",
+    "line": 39,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstrdup0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "ta_xstrndup"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/ctype.h",
+    "function": "mp_isspace",
+    "line": 8,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Ctype_h.mp_isspace",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/ctype.h",
+    "function": "mp_tolower",
+    "line": 16,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Ctype_h.mp_tolower",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/ctype.h",
+    "function": "mp_isupper",
+    "line": 10,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Ctype_h.mp_isupper",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/ta/ta.h",
+    "function": "ta_oom_p",
+    "line": 161,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Ta.Ta_h.ta_oom_p",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": [
+      "abort"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/charset_conv.c",
+    "function": "mp_charset_is_utf8",
+    "line": 41,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Charset_conv_c.mp_charset_is_utf8",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "strcasecmp"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/charset_conv.c",
+    "function": "mp_charset_is_utf16",
+    "line": 47,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Charset_conv_c.mp_charset_is_utf16",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "strncasecmp"
+    ],
+    "models": [
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/charset_conv.c",
+    "function": "ms_bom_guess",
+    "line": 57,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Charset_conv_c.ms_bom_guess",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/charset_conv.c",
+    "function": "mp_charset_guess",
+    "line": 101,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Charset_conv_c.mp_charset_guess",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [
+      "mp_log2",
+      "mp_msg",
+      "strcasecmp"
+    ],
+    "models": [
+      "memcmp",
+      "strcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/charset_conv.c",
+    "function": "mp_iconv_to_utf8",
+    "line": 150,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Charset_conv_c.mp_iconv_to_utf8",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "mp_append_utf8_bstr",
+      "mp_log2"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memmove",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstr_startswith0",
+    "line": 245,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstr_startswith0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/codepoint_width.c",
+    "function": "ucdLookup",
+    "line": 617,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Codepoint_width_c.ucdLookup",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/codepoint_width.c",
+    "function": "ucdGraphemeJoins",
+    "line": 625,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Codepoint_width_c.ucdGraphemeJoins",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/codepoint_width.c",
+    "function": "ucdGraphemeDone",
+    "line": 631,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Codepoint_width_c.ucdGraphemeDone",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/codepoint_width.c",
+    "function": "ucdToCharacterWidth",
+    "line": 635,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Codepoint_width_c.ucdToCharacterWidth",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/codepoint_width.c",
+    "function": "is_valid_partial_sequence",
+    "line": 664,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Codepoint_width_c.is_valid_partial_sequence",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/codepoint_width.c",
+    "function": "term_disp_width",
+    "line": 680,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Codepoint_width_c.term_disp_width",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [
+      "mp_log2"
+    ],
+    "models": [
+      "__assert_fail",
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstr_eatstart0",
+    "line": 290,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstr_eatstart0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "queue_dtor",
+    "line": 63,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.queue_dtor",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_destroy",
+      "pthread_mutex_destroy"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_create",
+    "line": 83,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_create",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "pthread_cond_init",
+      "pthread_condattr_destroy",
+      "pthread_condattr_init",
+      "pthread_condattr_setclock",
+      "pthread_mutex_init",
+      "pthread_mutexattr_destroy",
+      "pthread_mutexattr_init",
+      "pthread_mutexattr_settype"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_alloc_size",
+      "ta_dbg_set_loc",
+      "ta_set_destructor"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_set_wakeup_fn",
+    "line": 102,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_set_wakeup_fn",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_set_onlock_fn",
+    "line": 118,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_set_onlock_fn",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_append",
+    "line": 126,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_append",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "Misc.Thread_pool_c.thread_pool_dtor",
+      "Misc.Thread_tools_c.cancel_destroy",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail",
+      "ta_free"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_enqueue",
+    "line": 168,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_enqueue",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "Misc.Thread_pool_c.thread_pool_dtor",
+      "Misc.Thread_tools_c.cancel_destroy",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_alloc_size",
+      "ta_dbg_set_loc",
+      "ta_free"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_enqueue_autofree",
+    "line": 184,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_enqueue_autofree",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "Misc.Thread_pool_c.thread_pool_dtor",
+      "Misc.Thread_tools_c.cancel_destroy",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_alloc_size",
+      "ta_dbg_set_loc",
+      "ta_free",
+      "ta_steal_"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_enqueue_notify",
+    "line": 197,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_enqueue_notify",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "Misc.Thread_pool_c.thread_pool_dtor",
+      "Misc.Thread_tools_c.cancel_destroy",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_alloc_size",
+      "ta_dbg_set_loc",
+      "ta_free"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_cancel_fn",
+    "line": 218,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_cancel_fn",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "ta_free"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_run",
+    "line": 241,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_run",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "Misc.Thread_pool_c.thread_pool_dtor",
+      "Misc.Thread_tools_c.cancel_destroy",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_cond_wait",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail",
+      "ta_free"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_queue_process",
+    "line": 272,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_queue_process",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "Misc.Thread_pool_c.thread_pool_dtor",
+      "Misc.Thread_tools_c.cancel_destroy",
+      "clock_gettime",
+      "mp_time_ns",
+      "mp_time_ns_add",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_cond_timedwait",
+      "pthread_cond_wait",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "pthread_self"
+    ],
+    "models": [
+      "__assert_fail",
+      "ta_free"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_interrupt",
+    "line": 331,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_interrupt",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_broadcast",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_adjust_timeout",
+    "line": 347,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_adjust_timeout",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_broadcast",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_lock",
+    "line": 364,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_lock",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "external-order: where C leaves the order of two operands open and one calls a function taken as a parameter while the other reads memory, that function does not write what the other reads; operands are evaluated left to right"
+    ],
+    "externals": [
+      "Misc.Thread_pool_c.thread_pool_dtor",
+      "Misc.Thread_tools_c.cancel_destroy",
+      "pthread_cond_destroy",
+      "pthread_cond_wait",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "pthread_self"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/dispatch.c",
+    "function": "mp_dispatch_unlock",
+    "line": 402,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Dispatch_c.mp_dispatch_unlock",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "external-order: where C leaves the order of two operands open and one calls a function taken as a parameter while the other reads memory, that function does not write what the other reads; operands are evaluated left to right"
+    ],
+    "externals": [
+      "pthread_cond_broadcast",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "pthread_self"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/osdep/threads-posix.h",
+    "function": "mp_cond_broadcast",
+    "line": 165,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Osdep.Threads_posix_h.mp_cond_broadcast",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_broadcast"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/osdep/threads-posix.h",
+    "function": "mp_cond_destroy",
+    "line": 159,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Osdep.Threads_posix_h.mp_cond_destroy",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_destroy"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/osdep/threads-posix.h",
+    "function": "mp_cond_init",
+    "line": 138,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Osdep.Threads_posix_h.mp_cond_init",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_init",
+      "pthread_condattr_destroy",
+      "pthread_condattr_init",
+      "pthread_condattr_setclock"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/osdep/threads-posix.h",
+    "function": "mp_cond_timedwait_until",
+    "line": 204,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Osdep.Threads_posix_h.mp_cond_timedwait_until",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "clock_gettime",
+      "mp_time_ns",
+      "pthread_cond_timedwait",
+      "pthread_cond_wait"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/osdep/threads-posix.h",
+    "function": "mp_cond_timedwait",
+    "line": 183,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Osdep.Threads_posix_h.mp_cond_timedwait",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "clock_gettime",
+      "pthread_cond_timedwait",
+      "pthread_cond_wait"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/osdep/threads-posix.h",
+    "function": "mp_cond_wait",
+    "line": 177,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Osdep.Threads_posix_h.mp_cond_wait",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_wait"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/osdep/threads-posix.h",
+    "function": "mp_mutex_init",
+    "line": 112,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Osdep.Threads_posix_h.mp_mutex_init",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_mutex_init",
+      "pthread_mutexattr_destroy",
+      "pthread_mutexattr_init",
+      "pthread_mutexattr_settype"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/hash.c",
+    "function": "mp_hash_to_bstr",
+    "line": 25,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Hash_c.mp_hash_to_bstr",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "av_hash_alloc",
+      "av_hash_final",
+      "av_hash_freep",
+      "av_hash_get_size",
+      "av_hash_init",
+      "av_hash_update",
+      "bstr_xappend_asprintf"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/io_utils.c",
+    "function": "mp_mkostemps",
+    "line": 34,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Io_utils_c.mp_mkostemps",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [
+      "__errno_location",
+      "av_random_bytes",
+      "mp_raw_time_ns",
+      "mp_tprintf_buf",
+      "open"
+    ],
+    "models": [
+      "memcpy",
+      "strlen",
+      "strncmp"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/io_utils.c",
+    "function": "mp_save_to_file",
+    "line": 61,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Io_utils_c.mp_save_to_file",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "__errno_location",
+      "av_random_bytes",
+      "close",
+      "fclose",
+      "fdopen",
+      "fwrite",
+      "mp_raw_time_ns",
+      "mp_tprintf_buf",
+      "open",
+      "rename",
+      "ta_asprintf",
+      "unlink"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memcpy",
+      "strlen",
+      "strncmp",
+      "ta_free"
+    ]
+  },
+  {
+    "file": "../.mpv/ta/ta.h",
+    "function": "ta_oom_s",
+    "line": 174,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Ta.Ta_h.ta_oom_s",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": [
+      "abort"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "eat_c",
+    "line": 59,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.eat_c",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "eat_ws",
+    "line": 68,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.eat_ws",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "json_skip_whitespace",
+    "line": 78,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.json_skip_whitespace",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "read_id",
+    "line": 83,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.read_id",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "ta_xstrndup"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "read_str",
+    "line": 101,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.read_str",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "mp_append_escaped_string"
+    ],
+    "models": [
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "read_sub",
+    "line": 135,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.read_sub",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "__errno_location",
+      "mp_append_escaped_string",
+      "strtod",
+      "strtoll",
+      "ta_xstrndup"
+    ],
+    "models": [
+      "abort",
+      "strlen",
+      "strncmp",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size",
+      "ta_zalloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "json_parse",
+    "line": 189,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.json_parse",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "__errno_location",
+      "mp_append_escaped_string",
+      "strtod",
+      "strtoll",
+      "ta_xstrndup"
+    ],
+    "models": [
+      "abort",
+      "strlen",
+      "strncmp",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size",
+      "ta_zalloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "write_json_str",
+    "line": 258,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.write_json_str",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "bstr_xappend_asprintf"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memmove",
+      "strlen",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "add_indent",
+    "line": 285,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.add_indent",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memmove",
+      "strlen",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "json_append",
+    "line": 294,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.json_append",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "bstr_xappend_asprintf"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memmove",
+      "strlen",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "json_append_str",
+    "line": 341,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.json_append_str",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "bstr_xappend_asprintf"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memmove",
+      "strlen",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "json_write",
+    "line": 354,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.json_write",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "bstr_xappend_asprintf"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memmove",
+      "strlen",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/json.c",
+    "function": "json_write_pretty",
+    "line": 360,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Json_c.json_write_pretty",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "bstr_xappend_asprintf"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memmove",
+      "strlen",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/ctype.h",
+    "function": "mp_isalnum",
+    "line": 14,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Ctype_h.mp_isalnum",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/ctype.h",
+    "function": "mp_isalpha",
+    "line": 13,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Ctype_h.mp_isalpha",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/ctype.h",
+    "function": "mp_isdigit",
+    "line": 12,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Ctype_h.mp_isdigit",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/ctype.h",
+    "function": "mp_islower",
+    "line": 11,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Ctype_h.mp_islower",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/language.c",
+    "function": "lang_compare",
+    "line": 241,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Language_c.lang_compare",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "strncasecmp"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/language.c",
+    "function": "canonicalize",
+    "line": 247,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Language_c.canonicalize",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "Misc.Language_c.lang_compare"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/language.c",
+    "function": "mp_match_lang",
+    "line": 254,
+    "origin": "MainFile",
+    "lean": null,
+    "status": "not emitted",
+    "reasons": [
+      "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order"
+    ],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "Misc.Language_c.lang_compare",
+      "strncasecmp"
+    ],
+    "models": [
+      "abort",
+      "strchr",
+      "strlen",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_free",
+      "ta_get_size",
+      "ta_new_context",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/language.c",
+    "function": "mp_guess_lang_from_filename",
+    "line": 303,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Language_c.mp_guess_lang_from_filename",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "memrchr",
+      "strncasecmp"
+    ],
+    "models": [
+      "strchr",
+      "strlen"
+    ]
+  },
+  {
+    "file": "/usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h",
+    "function": "bsearch",
+    "line": 20,
+    "origin": "SystemHeader",
+    "lean": "Misc.Sys.Stdlib_bsearch_h.bsearch",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "Misc.Language_c.lang_compare"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/natural_sort.c",
+    "function": "mp_natural_sort_cmp",
+    "line": 26,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Natural_sort_c.mp_natural_sort_cmp",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_init",
+    "line": 12,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.node_init",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_dbg_set_loc",
+      "ta_zalloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_array_add",
+    "line": 36,
+    "origin": "MainFile",
+    "lean": null,
+    "status": "not emitted",
+    "reasons": [
+      "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order"
+    ],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size",
+      "ta_zalloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_map_add",
+    "line": 48,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.node_map_add",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "node_map_badd"
+    ],
+    "models": [
+      "__assert_fail",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_map_badd",
+    "line": 54,
+    "origin": "MainFile",
+    "lean": null,
+    "status": "not emitted",
+    "reasons": [
+      "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order"
+    ],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "ta_xstrndup"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size",
+      "ta_zalloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_map_add_string",
+    "line": 70,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.node_map_add_string",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "node_map_badd",
+      "ta_xstrdup"
+    ],
+    "models": [
+      "__assert_fail",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_map_add_bstr",
+    "line": 79,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.node_map_add_bstr",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "node_map_badd",
+      "ta_xstrdup",
+      "ta_xstrndup"
+    ],
+    "models": [
+      "__assert_fail",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_map_add_int64",
+    "line": 88,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.node_map_add_int64",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "node_map_badd"
+    ],
+    "models": [
+      "__assert_fail",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_map_add_double",
+    "line": 93,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.node_map_add_double",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "node_map_badd"
+    ],
+    "models": [
+      "__assert_fail",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_map_add_flag",
+    "line": 98,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.node_map_add_flag",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "node_map_badd"
+    ],
+    "models": [
+      "__assert_fail",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_map_get",
+    "line": 103,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.node_map_get",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "node_map_bget",
+    "line": 108,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.node_map_bget",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "equal_mpv_value",
+    "line": 123,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.equal_mpv_value",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memcmp",
+      "strcmp"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/node.c",
+    "function": "equal_mpv_node",
+    "line": 166,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Node_c.equal_mpv_node",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memcmp",
+      "strcmp"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstr_equals0",
+    "line": 275,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstr_equals0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstr_equals",
+    "line": 267,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstr_equals",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstrto0",
+    "line": 45,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstrto0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "ta_xstrdup",
+      "ta_xstrndup"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_basename_bstr",
+    "line": 42,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_basename_bstr",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "memrchr"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_basename",
+    "line": 62,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_basename",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "memrchr"
+    ],
+    "models": [
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_dirname",
+    "line": 67,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_dirname",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "memrchr"
+    ],
+    "models": [
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_path_strip_trailing_separator",
+    "line": 85,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_path_strip_trailing_separator",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": [
+      "strchr",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "split_ext",
+    "line": 96,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.split_ext",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "memrchr"
+    ],
+    "models": [
+      "strchr"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_strip_ext",
+    "line": 113,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_strip_ext",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "memrchr"
+    ],
+    "models": [
+      "strchr"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_get_ext",
+    "line": 120,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_get_ext",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "memrchr"
+    ],
+    "models": [
+      "strchr"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_path_is_absolute",
+    "line": 125,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_path_is_absolute",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": [
+      "strchr"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_path_join_bstr",
+    "line": 142,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_path_join_bstr",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "ta_asprintf",
+      "ta_xstrndup"
+    ],
+    "models": [
+      "abort",
+      "strchr"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_path_join",
+    "line": 163,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_path_join",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "ta_asprintf",
+      "ta_xstrndup"
+    ],
+    "models": [
+      "abort",
+      "strchr",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_getcwd",
+    "line": 168,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_getcwd",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "__errno_location",
+      "getcwd",
+      "getenv",
+      "stat",
+      "ta_xstrdup"
+    ],
+    "models": [
+      "abort",
+      "strchr",
+      "strlen",
+      "ta_alloc_size",
+      "ta_calc_array_size",
+      "ta_dbg_set_loc",
+      "ta_free",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_normalize_path",
+    "line": 190,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_normalize_path",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "__errno_location",
+      "getcwd",
+      "getenv",
+      "realpath",
+      "stat",
+      "ta_asprintf",
+      "ta_talloc_strdup_append_buffer",
+      "ta_talloc_strndup_append_buffer",
+      "ta_xstrdup",
+      "ta_xstrndup"
+    ],
+    "models": [
+      "abort",
+      "free",
+      "memchr",
+      "memcmp",
+      "strchr",
+      "strcmp",
+      "strlen",
+      "ta_alloc_size",
+      "ta_calc_array_size",
+      "ta_dbg_set_loc",
+      "ta_free",
+      "ta_get_size",
+      "ta_new_context",
+      "ta_steal_",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_path_exists",
+    "line": 276,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_path_exists",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "stat"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_path_isdir",
+    "line": 282,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_path_isdir",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "stat"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_is_url",
+    "line": 289,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_is_url",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_split_proto",
+    "line": 309,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_split_proto",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/path_utils.c",
+    "function": "mp_mkdirp",
+    "line": 318,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Path_utils_c.mp_mkdirp",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "mkdir",
+      "stat",
+      "ta_xstrdup"
+    ],
+    "models": [
+      "strchr",
+      "ta_free"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/bstr.h",
+    "function": "bstr_find0",
+    "line": 285,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Misc.Bstr_h.bstr_find0",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign"
+    ],
+    "externals": [],
+    "models": [
+      "memcmp",
+      "strlen"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/random.c",
+    "function": "rotl_u64",
+    "line": 31,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Random_c.rotl_u64",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/random.c",
+    "function": "splitmix64",
+    "line": 36,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Random_c.splitmix64",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/random.c",
+    "function": "mp_rand_seed",
+    "line": 44,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Random_c.mp_rand_seed",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "av_random_bytes",
+      "mp_raw_time_ns"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/random.c",
+    "function": "mp_rand_next",
+    "line": 67,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Random_c.mp_rand_next",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/random.c",
+    "function": "mp_rand_next_double",
+    "line": 85,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Random_c.mp_rand_next_double",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "signed-zeros: compiled with -fno-signed-zeros, so the compiled C may differ from this definition in the sign of a zero"
+    ],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/random.c",
+    "function": "mp_rand_in_range32",
+    "line": 92,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Random_c.mp_rand_in_range32",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "mp_round_next_power_of_2"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/rendezvous.c",
+    "function": "mp_rendezvous",
+    "line": 32,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Rendezvous_c.mp_rendezvous",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_broadcast",
+      "pthread_cond_wait",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_pool.c",
+    "function": "worker_thread",
+    "line": 51,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_pool_c.worker_thread",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "external-order: where C leaves the order of two operands open and one calls a function taken as a parameter while the other reads memory, that function does not write what the other reads; operands are evaluated left to right"
+    ],
+    "externals": [
+      "Misc.Thread_tools_c.cancel_destroy",
+      "clock_gettime",
+      "mp_time_ns",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_cond_timedwait",
+      "pthread_cond_wait",
+      "pthread_detach",
+      "pthread_join",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "pthread_self",
+      "pthread_setname_np",
+      "strncpy"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "memmove"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_pool.c",
+    "function": "thread_pool_dtor",
+    "line": 115,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_pool_c.thread_pool_dtor",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_join",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_pool.c",
+    "function": "add_thread",
+    "line": 142,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_pool_c.add_thread",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "pthread_create"
+    ],
+    "models": [
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_pool.c",
+    "function": "mp_thread_pool_create",
+    "line": 153,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_pool_c.mp_thread_pool_create",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "pthread_cond_init",
+      "pthread_condattr_destroy",
+      "pthread_condattr_init",
+      "pthread_condattr_setclock",
+      "pthread_create",
+      "pthread_mutex_init",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "pthread_mutexattr_destroy",
+      "pthread_mutexattr_init",
+      "pthread_mutexattr_settype"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_free",
+      "ta_get_size",
+      "ta_set_destructor",
+      "ta_xrealloc_size",
+      "ta_zalloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_pool.c",
+    "function": "thread_pool_add",
+    "line": 181,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_pool_c.thread_pool_add",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "pthread_cond_signal",
+      "pthread_create",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail",
+      "memmove",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_pool.c",
+    "function": "mp_thread_pool_queue",
+    "line": 213,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_pool_c.mp_thread_pool_queue",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "pthread_cond_signal",
+      "pthread_create",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail",
+      "memmove",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_pool.c",
+    "function": "mp_thread_pool_run",
+    "line": 219,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_pool_c.mp_thread_pool_run",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "pthread_cond_signal",
+      "pthread_create",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail",
+      "memmove",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
+  },
+  {
+    "file": "../.mpv/osdep/threads-posix.h",
+    "function": "mp_cond_signal",
+    "line": 171,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Osdep.Threads_posix_h.mp_cond_signal",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_signal"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/osdep/threads-posix.h",
+    "function": "mp_thread_set_name",
+    "line": 221,
+    "origin": "ProjectHeader",
+    "lean": "Misc.Osdep.Threads_posix_h.mp_thread_set_name",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_self",
+      "pthread_setname_np",
+      "strncpy"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_waiter_wait",
+    "line": 35,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_waiter_wait",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_destroy",
+      "pthread_cond_wait",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail",
+      "memset"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_waiter_wakeup",
+    "line": 60,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_waiter_wakeup",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_cond_signal",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_waiter_poll",
+    "line": 70,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_waiter_poll",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [],
+    "externals": [
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "cancel_destroy",
+    "line": 101,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.cancel_destroy",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs"
+    ],
+    "externals": [
+      "close",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_join",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "write"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_cancel_new",
+    "line": 123,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_cancel_new",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported",
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [
+      "pthread_cond_init",
+      "pthread_condattr_destroy",
+      "pthread_condattr_init",
+      "pthread_condattr_setclock",
+      "pthread_mutex_init",
+      "pthread_mutexattr_destroy",
+      "pthread_mutexattr_init",
+      "pthread_mutexattr_settype"
+    ],
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_alloc_size",
+      "ta_dbg_set_loc",
+      "ta_set_destructor"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "trigger_locked",
+    "line": 136,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.trigger_locked",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs"
+    ],
+    "externals": [
+      "close",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_join",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "write"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_cancel_trigger",
+    "line": 157,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_cancel_trigger",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs"
+    ],
+    "externals": [
+      "close",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_join",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "write"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_cancel_reset",
+    "line": 164,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_cancel_reset",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs"
+    ],
+    "externals": [
+      "__errno_location",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "read"
+    ],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_cancel_test",
+    "line": 187,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_cancel_test",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs"
+    ],
+    "externals": [],
+    "models": []
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_cancel_wait",
+    "line": 192,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_cancel_wait",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs"
+    ],
+    "externals": [
+      "clock_gettime",
+      "mp_time_ns",
+      "mp_time_ns_add",
+      "pthread_cond_timedwait",
+      "pthread_cond_wait",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "retrigger_locked",
+    "line": 207,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.retrigger_locked",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs"
+    ],
+    "externals": [
+      "close",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_join",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "write"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_cancel_set_cb",
+    "line": 213,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_cancel_set_cb",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs"
+    ],
+    "externals": [
+      "close",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_join",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "write"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_cancel_set_parent",
+    "line": 222,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_cancel_set_parent",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs"
+    ],
+    "externals": [
+      "close",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_join",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "write"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  },
+  {
+    "file": "../.mpv/misc/thread_tools.c",
+    "function": "mp_cancel_get_fd",
+    "line": 243,
+    "origin": "MainFile",
+    "lean": "Misc.Misc.Thread_tools_c.mp_cancel_get_fd",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs"
+    ],
+    "externals": [
+      "close",
+      "mp_make_wakeup_pipe",
+      "pthread_cond_broadcast",
+      "pthread_cond_destroy",
+      "pthread_join",
+      "pthread_mutex_destroy",
+      "pthread_mutex_lock",
+      "pthread_mutex_unlock",
+      "write"
+    ],
+    "models": [
+      "__assert_fail"
+    ]
+  }
+]

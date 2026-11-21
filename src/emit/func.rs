@@ -6,10 +6,11 @@
 //! and is passed on by a check after each loop on the way out.
 
 use std::collections::{BTreeMap, BTreeSet};
+use std::fmt::Write as _;
 
 use crate::emit::names::{self, Sig};
-use crate::emit::order::{Classes, OrderCx, VarKey, classify};
-use crate::emit::world::{Unit, World};
+use crate::emit::order::{CallEffect, Classes, OrderCx, VarKey, Verdict, classify};
+use crate::emit::world::{EXT_ORDER, MODELS, Unit, World};
 use crate::ir::{Decl, Expr, Function, LocalVar, Stmt};
 use crate::types::{QualType, Type};
 
@@ -46,6 +47,8 @@ pub(crate) struct FnEmitter<'a> {
     pub(crate) w: &'a mut World,
     /// The Lean module the code is written into.
     pub(crate) module: String,
+    /// Key of the function being emitted; empty for a static initialiser.
+    pub(crate) key: String,
     pub(crate) fname: String,
     pub(crate) out: Vec<String>,
     pub(crate) ind: usize,
@@ -68,11 +71,18 @@ pub(crate) struct FnEmitter<'a> {
 }
 
 impl<'a> FnEmitter<'a> {
-    pub(crate) fn new(u: &'a Unit<'a>, w: &'a mut World, module: &str, fname: &str) -> Self {
+    pub(crate) fn new(
+        u: &'a Unit<'a>,
+        w: &'a mut World,
+        module: &str,
+        key: &str,
+        fname: &str,
+    ) -> Self {
         Self {
             u,
             w,
             module: module.to_owned(),
+            key: key.to_owned(),
             fname: fname.to_owned(),
             out: Vec::new(),
             ind: 1,
@@ -100,7 +110,8 @@ impl<'a> FnEmitter<'a> {
     }
 
     pub(crate) fn line(&mut self, s: impl AsRef<str>) {
-        self.out.push(format!("{}{}", "  ".repeat(self.ind), s.as_ref()));
+        self.out
+            .push(format!("{}{}", "  ".repeat(self.ind), s.as_ref()));
     }
 
     pub(crate) fn fresh(&mut self, prefix: &str) -> String {
@@ -250,7 +261,13 @@ impl<'a> FnEmitter<'a> {
         a || b
     }
 
-    fn loop_stmt(&mut self, pre: Option<&Expr>, body: &Stmt, inc: Option<&Expr>, post: Option<&Expr>) {
+    fn loop_stmt(
+        &mut self,
+        pre: Option<&Expr>,
+        body: &Stmt,
+        inc: Option<&Expr>,
+        post: Option<&Expr>,
+    ) {
         let start = self.out.len() + 2;
         let lp = self.open_frame("for _ in Fuel.mk fuel do");
         if let Some(c) = pre {
@@ -334,7 +351,7 @@ impl<'a> FnEmitter<'a> {
                 }
             }
             if !tests.is_empty() {
-                chain.push_str(&format!("if {} then {i} else ", tests.join(" || ")));
+                let _ = write!(chain, "if {} then {i} else ", tests.join(" || "));
             }
         }
         let sel = self.fresh("t");
@@ -361,7 +378,10 @@ impl<'a> FnEmitter<'a> {
         match self.vars.get(&VarKey::Local(v.id)).cloned() {
             Some(VarInfo::Temp(name)) => {
                 let ty = self.lty(&v.ty);
-                let val = v.init.as_ref().map_or_else(|| "default".into(), |e| self.full_rv(e));
+                let val = v
+                    .init
+                    .as_ref()
+                    .map_or_else(|| "default".into(), |e| self.full_rv(e));
                 self.line(format!("let mut {name} : {ty} := {val}"));
             }
             Some(VarInfo::Mem(ptr)) => match &v.init {
@@ -415,14 +435,23 @@ impl<'a> FnEmitter<'a> {
             Stmt::Break => return self.jump_to(self.breaks.last().map(|f| (*f, false)), "break"),
             Stmt::Continue => return self.jump_to(self.conts.last().copied(), "continue"),
             Stmt::Goto(name) => {
-                let target = self.labels.iter().rev().find(|(n, _)| n == name).map(|(_, f)| (*f, false));
+                let target = self
+                    .labels
+                    .iter()
+                    .rev()
+                    .find(|(n, _)| n == name)
+                    .map(|(_, f)| (*f, false));
                 if target.is_none() {
-                    self.refuse("goto that is not a forward jump out to a label of an enclosing block");
+                    self.refuse(
+                        "goto that is not a forward jump out to a label of an enclosing block",
+                    );
                 }
                 return self.jump_to(target, "goto");
             }
             Stmt::Return(e) => {
-                let v = e.as_ref().map_or_else(|| "()".to_owned(), |e| self.full_rv(e));
+                let v = e
+                    .as_ref()
+                    .map_or_else(|| "()".to_owned(), |e| self.full_rv(e));
                 self.line(format!("return {v}"));
                 return false;
             }
@@ -448,28 +477,34 @@ impl<'a> FnEmitter<'a> {
     }
 
     pub(crate) fn check_order(&mut self, e: &Expr) {
-        let mut bad = false;
+        let mut verdict = Verdict::default();
         {
-            let (u, w) = (self.u, &*self.w);
-            let writes = |name: Option<&str>| {
-                name.is_none_or(|n| match u.fn_key(w, n) {
-                    Some(k) => w.writes.get(k).copied().unwrap_or(true),
-                    None => crate::emit::world::MODELS
-                        .iter()
-                        .find(|m| m.name == n)
-                        .is_none_or(|m| m.writes),
-                })
+            let (unit, world) = (self.u, &*self.w);
+            let effect = |name: Option<&str>| {
+                let Some(n) = name else {
+                    return CallEffect::Writes;
+                };
+                match (unit.fn_key(world, n), MODELS.iter().find(|m| m.name == n)) {
+                    (Some(k), _) if world.writes.get(k).copied().unwrap_or(true) => {
+                        CallEffect::Writes
+                    }
+                    (None, Some(m)) if m.writes => CallEffect::Writes,
+                    (None, None) => CallEffect::External,
+                    _ => CallEffect::ReadsOnly,
+                }
             };
             let cx = OrderCx {
                 temps: &self.temps,
-                call_writes: &writes,
+                call_effect: &effect,
             };
-            cx.eval(e, &mut bad);
+            cx.eval(e, &mut verdict);
         }
-        if bad {
+        if verdict.refused {
             self.refuse(
                 "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order",
             );
+        } else if verdict.assumes_external_order {
+            self.res.assumptions.insert(EXT_ORDER.to_owned());
         }
     }
 
@@ -499,7 +534,11 @@ impl<'a> FnEmitter<'a> {
             } else {
                 names::local(&p.name)
             };
-            let arg = if used.insert(base.clone()) { base } else { format!("{base}_{i}") };
+            let arg = if used.insert(base.clone()) {
+                base
+            } else {
+                format!("{base}_{i}")
+            };
             used.insert(arg.clone());
             let ty = self.lty(&p.ty);
             params.push(format!("({arg} : {ty})"));
@@ -567,7 +606,12 @@ impl<'a> FnEmitter<'a> {
 
     fn static_local(&mut self, v: &LocalVar) {
         let key = format!("{}.{}.{}", self.module, self.fname, v.name);
-        let lean = format!("s_{}_{}_{}", self.module.replace('.', "_"), self.fname, v.name);
+        let lean = format!(
+            "s_{}_{}_{}",
+            self.module.replace('.', "_"),
+            self.fname,
+            v.name
+        );
         match self.static_object(&key, &lean, &v.ty, v.init.as_ref()) {
             Ok(term) => {
                 self.statics.insert(v.id, term);
@@ -589,9 +633,17 @@ impl<'a> FnEmitter<'a> {
         let (size, align) = self.u.lay.size_align(ty)?;
         let lean = names::ident(lean);
         let term = format!("Statics.{lean}");
-        let id = self.w.statics.object(key, lean, size, align, ty.quals.is_const || elem_const(ty));
+        let id = self
+            .w
+            .statics
+            .object(key, lean, size, align, ty.quals.is_const || elem_const(ty));
         if let Some(e) = init {
-            let saved = (std::mem::take(&mut self.out), self.ind, self.in_static, self.res.reasons.len());
+            let saved = (
+                std::mem::take(&mut self.out),
+                self.ind,
+                self.in_static,
+                self.res.reasons.len(),
+            );
             self.ind = 1;
             self.in_static = true;
             self.init_at(&term, 0, ty, e);
@@ -600,7 +652,10 @@ impl<'a> FnEmitter<'a> {
             self.in_static = saved.2;
             if self.res.reasons.len() > saved.3 {
                 let why = self.res.reasons.split_off(saved.3).join("; ");
-                self.w.statics.globals.insert(key.to_owned(), Err(why.clone()));
+                self.w
+                    .statics
+                    .globals
+                    .insert(key.to_owned(), Err(why.clone()));
                 return Err(why);
             }
             self.w.statics.inits.push((id, lines));
@@ -636,7 +691,10 @@ impl<'a> FnEmitter<'a> {
         let mut lines = Vec::new();
         if self.frame_objs.is_empty() {
             // Written one level deeper, for the case below.
-            lines.extend(body.iter().map(|l| l.strip_prefix("  ").unwrap_or(l).to_owned()));
+            lines.extend(
+                body.iter()
+                    .map(|l| l.strip_prefix("  ").unwrap_or(l).to_owned()),
+            );
         } else {
             for (p, size, align) in &self.frame_objs {
                 lines.push(format!("  let {p} ← Mem.alloca {size} {align}"));
@@ -648,7 +706,7 @@ impl<'a> FnEmitter<'a> {
             lines.push(format!("  Mem.popFrame [{}]", objs.join(", ")));
             lines.push("  pure result".to_owned());
         }
-        let sig = self.sig_of_fn(f);
+        let sig = Some(self.sig_of_fn(f));
         self.res.lines = lines;
         (self.res, params, sig)
     }
@@ -656,17 +714,17 @@ impl<'a> FnEmitter<'a> {
     /// The Lean shape of `f`, when all its types have one.
     pub(crate) fn signature(mut self, f: &Function) -> Option<Sig> {
         let sig = self.sig_of_fn(f);
-        sig.filter(|_| self.res.reasons.is_empty())
+        self.res.reasons.is_empty().then_some(sig)
     }
 
-    fn sig_of_fn(&mut self, f: &Function) -> Option<Sig> {
+    fn sig_of_fn(&mut self, f: &Function) -> Sig {
         let params = f.params.iter().map(|p| self.lty(&p.ty)).collect();
         let ret = self.lty(&f.ret);
-        Some(Sig {
+        Sig {
             params,
             variadic: f.variadic,
             ret,
-        })
+        }
     }
 }
 

@@ -58,7 +58,11 @@ fn scalar_value(t: &QualType) -> bool {
     !t.quals.is_volatile
         && matches!(
             t.ty,
-            Type::Bool { .. } | Type::Int(_) | Type::Float { .. } | Type::Pointer(_) | Type::Enum(_)
+            Type::Bool { .. }
+                | Type::Int(_)
+                | Type::Float { .. }
+                | Type::Pointer(_)
+                | Type::Enum(_)
         )
 }
 
@@ -84,10 +88,15 @@ impl Scan {
     fn stmt(&mut self, s: &Stmt, labelled: bool) {
         match s {
             Stmt::Compound(v) => {
-                let has = v
-                    .iter()
-                    .any(|s| matches!(s, Stmt::Label { .. } | Stmt::Case { .. } | Stmt::Default { .. }));
-                v.iter().for_each(|s| self.stmt(s, has));
+                let has = v.iter().any(|s| {
+                    matches!(
+                        s,
+                        Stmt::Label { .. } | Stmt::Case { .. } | Stmt::Default { .. }
+                    )
+                });
+                for s in v {
+                    self.stmt(s, has);
+                }
             }
             Stmt::Decl(ds) => {
                 for d in ds {
@@ -114,7 +123,9 @@ impl Scan {
                     self.stmt(e, false);
                 }
             }
-            Stmt::While { cond, body } | Stmt::DoWhile { body, cond } | Stmt::Switch { cond, body } => {
+            Stmt::While { cond, body }
+            | Stmt::DoWhile { body, cond }
+            | Stmt::Switch { cond, body } => {
                 self.expr(cond);
                 self.stmt(body, false);
             }
@@ -188,6 +199,27 @@ pub(crate) struct Effects {
     temps_written: BTreeSet<VarKey>,
     mem_read: bool,
     mem_written: bool,
+    /// Calls a function the selection takes as a parameter.
+    calls_external: bool,
+}
+
+/// What a call may do to memory the caller can see.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum CallEffect {
+    ReadsOnly,
+    Writes,
+    /// A function taken as a parameter: nothing is known about it.
+    External,
+}
+
+/// The outcome of checking one full expression.
+#[derive(Debug, Default)]
+pub(crate) struct Verdict {
+    /// Two operands C does not sequence may interfere.
+    pub(crate) refused: bool,
+    /// The only possible interference is an external function writing
+    /// memory that another operand reads.
+    pub(crate) assumes_external_order: bool,
 }
 
 impl Effects {
@@ -196,6 +228,7 @@ impl Effects {
         self.temps_written.extend(&o.temps_written);
         self.mem_read |= o.mem_read;
         self.mem_written |= o.mem_written;
+        self.calls_external |= o.calls_external;
     }
 
     fn interferes(&self, o: &Self) -> bool {
@@ -203,9 +236,15 @@ impl Effects {
             a.temps_written
                 .iter()
                 .any(|v| b.temps_read.contains(v) || b.temps_written.contains(v))
-                || (a.mem_written && (b.mem_read || b.mem_written))
+                || (a.mem_written && (b.mem_read || b.mem_written || b.calls_external))
+                || (a.calls_external && b.calls_external)
         };
         one_way(self, o) || one_way(o, self)
+    }
+
+    /// An external call beside an operand that only reads memory.
+    fn external_beside_read(&self, o: &Self) -> bool {
+        (self.calls_external && o.mem_read) || (o.calls_external && self.mem_read)
     }
 }
 
@@ -213,7 +252,7 @@ impl Effects {
 pub(crate) struct OrderCx<'a> {
     pub(crate) temps: &'a BTreeSet<VarKey>,
     /// Whether a call to the named function may write memory the caller can see.
-    pub(crate) call_writes: &'a dyn Fn(Option<&str>) -> bool,
+    pub(crate) call_effect: &'a dyn Fn(Option<&str>) -> CallEffect,
 }
 
 impl OrderCx<'_> {
@@ -229,58 +268,56 @@ impl OrderCx<'_> {
     }
 
     /// Effects of computing the address an lvalue designates.
-    fn place(&self, lv: &Expr, bad: &mut bool) -> Effects {
+    fn place(&self, lv: &Expr, bad: &mut Verdict) -> Effects {
         if self.temp_of(lv).is_some() || matches!(lv.kind, ExprKind::Var(_)) {
             return Effects::default();
         }
         self.eval(lv, bad)
     }
 
-    fn write(&self, lv: &Expr, bad: &mut bool, read: bool) -> Effects {
+    fn write(&self, lv: &Expr, bad: &mut Verdict, read: bool) -> Effects {
         let mut e = self.place(lv, bad);
-        match self.temp_of(lv) {
-            Some(k) => {
-                e.temps_written.insert(k);
-                if read {
-                    e.temps_read.insert(k);
-                }
+        if let Some(k) = self.temp_of(lv) {
+            e.temps_written.insert(k);
+            if read {
+                e.temps_read.insert(k);
             }
-            None => {
-                e.mem_written = true;
-                e.mem_read |= read;
-            }
+        } else {
+            e.mem_written = true;
+            e.mem_read |= read;
         }
         e
     }
 
-    fn unsequenced(&self, parts: &[Effects], bad: &mut bool) -> Effects {
+    fn unsequenced(parts: &[Effects], bad: &mut Verdict) -> Effects {
         let mut all = Effects::default();
         for (i, a) in parts.iter().enumerate() {
-            if parts.iter().skip(i + 1).any(|b| a.interferes(b)) {
-                *bad = true;
+            for b in parts.iter().skip(i + 1) {
+                bad.refused |= a.interferes(b);
+                bad.assumes_external_order |= a.external_beside_read(b);
             }
             all.join(a);
         }
         all
     }
 
-    fn assignment(&self, lhs: &Expr, rhs: &Expr, compound: bool, bad: &mut bool) -> Effects {
+    fn assignment(&self, lhs: &Expr, rhs: &Expr, compound: bool, bad: &mut Verdict) -> Effects {
         let r = self.eval(rhs, bad);
         let target = self.temp_of(lhs);
         // `x = x++`: the assignment's own store is unsequenced with the
         // side effect in its operand.
         if target.is_some_and(|k| r.temps_written.contains(&k)) {
-            *bad = true;
+            bad.refused = true;
         }
-        let mut all = self.unsequenced(&[self.place(lhs, bad), r], bad);
-        all.join(&self.write(lhs, &mut false, compound));
+        let mut all = Self::unsequenced(&[self.place(lhs, bad), r], bad);
+        all.join(&self.write(lhs, &mut Verdict::default(), compound));
         all
     }
 
-    /// Effects of evaluating `e`; sets `bad` when two operands that C does
-    /// not sequence could interfere, so that the result may depend on the
-    /// order the compiler chose (or the behaviour is undefined).
-    pub(crate) fn eval(&self, e: &Expr, bad: &mut bool) -> Effects {
+    /// Effects of evaluating `e`; records in `bad` when two operands that C
+    /// does not sequence could interfere, so that the result may depend on
+    /// the order the compiler chose (or the behaviour is undefined).
+    pub(crate) fn eval(&self, e: &Expr, bad: &mut Verdict) -> Effects {
         match &e.kind {
             ExprKind::Cast {
                 kind: CastKind::LValueToRValue,
@@ -307,7 +344,7 @@ impl OrderCx<'_> {
             ExprKind::Assign { lhs, rhs } => self.assignment(lhs, rhs, false, bad),
             ExprKind::CompoundAssign { lhs, rhs, .. } => self.assignment(lhs, rhs, true, bad),
             ExprKind::Binary { lhs, rhs, .. } | ExprKind::Index { lhs, rhs } => {
-                self.unsequenced(&[self.eval(lhs, bad), self.eval(rhs, bad)], bad)
+                Self::unsequenced(&[self.eval(lhs, bad), self.eval(rhs, bad)], bad)
             }
             ExprKind::Call {
                 callee,
@@ -318,18 +355,24 @@ impl OrderCx<'_> {
                 if direct.is_none() {
                     parts.push(self.eval(callee, bad));
                 }
-                let mut all = self.unsequenced(&parts, bad);
+                let mut all = Self::unsequenced(&parts, bad);
                 all.mem_read = true;
-                all.mem_written |= (self.call_writes)(direct.as_deref());
+                match (self.call_effect)(direct.as_deref()) {
+                    CallEffect::ReadsOnly => {}
+                    CallEffect::Writes => all.mem_written = true,
+                    CallEffect::External => all.calls_external = true,
+                }
                 all
             }
             ExprKind::InitList { elems, .. } => {
                 let parts: Vec<Effects> = elems.iter().map(|a| self.eval(a, bad)).collect();
-                self.unsequenced(&parts, bad)
+                Self::unsequenced(&parts, bad)
             }
             ExprKind::Atomic { operands, .. } => {
                 let mut all = Effects::default();
-                operands.iter().for_each(|o| all.join(&self.eval(o, bad)));
+                for o in operands {
+                    all.join(&self.eval(o, bad));
+                }
                 all.mem_read = true;
                 all.mem_written = true;
                 all
@@ -353,7 +396,9 @@ impl OrderCx<'_> {
 pub(crate) fn writes_memory(f: &Function, call_writes: &dyn Fn(Option<&str>) -> bool) -> bool {
     fn expr(e: &Expr, cw: &dyn Fn(Option<&str>) -> bool) -> bool {
         let here = match &e.kind {
-            ExprKind::Assign { lhs, .. } | ExprKind::CompoundAssign { lhs, .. } => root(lhs).is_none(),
+            ExprKind::Assign { lhs, .. } | ExprKind::CompoundAssign { lhs, .. } => {
+                root(lhs).is_none()
+            }
             ExprKind::Unary {
                 op: UnaryOp::PreInc | UnaryOp::PreDec | UnaryOp::PostInc | UnaryOp::PostDec,
                 operand,
@@ -377,9 +422,9 @@ pub(crate) fn writes_memory(f: &Function, call_writes: &dyn Fn(Option<&str>) -> 
             Stmt::If { cond, then, els } => {
                 expr(cond, cw) || stmt(then, cw) || els.as_ref().is_some_and(|e| stmt(e, cw))
             }
-            Stmt::While { cond, body } | Stmt::DoWhile { body, cond } | Stmt::Switch { cond, body } => {
-                expr(cond, cw) || stmt(body, cw)
-            }
+            Stmt::While { cond, body }
+            | Stmt::DoWhile { body, cond }
+            | Stmt::Switch { cond, body } => expr(cond, cw) || stmt(body, cw),
             Stmt::For {
                 init,
                 cond,
@@ -390,10 +435,80 @@ pub(crate) fn writes_memory(f: &Function, call_writes: &dyn Fn(Option<&str>) -> 
                     || [cond, inc].into_iter().flatten().any(|e| expr(e, cw))
                     || stmt(body, cw)
             }
-            Stmt::Case { body, .. } | Stmt::Default { body } | Stmt::Label { body, .. } => stmt(body, cw),
+            Stmt::Case { body, .. } | Stmt::Default { body } | Stmt::Label { body, .. } => {
+                stmt(body, cw)
+            }
             Stmt::Unsupported(_) => true,
             _ => false,
         }
     }
     stmt(&f.body, call_writes)
+}
+
+/// Calls `f` on every expression of the statement, at every depth.
+pub(crate) fn for_each_expr(s: &Stmt, f: &mut dyn FnMut(&Expr)) {
+    fn deep(e: &Expr, f: &mut dyn FnMut(&Expr)) {
+        f(e);
+        for c in crate::scan::children(e) {
+            deep(c, f);
+        }
+    }
+    match s {
+        Stmt::Compound(v) => v.iter().for_each(|s| for_each_expr(s, f)),
+        Stmt::Decl(ds) => {
+            for d in ds {
+                if let Decl::Var(v) = d
+                    && let Some(e) = &v.init
+                {
+                    deep(e, f);
+                }
+            }
+        }
+        Stmt::Expr(e) | Stmt::Return(Some(e)) => deep(e, f),
+        Stmt::If { cond, then, els } => {
+            deep(cond, f);
+            for_each_expr(then, f);
+            if let Some(e) = els {
+                for_each_expr(e, f);
+            }
+        }
+        Stmt::While { cond, body } | Stmt::DoWhile { body, cond } | Stmt::Switch { cond, body } => {
+            deep(cond, f);
+            for_each_expr(body, f);
+        }
+        Stmt::For {
+            init,
+            cond,
+            inc,
+            body,
+        } => {
+            if let Some(i) = init {
+                for_each_expr(i, f);
+            }
+            for e in [cond, inc].into_iter().flatten() {
+                deep(e, f);
+            }
+            for_each_expr(body, f);
+        }
+        Stmt::Case { expr, body, .. } => {
+            deep(expr, f);
+            for_each_expr(body, f);
+        }
+        Stmt::Default { body } | Stmt::Label { body, .. } => for_each_expr(body, f),
+        _ => {}
+    }
+}
+
+/// The functions `f` calls by name.
+pub(crate) fn direct_calls(f: &Function) -> BTreeSet<String> {
+    let mut out = BTreeSet::new();
+    for_each_expr(&f.body, &mut |e| {
+        if let ExprKind::Call {
+            direct: Some(name), ..
+        } = &e.kind
+        {
+            out.insert(name.clone());
+        }
+    });
+    out
 }

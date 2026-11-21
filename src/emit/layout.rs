@@ -144,7 +144,7 @@ fn resolve(p: &Plan, base: u64, a: &Answers, out: &mut BTreeMap<RecordKey, Recor
                 .ok_or_else(|| "member before its record".to_owned())
         }));
     }
-    out.entry(p.key.clone()).or_insert(RecordLayout {
+    out.entry(p.key.clone()).or_insert_with(|| RecordLayout {
         size: answer(a, p.size).ok(),
         align: answer(a, p.align).ok(),
         offsets,
@@ -235,10 +235,10 @@ impl Layouts {
                     )),
                 }
             }
-            Type::Enum(n) => match self.enums.get(n) {
-                Some(i) => Ok((u64::from(i.bits / 8), u64::from(i.bits / 8))),
-                None => Err(format!("enum {n} without a known integer type")),
-            },
+            Type::Enum(n) => self.enums.get(n).map_or_else(
+                || Err(format!("enum {n} without a known integer type")),
+                |i| Ok((u64::from(i.bits / 8), u64::from(i.bits / 8))),
+            ),
             Type::Void | Type::Function(_) | Type::Unsupported { .. } => {
                 Err(format!("type {t} has no size"))
             }

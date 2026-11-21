@@ -20,13 +20,14 @@ pub(crate) struct Model {
     pub(crate) assumes: &'static [&'static str],
 }
 
-pub(crate) const ALLOC: &str =
-    "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported";
+pub(crate) const ALLOC: &str = "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported";
 pub(crate) const CMP: &str = "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign";
 pub(crate) const TALLOC: &str = "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported";
 pub(crate) const ATOMIC: &str =
     "sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs";
 pub(crate) const SIGNED_ZERO: &str = "signed-zeros: compiled with -fno-signed-zeros, so the compiled C may differ from this definition in the sign of a zero";
+
+pub(crate) const EXT_ORDER: &str = "external-order: where C leaves the order of two operands open and one calls a function taken as a parameter while the other reads memory, that function does not write what the other reads; operands are evaluated left to right";
 
 const fn model(
     name: &'static str,
@@ -45,34 +46,154 @@ const fn model(
 }
 
 pub(crate) const MODELS: &[Model] = &[
-    model("__assert_fail", "Libc.«__assert_fail»", "Ptr → Ptr → U32 → Ptr → M Unit", false, &[]),
+    model(
+        "__assert_fail",
+        "Libc.«__assert_fail»",
+        "Ptr → Ptr → U32 → Ptr → M Unit",
+        false,
+        &[],
+    ),
     model("abort", "Libc.abort", "M Unit", false, &[]),
-    model("memcpy", "Libc.memcpy", "Ptr → Ptr → U64 → M Ptr", true, &[]),
-    model("memmove", "Libc.memmove", "Ptr → Ptr → U64 → M Ptr", true, &[]),
-    model("memset", "Libc.memset", "Ptr → I32 → U64 → M Ptr", true, &[]),
-    model("memcmp", "Libc.memcmp", "Ptr → Ptr → U64 → M I32", false, &[CMP]),
-    model("memchr", "Libc.memchr", "Ptr → I32 → U64 → M Ptr", false, &[]),
+    model(
+        "memcpy",
+        "Libc.memcpy",
+        "Ptr → Ptr → U64 → M Ptr",
+        true,
+        &[],
+    ),
+    model(
+        "memmove",
+        "Libc.memmove",
+        "Ptr → Ptr → U64 → M Ptr",
+        true,
+        &[],
+    ),
+    model(
+        "memset",
+        "Libc.memset",
+        "Ptr → I32 → U64 → M Ptr",
+        true,
+        &[],
+    ),
+    model(
+        "memcmp",
+        "Libc.memcmp",
+        "Ptr → Ptr → U64 → M I32",
+        false,
+        &[CMP],
+    ),
+    model(
+        "memchr",
+        "Libc.memchr",
+        "Ptr → I32 → U64 → M Ptr",
+        false,
+        &[],
+    ),
     model("strlen", "Libc.strlen", "Ptr → M U64", false, &[]),
     model("strcmp", "Libc.strcmp", "Ptr → Ptr → M I32", false, &[CMP]),
-    model("strncmp", "Libc.strncmp", "Ptr → Ptr → U64 → M I32", false, &[CMP]),
+    model(
+        "strncmp",
+        "Libc.strncmp",
+        "Ptr → Ptr → U64 → M I32",
+        false,
+        &[CMP],
+    ),
     model("strchr", "Libc.strchr", "Ptr → I32 → M Ptr", false, &[]),
     model("malloc", "Libc.malloc", "U64 → M Ptr", true, &[ALLOC]),
     model("calloc", "Libc.calloc", "U64 → U64 → M Ptr", true, &[ALLOC]),
     model("free", "Libc.free", "Ptr → M Unit", true, &[]),
-    model("ta_alloc_size", "Talloc.ta_alloc_size", "Ptr → U64 → M Ptr", true, &[ALLOC, TALLOC]),
-    model("ta_zalloc_size", "Talloc.ta_zalloc_size", "Ptr → U64 → M Ptr", true, &[ALLOC, TALLOC]),
-    model("ta_new_context", "Talloc.ta_new_context", "Ptr → M Ptr", true, &[ALLOC, TALLOC]),
-    model("ta_realloc_size", "Talloc.ta_realloc_size", "Ptr → Ptr → U64 → M Ptr", true, &[ALLOC, TALLOC]),
-    model("ta_xrealloc_size", "Talloc.ta_xrealloc_size", "Ptr → Ptr → U64 → M Ptr", true, &[ALLOC, TALLOC]),
+    model(
+        "ta_alloc_size",
+        "Talloc.ta_alloc_size",
+        "Ptr → U64 → M Ptr",
+        true,
+        &[ALLOC, TALLOC],
+    ),
+    model(
+        "ta_zalloc_size",
+        "Talloc.ta_zalloc_size",
+        "Ptr → U64 → M Ptr",
+        true,
+        &[ALLOC, TALLOC],
+    ),
+    model(
+        "ta_new_context",
+        "Talloc.ta_new_context",
+        "Ptr → M Ptr",
+        true,
+        &[ALLOC, TALLOC],
+    ),
+    model(
+        "ta_realloc_size",
+        "Talloc.ta_realloc_size",
+        "Ptr → Ptr → U64 → M Ptr",
+        true,
+        &[ALLOC, TALLOC],
+    ),
+    model(
+        "ta_xrealloc_size",
+        "Talloc.ta_xrealloc_size",
+        "Ptr → Ptr → U64 → M Ptr",
+        true,
+        &[ALLOC, TALLOC],
+    ),
     model("ta_free", "Talloc.ta_free", "Ptr → M Unit", true, &[TALLOC]),
-    model("ta_free_children", "Talloc.ta_free_children", "Ptr → M Unit", true, &[TALLOC]),
-    model("ta_get_size", "Talloc.ta_get_size", "Ptr → M U64", false, &[TALLOC]),
-    model("ta_set_destructor", "Talloc.ta_set_destructor", "Ptr → Ptr → M Unit", true, &[TALLOC]),
-    model("ta_set_parent", "Talloc.ta_set_parent", "Ptr → Ptr → M Unit", true, &[TALLOC]),
-    model("ta_steal_", "Talloc.ta_steal_", "Ptr → Ptr → M Ptr", true, &[TALLOC]),
-    model("ta_dbg_set_loc", "Talloc.ta_dbg_set_loc", "Ptr → Ptr → M Ptr", false, &[TALLOC]),
-    model("ta_calc_array_size", "Talloc.ta_calc_array_size", "U64 → U64 → M U64", false, &[]),
-    model("ta_calc_prealloc_elems", "Talloc.ta_calc_prealloc_elems", "U64 → M U64", false, &[]),
+    model(
+        "ta_free_children",
+        "Talloc.ta_free_children",
+        "Ptr → M Unit",
+        true,
+        &[TALLOC],
+    ),
+    model(
+        "ta_get_size",
+        "Talloc.ta_get_size",
+        "Ptr → M U64",
+        false,
+        &[TALLOC],
+    ),
+    model(
+        "ta_set_destructor",
+        "Talloc.ta_set_destructor",
+        "Ptr → Ptr → M Unit",
+        true,
+        &[TALLOC],
+    ),
+    model(
+        "ta_set_parent",
+        "Talloc.ta_set_parent",
+        "Ptr → Ptr → M Unit",
+        true,
+        &[TALLOC],
+    ),
+    model(
+        "ta_steal_",
+        "Talloc.ta_steal_",
+        "Ptr → Ptr → M Ptr",
+        true,
+        &[TALLOC],
+    ),
+    model(
+        "ta_dbg_set_loc",
+        "Talloc.ta_dbg_set_loc",
+        "Ptr → Ptr → M Ptr",
+        false,
+        &[TALLOC],
+    ),
+    model(
+        "ta_calc_array_size",
+        "Talloc.ta_calc_array_size",
+        "U64 → U64 → M U64",
+        false,
+        &[],
+    ),
+    model(
+        "ta_calc_prealloc_elems",
+        "Talloc.ta_calc_prealloc_elems",
+        "U64 → M U64",
+        false,
+        &[],
+    ),
 ];
 
 /// A function defined in the selection.
@@ -98,8 +219,17 @@ pub(crate) enum Target<'w> {
 
 #[derive(Debug)]
 pub(crate) enum StaticBlock {
-    Str { bytes: Vec<u8>, size: u64 },
-    Obj { lean: String, size: u64, align: u64, readonly: bool, what: String },
+    Str {
+        bytes: Vec<u8>,
+        size: u64,
+    },
+    Obj {
+        lean: String,
+        size: u64,
+        align: u64,
+        readonly: bool,
+        what: String,
+    },
 }
 
 #[derive(Debug, Default)]
@@ -125,7 +255,14 @@ impl Statics {
         format!("Statics.str_{id}")
     }
 
-    pub(crate) fn object(&mut self, key: &str, lean: String, size: u64, align: u64, readonly: bool) -> usize {
+    pub(crate) fn object(
+        &mut self,
+        key: &str,
+        lean: String,
+        size: u64,
+        align: u64,
+        readonly: bool,
+    ) -> usize {
         let id = self.blocks.len();
         self.blocks.push(StaticBlock::Obj {
             lean,
@@ -158,8 +295,10 @@ pub(crate) struct World {
     pub(crate) external_defs: BTreeMap<String, String>,
     /// Keys of functions found not emittable in an earlier round.
     pub(crate) refused: BTreeSet<String>,
-    /// Position of each module in import order.
-    pub(crate) module_pos: BTreeMap<String, usize>,
+    /// The Lean file each function is written to, as an index into
+    /// `files`, which is in import order.
+    pub(crate) place: BTreeMap<String, usize>,
+    pub(crate) files: Vec<String>,
     /// External classes: name to Lean type, or the conflict found.
     pub(crate) exts: BTreeMap<String, Result<String, String>>,
     /// Every function whose address is taken somewhere, as its address
@@ -171,12 +310,12 @@ pub(crate) struct World {
 }
 
 impl World {
+    /// Whether the file of `from` can import the file of `to`.
     pub(crate) fn importable(&self, from: &str, to: &str) -> bool {
-        from == to
-            || match (self.module_pos.get(from), self.module_pos.get(to)) {
-                (Some(a), Some(b)) => b < a,
-                _ => false,
-            }
+        match (self.place.get(from), self.place.get(to)) {
+            (Some(a), Some(b)) => b <= a,
+            _ => false,
+        }
     }
 
     /// Registers a use of an external function and returns its class name.
@@ -216,12 +355,14 @@ pub(crate) struct Unit<'a> {
 
 impl Unit<'_> {
     pub(crate) fn fn_key<'s>(&'s self, w: &'s World, name: &str) -> Option<&'s String> {
-        self.local_fns.get(name).or_else(|| w.external_defs.get(name))
+        self.local_fns
+            .get(name)
+            .or_else(|| w.external_defs.get(name))
     }
 
     pub(crate) fn target<'w>(&self, w: &'w World, name: &str, from: &str) -> Target<'w> {
         if let Some(meta) = self.fn_key(w, name).and_then(|k| w.fns.get(k)) {
-            return if !w.refused.contains(&meta.key) && w.importable(from, &meta.module) {
+            return if !w.refused.contains(&meta.key) && w.importable(from, &meta.key) {
                 Target::Emitted(meta)
             } else {
                 Target::Ext(meta.key.clone())

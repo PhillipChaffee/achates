@@ -1,5 +1,6 @@
 [files]
-extend-exclude = ["Cargo.lock"]
+# pilot/ is emitted from mpv's source, whose identifiers are not ours to respell.
+extend-exclude = ["Cargo.lock", "pilot/"]
 
 [default]
 extend-ignore-re = ["hash=[0-9a-f]{12}"]
@@ -11,3 +12,5 @@ als = "als"
 Parm = "Parm"
 # Lean's term for implicit arguments, in docs/research/aeneas.md.
 implicits = "implicits"
+# Isabelle's command for printing a theorem, in docs/research/autocorres.md.
+thm = "thm"

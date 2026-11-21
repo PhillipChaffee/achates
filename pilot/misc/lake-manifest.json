@@ -1,0 +1,14 @@
+{"version": "1.3.0",
+ "packagesDir": ".lake/packages",
+ "packages":
+ [{"type": "path",
+   "scope": "",
+   "name": "achates",
+   "manifestFile": "lake-manifest.json",
+   "inherited": false,
+   "dir": "../../lean",
+   "copy": false,
+   "configFile": "lakefile.toml"}],
+ "name": "misc",
+ "lakeDir": ".lake",
+ "fixedToolchain": false}

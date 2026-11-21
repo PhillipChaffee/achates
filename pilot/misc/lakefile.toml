@@ -1,0 +1,10 @@
+name = "misc"
+defaultTargets = ["Misc"]
+
+[[require]]
+name = "achates"
+path = "../../lean"
+
+[[lean_lib]]
+name = "Misc"
+leanOptions = { autoImplicit = false, relaxedAutoImplicit = false }

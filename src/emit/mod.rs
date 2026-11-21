@@ -61,7 +61,10 @@ fn load(e: &Entry) -> Result<Loaded> {
     let l = frontend::load(e, true)?;
     let t = &l.tu.target;
     if t.char_bits != 8 || t.pointer_bits != 64 || t.int_bits != 32 || t.long_bits != 64 {
-        bail!("{}: the Lean runtime models x86-64 Linux only (8-bit bytes, 32-bit int, 64-bit long and pointers)", e.file);
+        bail!(
+            "{}: the Lean runtime models x86-64 Linux only (8-bit bytes, 32-bit int, 64-bit long and pointers)",
+            e.file
+        );
     }
     let args = compdb::clang_args(e)?;
     let mut lay = layout::probe(e, &args, &l.tu)?;
@@ -73,7 +76,11 @@ fn load(e: &Entry) -> Result<Loaded> {
     let float_flags = e
         .argv
         .iter()
-        .filter(|a| FLOAT_FLAGS.contains(&a.as_str()) || a.starts_with("-march=") || a.starts_with("-mfpmath="))
+        .filter(|a| {
+            FLOAT_FLAGS.contains(&a.as_str())
+                || a.starts_with("-march=")
+                || a.starts_with("-mfpmath=")
+        })
         .cloned()
         .collect();
     Ok(Loaded {
@@ -90,7 +97,10 @@ fn common_dir(paths: &[PathBuf]) -> PathBuf {
     };
     let mut root: Vec<Component<'_>> = first.components().collect();
     for p in it {
-        let comps: Vec<Component<'_>> = p.parent().map(|d| d.components().collect()).unwrap_or_default();
+        let comps: Vec<Component<'_>> = p
+            .parent()
+            .map(|d| d.components().collect())
+            .unwrap_or_default();
         let same = root.iter().zip(&comps).take_while(|(a, b)| a == b).count();
         root.truncate(same);
     }
@@ -102,10 +112,17 @@ fn common_dir(paths: &[PathBuf]) -> PathBuf {
 fn module_of(file: &str, root: &Path, system: bool) -> String {
     let p = Path::new(file);
     let parts: Vec<String> = match p.strip_prefix(root) {
-        Ok(rel) if !system => rel.components().map(|c| names::module_part(&c.as_os_str().to_string_lossy())).collect(),
+        Ok(rel) if !system => rel
+            .components()
+            .map(|c| names::module_part(&c.as_os_str().to_string_lossy()))
+            .collect(),
         _ => vec![
             "Sys".to_owned(),
-            names::module_part(&p.file_name().map(|f| f.to_string_lossy().into_owned()).unwrap_or_default()),
+            names::module_part(
+                &p.file_name()
+                    .map(|f| f.to_string_lossy().into_owned())
+                    .unwrap_or_default(),
+            ),
         ],
     };
     parts.join(".")
@@ -143,7 +160,12 @@ fn fn_key(f: &Function, module: &str) -> String {
 fn select(units: Vec<Loaded>, entries: &[&Entry]) -> Selection {
     let mut files: Vec<PathBuf> = entries.iter().map(|e| e.path.clone()).collect();
     for u in &units {
-        files.extend(u.tu.functions.iter().filter(|f| f.origin == Origin::ProjectHeader).map(|f| PathBuf::from(&f.def_file)));
+        files.extend(
+            u.tu.functions
+                .iter()
+                .filter(|f| f.origin == Origin::ProjectHeader)
+                .map(|f| PathBuf::from(&f.def_file)),
+        );
     }
     let root = common_dir(&files);
     let mut owned: Vec<Owned> = Vec::new();
@@ -161,11 +183,21 @@ fn select(units: Vec<Loaded>, entries: &[&Entry]) -> Selection {
             match seen.get(&key) {
                 None => {
                     seen.insert(key.clone(), (owned.len(), print));
-                    owned.push(Owned { key, module, tu: ti, index: fi, conflict: None });
+                    owned.push(Owned {
+                        key,
+                        module,
+                        tu: ti,
+                        index: fi,
+                        conflict: None,
+                    });
                 }
                 Some((at, old)) if *old != print => {
                     if let Some(o) = owned.get_mut(*at) {
-                        o.conflict = Some(format!("defined differently in {} and {}", units.get(o.tu).map_or("", |u| u.tu.file.as_str()), u.tu.file));
+                        o.conflict = Some(format!(
+                            "defined differently in {} and {}",
+                            units.get(o.tu).map_or("", |u| u.tu.file.as_str()),
+                            u.tu.file
+                        ));
                     }
                 }
                 Some(_) => {}
@@ -187,13 +219,21 @@ fn select(units: Vec<Loaded>, entries: &[&Entry]) -> Selection {
                 .values()
                 .filter_map(|g| match g.storage {
                     Storage::Static => Some((g.name.clone(), format!("{m}.{}", g.name))),
-                    _ if defined.contains(g.name.as_str()) => Some((g.name.clone(), g.name.clone())),
+                    _ if defined.contains(g.name.as_str()) => {
+                        Some((g.name.clone(), g.name.clone()))
+                    }
                     _ => None,
                 })
                 .collect()
         })
         .collect();
-    Selection { units, owned, local_fns, globals, main_module }
+    Selection {
+        units,
+        owned,
+        local_fns,
+        globals,
+        main_module,
+    }
 }
 
 impl Selection {
@@ -221,50 +261,158 @@ fn prepare(sel: &Selection) -> World {
         if f.linkage == Linkage::External {
             w.external_defs.insert(f.name.clone(), o.key.clone());
         }
-        w.fns.insert(o.key.clone(), FnMeta { key: o.key.clone(), module: o.module.clone(), name: f.name.clone(), sig: Err("not computed".into()) });
+        w.fns.insert(
+            o.key.clone(),
+            FnMeta {
+                key: o.key.clone(),
+                module: o.module.clone(),
+                name: f.name.clone(),
+                sig: Err("not computed".into()),
+            },
+        );
     }
+    let externals = w.external_defs.clone();
     let resolve = |ti: usize, name: &str| -> Option<String> {
-        sel.local_fns.get(ti)?.get(name).or_else(|| w.external_defs.get(name)).cloned()
+        sel.local_fns
+            .get(ti)?
+            .get(name)
+            .or_else(|| externals.get(name))
+            .cloned()
     };
-    // Import order: a module comes after the modules its functions call.
-    let modules: Vec<String> = sel.owned.iter().map(|o| o.module.clone()).collect::<BTreeSet<_>>().into_iter().collect();
-    let pos_of = |m: &str| modules.iter().position(|x| x == m);
-    let mut edges = vec![Vec::new(); modules.len()];
-    for o in &sel.owned {
-        let Some(f) = sel.function(o) else { continue };
-        let refs: Vec<Option<String>> = crate::scan::refs_of(f).keys().map(|n| resolve(o.tu, n)).collect();
-        for k in refs.iter().flatten() {
-            if let (Some(a), Some(b)) = (pos_of(&o.module), w.fns.get(k).and_then(|m| pos_of(&m.module)))
+    place(sel, &mut w, &resolve);
+    w.writes = writes(sel, &w);
+    w
+}
+
+/// Chooses the Lean file of every function. A C file is one Lean file
+/// unless its functions and another file's call each other; Lean imports
+/// cannot be circular, so such a file continues in numbered parts, each
+/// after the files its functions call.
+fn place(sel: &Selection, w: &mut World, resolve: &dyn Fn(usize, &str) -> Option<String>) {
+    let index: BTreeMap<&str, usize> = sel
+        .owned
+        .iter()
+        .enumerate()
+        .map(|(i, o)| (o.key.as_str(), i))
+        .collect();
+    let edges: Vec<Vec<usize>> = sel
+        .owned
+        .iter()
+        .map(|o| {
+            sel.function(o).map_or_else(Vec::new, |f| {
+                order::direct_calls(f)
+                    .iter()
+                    .filter_map(|n| resolve(o.tu, n))
+                    .filter_map(|k| index.get(k.as_str()).copied())
+                    .collect()
+            })
+        })
+        .collect();
+    let modules: Vec<&str> = sel
+        .owned
+        .iter()
+        .map(|o| o.module.as_str())
+        .collect::<BTreeSet<_>>()
+        .into_iter()
+        .collect();
+    let module_of = |i: usize| {
+        sel.owned
+            .get(i)
+            .and_then(|o| modules.iter().position(|m| *m == o.module))
+    };
+    let mut module_edges = vec![Vec::new(); modules.len()];
+    for (i, callees) in edges.iter().enumerate() {
+        for c in callees {
+            if let (Some(a), Some(b)) = (module_of(i), module_of(*c))
                 && a != b
-                && let Some(e) = edges.get_mut(a)
+                && let Some(e) = module_edges.get_mut(a)
             {
                 e.push(b);
             }
         }
     }
-    let mut pos = BTreeMap::new();
-    for m in graph::components(&edges).into_iter().flatten() {
-        if let Some(name) = modules.get(m) {
-            pos.insert(name.clone(), pos.len());
+    // Within a group of files that call each other, a function's layer is
+    // the longest chain of calls below it that changes file; a file's
+    // part holds one layer, so every call goes to an earlier part.
+    let mut layer: BTreeMap<usize, usize> = BTreeMap::new();
+    for comp in graph::components(&edges) {
+        let same_module = comp
+            .iter()
+            .all(|i| module_of(*i) == comp.first().and_then(|f| module_of(*f)));
+        let groups: Vec<Vec<usize>> = if same_module {
+            vec![comp]
+        } else {
+            comp.into_iter().map(|i| vec![i]).collect()
+        };
+        for group in groups {
+            let depth = group
+                .iter()
+                .flat_map(|i| edges.get(*i).into_iter().flatten().map(move |c| (*i, *c)))
+                .filter_map(|(i, c)| {
+                    layer
+                        .get(&c)
+                        .map(|l| l + usize::from(module_of(i) != module_of(c)))
+                })
+                .max()
+                .unwrap_or(0);
+            for i in group {
+                layer.insert(i, depth);
+            }
         }
     }
-    w.module_pos = pos;
-    w.writes = writes(sel, &w);
-    w
+    for group in graph::components(&module_edges) {
+        let lone = group.len() == 1;
+        let mut parts: BTreeMap<(usize, usize), Vec<usize>> = BTreeMap::new();
+        for (i, _) in sel.owned.iter().enumerate() {
+            if let Some(m) = module_of(i).filter(|m| group.contains(m)) {
+                let l = if lone {
+                    0
+                } else {
+                    layer.get(&i).copied().unwrap_or(0)
+                };
+                parts.entry((l, m)).or_default().push(i);
+            }
+        }
+        let mut count: BTreeMap<usize, usize> = BTreeMap::new();
+        for ((_, m), members) in parts {
+            let n = count.entry(m).or_default();
+            *n += 1;
+            let name = modules.get(m).copied().unwrap_or("");
+            w.files.push(if *n == 1 {
+                name.to_owned()
+            } else {
+                format!("{name}.Part{n}")
+            });
+            for o in members.iter().filter_map(|i| sel.owned.get(*i)) {
+                w.place.insert(o.key.clone(), w.files.len() - 1);
+            }
+        }
+    }
 }
 
 /// Least fixed point of "may write memory its caller can see".
 fn writes(sel: &Selection, w: &World) -> BTreeMap<String, bool> {
-    let mut out: BTreeMap<String, bool> = sel.owned.iter().map(|o| (o.key.clone(), false)).collect();
+    let mut out: BTreeMap<String, bool> =
+        sel.owned.iter().map(|o| (o.key.clone(), false)).collect();
     loop {
         let mut changed = false;
         for o in &sel.owned {
             let Some(f) = sel.function(o) else { continue };
             let names = sel.local_fns.get(o.tu);
             let cw = |name: Option<&str>| {
-                name.is_none_or(|n| match names.and_then(|m| m.get(n)).or_else(|| w.external_defs.get(n)) {
-                    Some(k) => out.get(k).copied().unwrap_or(true),
-                    None => world::MODELS.iter().find(|m| m.name == n).is_none_or(|m| m.writes),
+                name.is_none_or(|n| {
+                    names
+                        .and_then(|m| m.get(n))
+                        .or_else(|| w.external_defs.get(n))
+                        .map_or_else(
+                            || {
+                                world::MODELS
+                                    .iter()
+                                    .find(|m| m.name == n)
+                                    .is_none_or(|m| m.writes)
+                            },
+                            |k| out.get(k).copied().unwrap_or(true),
+                        )
                 })
             };
             if !out.get(&o.key).copied().unwrap_or(true) && order::writes_memory(f, &cw) {
@@ -282,6 +430,8 @@ fn writes(sel: &Selection, w: &World) -> BTreeMap<String, bool> {
 pub(crate) struct Row {
     pub(crate) key: String,
     pub(crate) module: String,
+    /// The Lean file the definition is written to.
+    pub(crate) lean_file: String,
     pub(crate) name: String,
     pub(crate) file: String,
     pub(crate) line: u64,
@@ -293,10 +443,19 @@ pub(crate) struct Row {
 
 fn static_objects(sel: &Selection, w: &mut World) {
     for ti in 0..sel.units.len() {
-        let (Some(unit), Some(module)) = (sel.unit(ti), sel.main_module.get(ti)) else { continue };
-        let mut em = FnEmitter::new(&unit, w, module, "");
-        for g in unit.tu.globals.values().filter(|g| g.storage != Storage::Extern) {
-            let Some(key) = unit.globals.get(&g.name) else { continue };
+        let (Some(unit), Some(module)) = (sel.unit(ti), sel.main_module.get(ti)) else {
+            continue;
+        };
+        let mut em = FnEmitter::new(&unit, w, module, "", "");
+        for g in unit
+            .tu
+            .globals
+            .values()
+            .filter(|g| g.storage != Storage::Extern)
+        {
+            let Some(key) = unit.globals.get(&g.name) else {
+                continue;
+            };
             if em.w.statics.globals.contains_key(key) {
                 continue;
             }
@@ -315,8 +474,10 @@ fn round(sel: &Selection, w: &mut World) -> Vec<Row> {
     static_objects(sel, w);
     let mut rows = Vec::new();
     for o in &sel.owned {
-        let (Some(f), Some(unit)) = (sel.function(o), sel.unit(o.tu)) else { continue };
-        let em = FnEmitter::new(&unit, w, &o.module, &f.name);
+        let (Some(f), Some(unit)) = (sel.function(o), sel.unit(o.tu)) else {
+            continue;
+        };
+        let em = FnEmitter::new(&unit, w, &o.module, &o.key, &f.name);
         let (mut res, params, sig) = em.function(f);
         if let Some(c) = &o.conflict {
             res.reasons.push(c.clone());
@@ -324,8 +485,17 @@ fn round(sel: &Selection, w: &mut World) -> Vec<Row> {
         rows.push(Row {
             key: o.key.clone(),
             module: o.module.clone(),
+            lean_file: w
+                .place
+                .get(&o.key)
+                .and_then(|i| w.files.get(*i))
+                .cloned()
+                .unwrap_or_else(|| o.module.clone()),
             name: f.name.clone(),
-            file: f.loc.as_ref().map_or_else(|| f.def_file.clone(), |l| l.file.clone()),
+            file: f
+                .loc
+                .as_ref()
+                .map_or_else(|| f.def_file.clone(), |l| l.file.clone()),
             line: f.loc.as_ref().map_or(0, |l| l.line),
             origin: f.origin,
             params,
@@ -336,13 +506,25 @@ fn round(sel: &Selection, w: &mut World) -> Vec<Row> {
     rows
 }
 
+/// External functions, models and assumptions of one function.
+type Needs = (BTreeSet<String>, BTreeSet<String>, BTreeSet<String>);
+
 /// What each emitted function needs through the functions it calls.
 fn close(rows: &mut [Row]) {
     loop {
         let mut changed = false;
-        let snapshot: BTreeMap<String, (BTreeSet<String>, BTreeSet<String>, BTreeSet<String>)> = rows
+        let snapshot: BTreeMap<String, Needs> = rows
             .iter()
-            .map(|r| (r.key.clone(), (r.res.exts.clone(), r.res.models.clone(), r.res.assumptions.clone())))
+            .map(|r| {
+                (
+                    r.key.clone(),
+                    (
+                        r.res.exts.clone(),
+                        r.res.models.clone(),
+                        r.res.assumptions.clone(),
+                    ),
+                )
+            })
             .collect();
         for r in rows.iter_mut() {
             let before = r.res.exts.len() + r.res.models.len() + r.res.assumptions.len();
@@ -362,12 +544,15 @@ fn close(rows: &mut [Row]) {
 }
 
 pub(crate) fn run(entries: &[&Entry], opts: &Options) -> Result<String> {
-    let units = entries.iter().map(|e| load(e)).collect::<Result<Vec<_>>>()?;
+    let units = entries
+        .iter()
+        .map(|e| load(e))
+        .collect::<Result<Vec<_>>>()?;
     let sel = select(units, entries);
     let mut w = prepare(&sel);
     for o in &sel.owned {
         if let (Some(f), Some(unit)) = (sel.function(o), sel.unit(o.tu)) {
-            let sig = FnEmitter::new(&unit, &mut w, &o.module, &f.name).signature(f);
+            let sig = FnEmitter::new(&unit, &mut w, &o.module, &o.key, &f.name).signature(f);
             if let Some(m) = w.fns.get_mut(&o.key) {
                 m.sig = sig.ok_or_else(|| "type without a Lean counterpart".to_owned());
             }
@@ -378,7 +563,11 @@ pub(crate) fn run(entries: &[&Entry], opts: &Options) -> Result<String> {
     for _ in 0..8 {
         let before = (w.refused.clone(), w.addressed.clone());
         rows = round(&sel, &mut w);
-        w.refused = rows.iter().filter(|r| !r.res.reasons.is_empty()).map(|r| r.key.clone()).collect();
+        w.refused = rows
+            .iter()
+            .filter(|r| !r.res.reasons.is_empty())
+            .map(|r| r.key.clone())
+            .collect();
         if before == (w.refused.clone(), w.addressed.clone()) {
             break;
         }

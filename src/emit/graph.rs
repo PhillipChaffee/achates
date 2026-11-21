@@ -15,9 +15,11 @@ impl Tarjan<'_> {
     fn visit(&mut self, v: usize) {
         let i = self.next;
         self.next += 1;
-        if let (Some(a), Some(b), Some(c)) =
-            (self.index.get_mut(v), self.low.get_mut(v), self.on_stack.get_mut(v))
-        {
+        if let (Some(a), Some(b), Some(c)) = (
+            self.index.get_mut(v),
+            self.low.get_mut(v),
+            self.on_stack.get_mut(v),
+        ) {
             *a = Some(i);
             *b = i;
             *c = true;
@@ -29,7 +31,9 @@ impl Tarjan<'_> {
                     self.visit(w);
                     self.lower(v, self.low.get(w).copied());
                 }
-                Some(wi) if self.on_stack.get(w).copied().unwrap_or(false) => self.lower(v, Some(wi)),
+                Some(wi) if self.on_stack.get(w).copied().unwrap_or(false) => {
+                    self.lower(v, Some(wi));
+                }
                 Some(_) => {}
             }
         }

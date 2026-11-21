@@ -3,6 +3,7 @@
 //! One emission and one Lake build serve all cases.
 
 use std::collections::BTreeMap;
+use std::fmt::Write as _;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::OnceLock;
@@ -27,9 +28,14 @@ struct Outcome {
 }
 
 fn sh(cmd: &mut Command, what: &str) -> Result<String, String> {
-    let lean_bin = std::env::var("HOME").map(|h| format!("{h}/.local/lean/bin")).unwrap_or_default();
+    let lean_bin = std::env::var("HOME")
+        .map(|h| format!("{h}/.local/lean/bin"))
+        .unwrap_or_default();
     let path = format!("{lean_bin}:{}", std::env::var("PATH").unwrap_or_default());
-    let out = cmd.env("PATH", path).output().map_err(|e| format!("{what}: {e}"))?;
+    let out = cmd
+        .env("PATH", path)
+        .output()
+        .map_err(|e| format!("{what}: {e}"))?;
     if out.status.success() {
         Ok(String::from_utf8_lossy(&out.stdout).into_owned())
     } else {
@@ -92,28 +98,50 @@ fn run_all() -> Result<Outcome, String> {
     let mut runner = RENDER.to_owned();
     for (name, _) in CASES {
         if summary.contains(&format!(" {name}: emitted")) {
-            runner.push_str(&format!(
-                "  IO.println s!\"{name} {{render (do Fix.Statics.init; Fix.Fidelity_c.{name} 10000 : M I64).eval}}\"\n"
-            ));
+            let _ = writeln!(
+                runner,
+                "  IO.println s!\"{name} {{render (do Fix.Statics.init; Fix.Fidelity_c.{name} 10000 : M I64).eval}}\""
+            );
         } else {
-            let why = summary.lines().find(|l| l.contains(&format!(" {name}: "))).unwrap_or("absent from the summary");
+            let why = summary
+                .lines()
+                .find(|l| l.contains(&format!(" {name}: ")))
+                .unwrap_or("absent from the summary");
             lean.insert((*name).to_owned(), format!("refused {why}"));
         }
     }
     let project = dir.join("lean");
     std::fs::write(project.join("Run.lean"), runner).map_err(|e| e.to_string())?;
-    sh(Command::new("lake").args(["build", "--wfail"]).current_dir(&project), "lake build of the emitted fixture")?;
-    let out = sh(Command::new("lake").args(["env", "lean", "--run", "Run.lean"]).current_dir(&project), "running the emitted fixture")?;
+    sh(
+        Command::new("lake")
+            .args(["build", "--wfail"])
+            .current_dir(&project),
+        "lake build of the emitted fixture",
+    )?;
+    let out = sh(
+        Command::new("lake")
+            .args(["env", "lean", "--run", "Run.lean"])
+            .current_dir(&project),
+        "running the emitted fixture",
+    )?;
     lean.extend(parse(&out));
 
     let mut main = String::from("#include <stdio.h>\n#include \"fidelity.c\"\nint main(void) {\n");
     for (name, _) in CASES.iter().filter(|c| matches!(c.1, Expect::SameAsC)) {
-        main.push_str(&format!("    printf(\"{name} ok %lld\\n\", {name}());\n"));
+        let _ = writeln!(main, "    printf(\"{name} ok %lld\\n\", {name}());");
     }
     main.push_str("    return 0;\n}\n");
     std::fs::write(dir.join("main.c"), main).map_err(|e| e.to_string())?;
-    sh(Command::new("cc").args(["-std=c11", "-O1", "-o", "prog", "main.c"]).current_dir(&dir), "compiling the fixture")?;
-    let c = parse(&sh(&mut Command::new(dir.join("prog")), "running the compiled fixture")?);
+    sh(
+        Command::new("cc")
+            .args(["-std=c11", "-O1", "-o", "prog", "main.c"])
+            .current_dir(&dir),
+        "compiling the fixture",
+    )?;
+    let c = parse(&sh(
+        &mut Command::new(dir.join("prog")),
+        "running the compiled fixture",
+    )?);
     let _ = std::fs::remove_dir_all(&dir);
     Ok(Outcome { c, lean })
 }
@@ -129,12 +157,21 @@ fn check(name: &str) {
     match expect {
         Expect::SameAsC => {
             let c = outcome.c.get(name).map_or("no result", String::as_str);
-            assert_eq!(lean, c, "{name}: Lean (left) and compiled C (right) disagree");
+            assert_eq!(
+                lean, c,
+                "{name}: Lean (left) and compiled C (right) disagree"
+            );
         }
         Expect::Ub(text) => {
-            assert!(lean.starts_with("ub ") && lean.contains(text), "{name}: expected undefined behaviour mentioning `{text}`, got `{lean}`");
+            assert!(
+                lean.starts_with("ub ") && lean.contains(text),
+                "{name}: expected undefined behaviour mentioning `{text}`, got `{lean}`"
+            );
         }
-        Expect::Stops(text) => assert!(lean.starts_with(text), "{name}: expected `{text}`, got `{lean}`"),
+        Expect::Stops(text) => assert!(
+            lean.starts_with(text),
+            "{name}: expected `{text}`, got `{lean}`"
+        ),
     }
 }
 
@@ -227,19 +264,41 @@ cases! {
     t_double_arithmetic => SameAsC,
     t_single_precision => SameAsC,
     t_float_compare => SameAsC,
+    t_nested_members => SameAsC,
+    t_bool => SameAsC,
+    t_pointer_compound => SameAsC,
+    t_char_literals => SameAsC,
+    t_global_struct => SameAsC,
+    t_unsigned_division => SameAsC,
+    t_long_overflow => Ub("signed overflow in addition"),
+    t_integer_pointer_round_trip => SameAsC,
+    t_do_while_zero => SameAsC,
+    t_conditional_pointer => SameAsC,
+    t_sizeof => SameAsC,
+    t_uninitialised_char => Stops("unsupported read of an uninitialised byte"),
+    t_partly_initialised_struct_copy => SameAsC,
+    t_misaligned_access => Ub("needs alignment 4"),
+    t_address_as_integer => Stops("unsupported conversion of an object or function address"),
 }
 
 fn refusal_of(tag: &str, source: &str, function: &str) -> String {
     let (dir, summary) = emit_fixture(tag, source).expect("emission runs");
     let _ = std::fs::remove_dir_all(dir);
-    summary.lines().find(|l| l.contains(&format!(" {function}: "))).unwrap_or("").to_owned()
+    summary
+        .lines()
+        .find(|l| l.contains(&format!(" {function}: ")))
+        .unwrap_or("")
+        .to_owned()
 }
 
 #[test]
 fn refuses_reading_variadic_arguments() {
     let src = "#include <stdarg.h>\nint f(int n, ...) { va_list ap; va_start(ap, n); va_end(ap); return n; }\n";
     let line = refusal_of("variadic", src, "f");
-    assert!(line.contains("not emitted") && line.contains("variadic"), "{line}");
+    assert!(
+        line.contains("not emitted") && line.contains("variadic"),
+        "{line}"
+    );
 }
 
 #[test]
@@ -255,18 +314,35 @@ fn refuses_operands_whose_order_matters() {
 fn refuses_backward_goto() {
     let src = "int f(int n) { int i = 0; again: i++; if (i < n) goto again; return i; }\n";
     let line = refusal_of("goto", src, "f");
-    assert!(line.contains("not emitted") && line.contains("goto"), "{line}");
+    assert!(
+        line.contains("not emitted") && line.contains("goto"),
+        "{line}"
+    );
 }
 
 #[test]
 fn unemitted_callee_becomes_a_parameter() {
     let src = "#include <stdarg.h>\nint v(int n, ...) { va_list ap; va_start(ap, n); va_end(ap); return n; }\nint f(void) { return v(1, 2); }\nint puts(const char *);\nint g(void) { return puts(\"x\"); }\n";
     let (dir, summary) = emit_fixture("param", src).expect("emission runs");
-    let externals = std::fs::read_to_string(dir.join("lean/Fix/Externals.lean")).expect("externals written");
-    let module = std::fs::read_to_string(dir.join("lean/Fix/Fidelity_c.lean")).expect("module written");
+    let externals =
+        std::fs::read_to_string(dir.join("lean/Fix/Externals.lean")).expect("externals written");
+    let module =
+        std::fs::read_to_string(dir.join("lean/Fix/Fidelity_c.lean")).expect("module written");
     let _ = std::fs::remove_dir_all(dir);
-    assert!(summary.contains(" f: emitted") && summary.contains(" g: emitted"), "{summary}");
-    assert!(externals.contains("class Ext.puts where\n  call : Ptr → M I32"), "{externals}");
-    assert!(externals.contains("class Ext.v where\n  call : I32 → List VArg → M I32"), "{externals}");
-    assert!(module.contains("def g [Ext.puts] (fuel : Nat) : M I32"), "{module}");
+    assert!(
+        summary.contains(" f: emitted") && summary.contains(" g: emitted"),
+        "{summary}"
+    );
+    assert!(
+        externals.contains("class Ext.puts where\n  call : Ptr → M I32"),
+        "{externals}"
+    );
+    assert!(
+        externals.contains("class Ext.v where\n  call : I32 → List VArg → M I32"),
+        "{externals}"
+    );
+    assert!(
+        module.contains("def g [Ext.puts] (fuel : Nat) : M I32"),
+        "{module}"
+    );
 }

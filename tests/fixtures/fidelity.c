@@ -304,7 +304,7 @@ ll t_memmove_overlapping(void) {
 ll t_memcpy_overlapping(void) { char b[8] = "abcdefg"; memcpy(b + 2, b, 5); return b[2]; }
 static int sign(int x) { return (x > 0) - (x < 0); }
 ll t_compare_functions(void) {
-    return sign(memcmp("abc", "abd", 3)) + 10 * sign(strcmp("b", "abc")) + 100 * sign(strncmp("abcx", "abcy", 3)) +
+    return sign(memcmp("abc", "abe", 3)) + 10 * sign(strcmp("b", "abc")) + 100 * sign(strncmp("abcx", "abcy", 3)) +
            1000 * sign(strcmp("ab", "ab\0c"));
 }
 ll t_search_functions(void) {
@@ -334,3 +334,66 @@ ll t_single_precision(void) {
     return x ^ bits_of(c * 3.0f);
 }
 ll t_float_compare(void) { double z = 0.0, n = z / z; return (n != n) + 10 * (n < 1.0) + 100 * (1.5 > z); }
+
+/* More of the type system. */
+struct inner {
+    short a;
+    char b[3];
+};
+struct outer {
+    char c;
+    struct inner in;
+    union {
+        int i;
+        float f;
+    };
+    struct {
+        long l;
+    } s;
+    int arr[4];
+};
+ll t_nested_members(void) {
+    struct outer o = {1, {2, "xy"}, {.i = 7}, {9}, {1, 2, 3, 4}};
+    o.arr[2] += o.in.a;
+    o.s.l *= 3;
+    return o.c + o.in.b[1] + o.i * 100 + o.s.l * 1000 + o.arr[2] * 100000 + sizeof o;
+}
+ll t_bool(void) {
+    _Bool b = 5;
+    _Bool c = 0.5;
+    int *p = 0;
+    _Bool d = p;
+    return b + c * 10 + d * 100 + (b + b) * 1000;
+}
+ll t_pointer_compound(void) {
+    int a[6] = {1, 2, 3, 4, 5, 6};
+    int *p = a;
+    p += 2;
+    p -= 1;
+    int **pp = &p;
+    (*pp)++;
+    return *p + **pp * 10 + p[-1] * 100;
+}
+ll t_char_literals(void) { char s[4] = "\xff\x80"; return s[0] + s[1] * 256 + '\xff' * 65536 + s[3]; }
+static const struct pt origin = {1, 'o', 2};
+static const struct pt *const where = &origin;
+ll t_global_struct(void) { return where->x + where->y + origin.tag; }
+ll t_unsigned_division(void) { unsigned a = 4000000000u; int b = -2; return a / 3 + (unsigned)b / 2 + a % 7; }
+ll t_long_overflow(void) { long a = 9223372036854775807L; volatile long b = 1; return a + b; }
+ll t_integer_pointer_round_trip(void) { void *p = (void *)(long)1234; return (long)p; }
+ll t_do_while_zero(void) {
+    int n = 0;
+    do {
+        n++;
+        if (n)
+            break;
+        n += 100;
+    } while (0);
+    return n;
+}
+ll t_conditional_pointer(void) { int a = 1, b = 2; int *p = a > b ? &a : &b; *p += 5; return a * 10 + b; }
+ll t_sizeof(void) { int a[7]; return sizeof a / sizeof a[0] + sizeof(long) * 10 + _Alignof(struct pt) * 100; }
+ll t_uninitialised_char(void) { unsigned char c; return c; }
+ll t_partly_initialised_struct_copy(void) { struct pt a; a.x = 1; struct pt b = a; return b.x; }
+ll t_misaligned_access(void) { char buf[8] = {0}; int *p = (int *)(buf + 1); return *p; }
+ll t_address_as_integer(void) { int x = 0; return (long)&x != 0; }
