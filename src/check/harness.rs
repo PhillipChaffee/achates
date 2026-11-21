@@ -10,9 +10,11 @@ use crate::check::shape::{Plan, Shape};
 use crate::emit::names::int_ty;
 use crate::types::FloatKind;
 
-/// Enough for every loop the inputs can cause, and small enough that a
-/// definition that loops for ever is reported within seconds.
-pub(crate) const FUEL: u64 = 1_000_000;
+/// Rounds each loop of the model may run. An input that needs more ends
+/// as `fuel`, which counts as a failed check: it is a limit of the check,
+/// and says nothing about the C. A million rounds made one function of
+/// `misc/` take hours on inputs that ask for billions of rounds.
+pub(crate) const FUEL: u64 = 100_000;
 
 /// Seconds one call may take in the C harness before it counts as looping
 /// for ever.

@@ -77,7 +77,7 @@ static int bump(int x)
 int many_calls(void)
 {
     int k = 0;
-    for (int i = 0; i < 200000; i++)
+    for (int i = 0; i < 90000; i++)
         k = bump(k);
     return k;
 }

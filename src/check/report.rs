@@ -86,6 +86,9 @@ pub(crate) struct Mutants {
     /// too close to the limit for that to count; they are survivors.
     pub(crate) timeouts_not_counted: usize,
     pub(crate) survivors: Vec<Survivor>,
+    /// Mutants set aside as equivalent, each with the argument; neither
+    /// run nor counted as compiled, caught or surviving.
+    pub(crate) equivalent: Vec<Survivor>,
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
@@ -200,8 +203,13 @@ fn line(o: &mut String, f: &FnResult) {
             if let Some(m) = &f.mutants {
                 let _ = write!(
                     o,
-                    "; mutants caught {} of {} generated ({} by timeout; {} compiled, {} candidates)",
-                    m.caught, m.generated, m.caught_by_timeout, m.compiled, m.candidates
+                    "; mutants caught {} of {} generated ({} by timeout; {} equivalent; {} compiled, {} candidates)",
+                    m.caught,
+                    m.generated,
+                    m.caught_by_timeout,
+                    m.equivalent.len(),
+                    m.compiled,
+                    m.candidates
                 );
             }
         }
@@ -304,9 +312,10 @@ impl Report {
         if !ms.is_empty() {
             let _ = writeln!(
                 o,
-                "Mutants: {} generated of {} candidates, {} compiled, {} caught ({} of them by timeout only), {} survived ({} timed out where that does not count).",
+                "Mutants: {} generated of {} candidates, {} set aside as equivalent, {} compiled, {} caught ({} of them by timeout only), {} survived ({} timed out where that does not count).",
                 ms.iter().map(|m| m.generated).sum::<usize>(),
                 ms.iter().map(|m| m.candidates).sum::<usize>(),
+                ms.iter().map(|m| m.equivalent.len()).sum::<usize>(),
                 ms.iter().map(|m| m.compiled).sum::<usize>(),
                 ms.iter().map(|m| m.caught).sum::<usize>(),
                 ms.iter().map(|m| m.caught_by_timeout).sum::<usize>(),

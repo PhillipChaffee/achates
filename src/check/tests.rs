@@ -178,13 +178,13 @@ fn a_corrupted_definition_disagrees_on_a_reported_input() {
 
 #[test]
 fn many_calls_do_not_make_the_model_quadratic() {
-    // Before `Mem.alloc` stopped copying the block array, the 200,000
-    // calls took minutes and the driver stalled past its idle limit.
+    // Before `Mem.alloc` stopped copying the block array, the 90,000 calls
+    // took about 14 s per input; now they take well under one.
     let r = match run("calls", &["many_calls"], 2, None) {
         Ok(r) => r,
         Err(e) => panic!("{e}"),
     };
     let f = result(&r, "many_calls");
     assert_eq!(f.compared, 2, "{}", r.summary());
-    assert!(f.seconds < 20.0, "{} s", f.seconds);
+    assert!(f.seconds < 10.0, "{} s", f.seconds);
 }

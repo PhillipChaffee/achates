@@ -478,11 +478,15 @@ impl Ctx<'_> {
     }
 
     /// Compiles a harness that takes the function's text from `text_file`.
+    /// Compiles a harness, with the file `replace.0` swapped for the copy
+    /// `replace.1`; with `preprocess`, only runs the preprocessor and
+    /// returns the path of its output.
     fn compile(
         &self,
         t: &Target<'_>,
         dir: &Path,
         replace: Option<(&Path, &Path)>,
+        preprocess: bool,
     ) -> Result<Result<PathBuf, String>> {
         let mut includes = vec![t.def_file.as_path()];
         if t.def_file != t.main_file {
@@ -497,7 +501,7 @@ impl Ctx<'_> {
             .collect();
         let src = dir.join("harness.c");
         put(&src, &harness::c_harness(&includes, &t.row.name, &t.plan))?;
-        let bin = dir.join("harness");
+        let bin = dir.join(if preprocess { "harness.i" } else { "harness" });
         let mut cmd = Command::new(self.cc);
         cmd.args(&t.cflags);
         // Debug information does not change the code and costs most of the
@@ -509,7 +513,12 @@ impl Ctx<'_> {
                 cmd.arg("-iquote").arg(d);
             }
         }
-        cmd.arg(&src).arg("-o").arg(&bin).args(&self.link);
+        cmd.arg(&src).arg("-o").arg(&bin);
+        if preprocess {
+            cmd.arg("-E").arg("-P");
+        } else {
+            cmd.args(&self.link);
+        }
         cmd.current_dir(&t.cwd);
         let ran = run_limited(&mut cmd, &dir.join("cc"), Duration::from_mins(5), None)?;
         Ok(if ran.code == Some(0) {
@@ -592,7 +601,7 @@ impl Ctx<'_> {
             }
         }
         if !c_input.is_empty() {
-            let bin = match self.compile(t, &dir, None)? {
+            let bin = match self.compile(t, &dir, None, false)? {
                 Ok(b) => b,
                 Err(e) => {
                     res.status = Status::NotCheckable;
@@ -649,6 +658,32 @@ impl Ctx<'_> {
         Ok(res)
     }
 
+    /// `Some(argument)` when the mutated copy preprocesses to the same text
+    /// as the original, with the copy's path read as the original's.
+    fn unchanged_after_preprocessing(
+        &self,
+        t: &Target<'_>,
+        dir: &Path,
+        mdir: &Path,
+        original: &Path,
+        copy: &Path,
+    ) -> Result<Option<String>> {
+        let base = dir.join("harness.i");
+        if !base.exists() && self.compile(t, dir, None, true)?.is_err() {
+            return Ok(None);
+        }
+        let Ok(mine) = self.compile(t, mdir, Some((original, copy)), true)? else {
+            return Ok(None);
+        };
+        let a = std::fs::read_to_string(&base).unwrap_or_default();
+        let b = std::fs::read_to_string(&mine)
+            .unwrap_or_default()
+            .replace(&copy.display().to_string(), &original.display().to_string());
+        Ok((!a.is_empty() && a == b).then(|| {
+            "the preprocessed text is unchanged: the change is in a branch of `#if` this build does not compile".to_owned()
+        }))
+    }
+
     fn mutants(
         &self,
         t: &Target<'_>,
@@ -686,7 +721,24 @@ impl Ctx<'_> {
                 .map_or_else(|| "source.c".into(), |n| n.to_string_lossy().into_owned());
             let copy = mdir.join(&base);
             put(&copy, &m.source)?;
-            let Ok(bin) = self.compile(t, &mdir, Some((&r.file, &copy)))? else {
+            // A change the preprocessor drops (in an `#if` branch this build
+            // does not take) cannot change behaviour: set aside, with that
+            // as the argument, instead of being run.
+            if let Some(same) = self.unchanged_after_preprocessing(t, dir, &mdir, &r.file, &copy)? {
+                out.equivalent.push(report::Survivor {
+                    function: r.function.clone(),
+                    file: r.file.display().to_string(),
+                    line: m.line,
+                    column: m.column,
+                    operator: m.operator.to_owned(),
+                    before: m.before.clone(),
+                    after: m.after.clone(),
+                    note: Some(same),
+                });
+                let _ = std::fs::remove_dir_all(&mdir);
+                continue;
+            }
+            let Ok(bin) = self.compile(t, &mdir, Some((&r.file, &copy)), false)? else {
                 let _ = std::fs::remove_dir_all(&mdir);
                 continue;
             };

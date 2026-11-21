@@ -126,7 +126,41 @@ impl<'d> Gen<'d> {
         }
     }
 
+    /// Text that number parsers treat specially: blanks, a sign, a base
+    /// prefix (`0x`, `0b`, `0`), digits of several bases, and a tail.
+    fn number(&mut self) -> Vec<u8> {
+        const PREFIX: &[&[u8]] = &[b"", b"0", b"0x", b"0X", b"0b", b"0B", b"00"];
+        const DIGITS: &[u8] = b"0123456789abcdefABCDEFxXbB";
+        let mut out = Vec::new();
+        for _ in 0..self.rng.below(3) {
+            out.push(self.rng.pick(b" \t\n").unwrap_or(b' '));
+        }
+        if self.rng.chance(1, 3) {
+            out.push(self.rng.pick(b"+-").unwrap_or(b'-'));
+        }
+        let prefix = self.rng.pick(PREFIX).unwrap_or(b"");
+        out.extend_from_slice(prefix);
+        // Mostly digits the prefix announces, so that the prefix is taken.
+        let valid: &[u8] = match prefix {
+            b"0x" | b"0X" => b"0123456789abcdefABCDEF",
+            b"0b" | b"0B" => b"01",
+            b"0" | b"00" => b"01234567",
+            _ => b"0123456789",
+        };
+        for _ in 0..self.rng.below(24) {
+            let set = if self.rng.chance(7, 8) { valid } else { DIGITS };
+            out.push(self.rng.pick(set).unwrap_or(b'0'));
+        }
+        if self.rng.chance(1, 2) {
+            out.push(self.rng.pick(BYTES).unwrap_or(b' '));
+        }
+        out
+    }
+
     fn fresh_bytes(&mut self) -> Vec<u8> {
+        if self.rng.chance(1, 12) {
+            return self.number();
+        }
         let n = self.length();
         let mode = self.rng.below(6);
         let mut out = Vec::new();
