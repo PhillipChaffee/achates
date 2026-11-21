@@ -12,10 +12,11 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use anyhow::{Context as _, Result, bail};
 use serde_json::Value;
 
-use crate::clang::{self, parse_many};
+use crate::clang::parse_many;
 use crate::compdb::{ClangArgs, Entry};
 use crate::convert::{Unit, inner, kind, probe_key, text, type_of};
 use crate::ir::TypeTrait;
+use crate::tools;
 use crate::types::{IntKind, IntType, TagName, Type};
 
 const PREFIX: &str = "__achates_probe_";
@@ -182,11 +183,14 @@ fn ask_in(
         cmd.extend(["-fsyntax-only", "-Xclang", "-ast-dump=json", "-Xclang"].map(String::from));
         cmd.push(format!("-ast-dump-filter={PREFIX}"));
         cmd.push(path.display().to_string());
-        let out = std::process::Command::new(clang::CLANG)
+        let clang = tools::clang()?;
+        let out = std::process::Command::new(clang)
             .args(&cmd)
             .current_dir(&entry.directory)
             .output()
-            .with_context(|| format!("starting {} for probes of {}", clang::CLANG, entry.file))?;
+            .with_context(|| {
+                format!("starting {} for probes of {}", clang.display(), entry.file)
+            })?;
         if out.status.success() {
             for v in parse_many(&out.stdout)? {
                 read_answer(&v, answers);
@@ -214,7 +218,7 @@ fn ask_in(
         if !blamed {
             bail!(
                 "{} failed on the probes for {}:\n{err}",
-                clang::CLANG,
+                clang.display(),
                 entry.file
             );
         }

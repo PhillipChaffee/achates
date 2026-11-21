@@ -10,6 +10,7 @@ use std::sync::OnceLock;
 
 use crate::compdb;
 use crate::emit::{self, Options};
+use crate::tools;
 
 #[derive(Debug, Clone, Copy)]
 enum Expect {
@@ -28,12 +29,8 @@ struct Outcome {
 }
 
 fn sh(cmd: &mut Command, what: &str) -> Result<String, String> {
-    let lean_bin = std::env::var("HOME")
-        .map(|h| format!("{h}/.local/lean/bin"))
-        .unwrap_or_default();
-    let path = format!("{}:{lean_bin}", std::env::var("PATH").unwrap_or_default());
     let out = cmd
-        .env("PATH", path)
+        .env("PATH", tools::path_with_lean())
         .output()
         .map_err(|e| format!("{what}: {e}"))?;
     if out.status.success() {
@@ -133,7 +130,7 @@ fn run_all() -> Result<Outcome, String> {
     main.push_str("    return 0;\n}\n");
     std::fs::write(dir.join("main.c"), main).map_err(|e| e.to_string())?;
     sh(
-        Command::new("cc")
+        Command::new(tools::cc().map_err(|e| format!("{e:#}"))?)
             .args(["-std=c11", "-O1", "-o", "prog", "main.c"])
             .current_dir(&dir),
         "compiling the fixture",
