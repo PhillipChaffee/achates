@@ -8,6 +8,8 @@ yanked = "deny"
 [licenses]
 version = 2
 unused-allowed-license = "allow"
+# Achates itself is unpublished and has no license chosen yet.
+private = { ignore = true }
 allow = [
   "Apache-2.0",
   "Apache-2.0 WITH LLVM-exception",

@@ -7,3 +7,5 @@ extend-ignore-re = ["hash=[0-9a-f]{12}"]
 [default.extend-words]
 # mpv file name prefix (ambient light sensor).
 als = "als"
+# clang's node name `ParmVarDecl`.
+Parm = "Parm"

@@ -1,0 +1,56 @@
+[package]
+name = "achates"
+description = "Reads C through clang into a typed intermediate representation, the front half of a C to Lean translator"
+keywords = ["c", "clang", "lean", "verification"]
+categories = ["development-tools"]
+readme = "README.md"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97"
+publish = false
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["preserve_order"] }
+
+[lints]
+workspace = true
+
+[workspace]
+
+[workspace.lints.rust]
+unsafe_code = "deny"
+unused_must_use = "deny"
+unused_crate_dependencies = "warn"
+missing_debug_implementations = "warn"
+unreachable_pub = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+pedantic = { level = "warn", priority = -1 }
+nursery = { level = "warn", priority = -1 }
+cargo = { level = "warn", priority = -1 }
+# Duplicate transitive versions are policed by cargo-deny, which can skip specific crates.
+multiple_crate_versions = "allow"
+# Fires on every not-yet-const fn, including `main`.
+missing_const_for_fn = "allow"
+# Contradicts rustc's `unreachable_pub`, which this workspace enforces.
+redundant_pub_crate = "allow"
+allow_attributes = "warn"
+allow_attributes_without_reason = "warn"
+dbg_macro = "warn"
+expect_used = "warn"
+indexing_slicing = "warn"
+panic = "warn"
+todo = "warn"
+undocumented_unsafe_blocks = "warn"
+unimplemented = "warn"
+unwrap_used = "warn"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true
