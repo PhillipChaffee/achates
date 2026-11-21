@@ -1,0 +1,7 @@
+name = "achates"
+defaultTargets = ["Achates"]
+
+[[lean_lib]]
+name = "Achates"
+# Without these, a misspelt type in a signature becomes an implicit variable instead of an error.
+leanOptions = { autoImplicit = false, relaxedAutoImplicit = false }
