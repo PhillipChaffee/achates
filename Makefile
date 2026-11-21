@@ -38,5 +38,6 @@ pilot-emit:
 
 pilot-build:
 	cd pilot/misc && lake build --wfail
+	cd pilot/misc-checks && lake build --wfail
 
 ci: lint test lean pilot-emit pilot-build

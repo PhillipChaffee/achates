@@ -1,0 +1,10 @@
+name = "miscchecks"
+defaultTargets = ["MiscChecks"]
+
+[[require]]
+name = "misc"
+path = "../misc"
+
+[[lean_lib]]
+name = "MiscChecks"
+leanOptions = { autoImplicit = false, relaxedAutoImplicit = false }

@@ -1,6 +1,6 @@
 [package]
 name = "achates"
-description = "Reads C through clang into a typed intermediate representation, the front half of a C to Lean translator"
+description = "Translates C into Lean 4: reads C through clang into a typed intermediate representation and emits Lean definitions from it"
 keywords = ["c", "clang", "lean", "verification"]
 categories = ["development-tools"]
 readme = "README.md"

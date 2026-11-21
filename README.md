@@ -15,3 +15,15 @@ port. See [docs/pilot.md](docs/pilot.md).
 The front end, which reads C through clang into a typed intermediate
 representation, is described in
 [docs/frontend-report.md](docs/frontend-report.md).
+
+The back end, which emits Lean definitions from that representation and
+provides the Lean runtime they run on, is described in
+[docs/backend-report.md](docs/backend-report.md).
+
+```sh
+achates emit --compile-commands PATH --select misc/ --out DIR --name Misc
+```
+
+writes a Lake project to `DIR` and prints, for every function, whether it was
+emitted and why not. `lean/` holds the runtime; `pilot/misc/` holds the
+output for mpv's `misc/`; `make ci` builds both.
