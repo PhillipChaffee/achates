@@ -44,6 +44,10 @@ pub(crate) struct Statement {
     pub(crate) text: String,
     /// The hypotheses of the statement, each in words, for the report.
     pub(crate) preconditions: Vec<String>,
+    /// Some argument is a `bstr` (`IsBstr` hypothesis).
+    pub(crate) bstr_arg: bool,
+    /// Some argument is a C string (`IsCStr` hypothesis).
+    pub(crate) cstr_arg: bool,
 }
 
 /// The C prototype as the front end reads it, for what the Lean types do
@@ -242,6 +246,8 @@ pub(crate) fn statement(
         shape,
         text,
         preconditions: pre,
+        bstr_arg: params.iter().any(|p| p.arg == Arg::Bstr),
+        cstr_arg: params.iter().any(|p| p.arg == Arg::CStr),
     })
 }
 
@@ -284,6 +290,7 @@ mod tests {
         assert!(s.text.contains("y = (Equiv.i32 r)"));
         assert!(s.text.contains("(R.bstrcmp s_a s_b)"));
         assert_eq!(s.preconditions.len(), 2);
+        assert!(s.bstr_arg && !s.cstr_arg);
     }
 
     #[test]

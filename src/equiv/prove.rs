@@ -1,15 +1,22 @@
-//! Runs the proof tiers: each tier is one fixed tactic, written as the
-//! proof of every theorem still open, checked by Lean in a few files run
-//! side by side. A theorem is proved by the first tier whose attempt Lean
-//! accepts with no message of severity error.
+//! Runs the tries: each try is one theorem with one tier's script and
+//! budget, in a Lean file of its own, checked by `lake env lean`. A pool
+//! of `jobs` workers takes tries from one queue, so no try waits for
+//! another; a theorem's second try is queued when its first ends.
+//!
+//! A theorem is proved by a try only when Lean reports no error inside it
+//! and its `#print axioms` lists only Lean's own axioms.
 
-use std::collections::BTreeMap;
+use std::collections::VecDeque;
 use std::fmt::Write as _;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::Command;
+use std::sync::{Condvar, Mutex, PoisonError};
+use std::time::Instant;
 
 use anyhow::{Context as _, Result, bail};
 use serde_json::Value;
+
+use crate::equiv::search::Failure;
 
 /// One theorem to prove: its name, and its statement up to `:= by`.
 #[derive(Debug, Clone)]
@@ -27,17 +34,25 @@ pub(crate) struct Tier {
     pub(crate) label: String,
     /// The tactic, with `UNFOLD` where the unfold list goes.
     pub(crate) tactic: String,
-    /// `maxHeartbeats` for one theorem at this tier.
+    /// `maxHeartbeats` for one try at this tier.
     pub(crate) budget: u64,
 }
 
-/// What a theorem's attempts gave.
-#[derive(Debug, Clone, Default)]
-pub(crate) struct Outcome {
-    /// The tier that closed it, as an index into the tiers.
-    pub(crate) proved: Option<usize>,
-    /// The first error of each attempt, by tier.
-    pub(crate) errors: Vec<(usize, String)>,
+/// What one try gave.
+#[derive(Debug, Clone)]
+pub(crate) struct Try {
+    pub(crate) tier: usize,
+    pub(crate) budget: u64,
+    /// As `equiv_budget` reports them, in the units of `maxHeartbeats`.
+    pub(crate) heartbeats: Option<u64>,
+    /// Wall time of the Lean run, import included.
+    pub(crate) seconds: f64,
+    /// `None` when the try proved the theorem.
+    pub(crate) failure: Option<Failure>,
+    /// The first error, for the report; empty when proved.
+    pub(crate) first_error: String,
+    /// The `#print axioms` message, when it came.
+    pub(crate) axioms: Option<String>,
 }
 
 /// Every attempt file starts with this; each theorem then sets its own
@@ -48,41 +63,28 @@ pub(crate) const HEADER: &str = "import Equiv.Tactic\nimport Equiv.Lemmas\nimpor
     set_option linter.unusedSimpArgs false\nset_option linter.unusedVariables false\n\n\
     namespace Equiv.Gen\n\n";
 
+/// The theorem with `tier`'s script as its proof.
 pub(crate) fn proof(goal: &Goal, tier: &Tier) -> String {
     let tac = tier.tactic.replace("UNFOLD", &goal.unfold.join(", "));
     goal.text.replace("TACTIC", &tac)
 }
 
-/// The theorems of one attempt file, each with its first and last line.
+/// The text of one try's file, and the first and last line of the
+/// theorem in it.
 ///
-/// Each theorem is followed by `#print axioms` for it. A theorem counts as
-/// proved only when that message arrives and names no `sorryAx`: a Lean run
-/// that stops early (killed, out of memory) must not look like success, and
-/// an error Lean recovers from by `sorry` must not either.
-fn write_file(path: &Path, goals: &[&Goal], tier: &Tier) -> Result<Vec<(String, usize, usize)>> {
+/// The theorem is followed by `#print axioms` for it. It counts as proved
+/// only when that message arrives and names only Lean's own axioms: a
+/// Lean run that stops early (killed, out of memory) must not look like
+/// success, and an error Lean recovers from by `sorry` must not either.
+fn attempt_file(goal: &Goal, tier: &Tier) -> (String, usize, usize) {
     let mut text = String::from(HEADER);
-    let mut spans = Vec::new();
-    for g in goals {
-        let start = text.lines().count() + 1;
-        let _ = writeln!(text, "equiv_budget {} in", tier.budget);
-        text.push_str(&proof(g, tier));
-        let _ = writeln!(text, "#print axioms Equiv.Gen.{}", g.name);
-        let end = text.lines().count();
-        spans.push((g.name.clone(), start, end));
-        text.push('\n');
-    }
-    text.push_str("end Equiv.Gen\n");
-    std::fs::write(path, text).with_context(|| format!("writing {}", path.display()))?;
-    Ok(spans)
-}
-
-/// What Lean said about one attempt file.
-#[derive(Debug, Default)]
-struct Messages {
-    /// Errors, as (line, text).
-    errors: Vec<(usize, String)>,
-    /// Theorems whose `#print axioms` arrived without `sorryAx`.
-    clean: Vec<String>,
+    let start = text.lines().count() + 1;
+    let _ = writeln!(text, "equiv_budget {} in", tier.budget);
+    text.push_str(&proof(goal, tier));
+    let _ = writeln!(text, "#print axioms Equiv.Gen.{}", goal.name);
+    let end = text.lines().count();
+    text.push_str("\nend Equiv.Gen\n");
+    (text, start, end)
 }
 
 /// Lean's own axioms; a proof that needs any other is not counted. This
@@ -91,34 +93,35 @@ struct Messages {
 /// kernel.
 const KERNEL_AXIOMS: [&str; 3] = ["propext", "Classical.choice", "Quot.sound"];
 
-/// The theorem a `#print axioms` message is about, if its axioms are
-/// Lean's own.
-fn clean_axioms(text: &str) -> Option<String> {
-    let name = text
-        .strip_prefix("'Equiv.Gen.")?
-        .split('\'')
-        .next()?
-        .to_owned();
+/// Whether a `#print axioms` message lists only Lean's own axioms.
+fn clean_axioms(text: &str) -> bool {
     if text.contains("does not depend on any axioms") {
-        return Some(name);
+        return true;
     }
-    let list = text.split_once('[')?.1.split_once(']')?.0;
-    list.split(',')
-        .map(str::trim)
-        .all(|a| KERNEL_AXIOMS.contains(&a))
-        .then_some(name)
+    text.split_once('[')
+        .and_then(|(_, r)| r.split_once(']'))
+        .is_some_and(|(list, _)| {
+            list.split(',')
+                .map(str::trim)
+                .all(|a| KERNEL_AXIOMS.contains(&a))
+        })
 }
 
-/// Lean's messages for `file`.
-fn errors(lake_dir: &Path, file: &Path) -> Result<Messages> {
-    let out = Command::new("lake")
-        .args(["env", "lean", "--json"])
-        .arg(file)
-        .current_dir(lake_dir)
-        .output()
-        .context("running lake env lean (is Lean on PATH?)")?;
+/// What Lean said about one try's file.
+#[derive(Debug, Default)]
+struct Messages {
+    /// Errors, as (line, text).
+    errors: Vec<(usize, String)>,
+    /// The `#print axioms` message for the theorem.
+    axioms: Option<String>,
+    heartbeats: Option<u64>,
+}
+
+/// Reads `lean --json`'s output for the theorem `name`.
+fn messages(stdout: &str, name: &str) -> Messages {
     let mut msgs = Messages::default();
-    for line in String::from_utf8_lossy(&out.stdout).lines() {
+    let ours = format!("'Equiv.Gen.{name}'");
+    for line in stdout.lines() {
         let Ok(v) = serde_json::from_str::<Value>(line) else {
             continue;
         };
@@ -128,8 +131,10 @@ fn errors(lake_dir: &Path, file: &Path) -> Result<Messages> {
             .unwrap_or("")
             .to_owned();
         if v.get("severity").and_then(Value::as_str) != Some("error") {
-            if let Some(name) = clean_axioms(&data) {
-                msgs.clean.push(name);
+            if data.starts_with(&ours) && data.contains("axioms") {
+                msgs.axioms = Some(data);
+            } else if let Some(n) = data.strip_prefix("heartbeats used: ") {
+                msgs.heartbeats = n.trim().parse().ok();
             }
             continue;
         }
@@ -140,88 +145,178 @@ fn errors(lake_dir: &Path, file: &Path) -> Result<Messages> {
             .unwrap_or(0);
         msgs.errors.push((at, data));
     }
-    if msgs.errors.is_empty() && msgs.clean.is_empty() && !out.status.success() {
-        bail!(
-            "lean failed on {} without a message: {}",
-            file.display(),
-            String::from_utf8_lossy(&out.stderr)
-        );
-    }
-    Ok(msgs)
+    msgs
 }
 
-/// Runs `tiers` in order on `goals`; files go to `work`, Lean runs in
-/// `lake_dir`, `jobs` files at a time.
+/// One try: `goal` at tier `t`, its file in `work`, Lean run in
+/// `lake_dir`.
+fn attempt(goal: &Goal, t: usize, tier: &Tier, lake_dir: &Path, work: &Path) -> Result<Try> {
+    let (text, start, end) = attempt_file(goal, tier);
+    let file = work.join(format!("{}_T{t}.lean", goal.name));
+    std::fs::write(&file, text).with_context(|| format!("writing {}", file.display()))?;
+    let clock = Instant::now();
+    let out = Command::new("lake")
+        .args(["env", "lean", "--json"])
+        .arg(&file)
+        .current_dir(lake_dir)
+        .output()
+        .context("running lake env lean (is Lean on PATH?)")?;
+    let seconds = clock.elapsed().as_secs_f64();
+    let msgs = messages(&String::from_utf8_lossy(&out.stdout), &goal.name);
+    // Only the theorem is in the file: an error outside it is the
+    // library's or the header's, and says nothing about this theorem.
+    if let Some((l, e)) = msgs.errors.iter().find(|(l, _)| !(start..=end).contains(l)) {
+        bail!(
+            "{}: line {l}, outside the theorem: {}",
+            file.display(),
+            summary(e)
+        );
+    }
+    let errors: Vec<String> = msgs.errors.iter().map(|(_, e)| e.clone()).collect();
+    let failure = if errors.is_empty() && msgs.axioms.as_deref().is_some_and(clean_axioms) {
+        None
+    } else if errors.is_empty() && msgs.axioms.is_none() && !out.status.success() {
+        Some(Failure::Stopped(format!(
+            "lean exited with {} and no report: {}",
+            out.status,
+            String::from_utf8_lossy(&out.stderr).trim()
+        )))
+    } else if errors.is_empty() {
+        Some(Failure::Axioms(msgs.axioms.clone().unwrap_or_default()))
+    } else {
+        Some(Failure::read(&errors))
+    };
+    Ok(Try {
+        tier: t,
+        budget: tier.budget,
+        heartbeats: msgs.heartbeats,
+        seconds,
+        failure,
+        first_error: errors.first().map(|e| summary(e)).unwrap_or_default(),
+        axioms: msgs.axioms,
+    })
+}
+
+/// A first try: the theorem, by index into the goals, and its tier.
+#[derive(Debug, Clone, Copy)]
+pub(crate) struct Job {
+    pub(crate) goal: usize,
+    pub(crate) tier: usize,
+}
+
+/// The queue the workers share.
+#[derive(Debug)]
+struct Pool {
+    queue: VecDeque<Job>,
+    running: usize,
+    tries: Vec<Vec<Try>>,
+    error: Option<anyhow::Error>,
+}
+
+/// Runs `first` (in that order) and every further try `next` asks for,
+/// `jobs` Lean runs at a time; files go to `work`, Lean runs in
+/// `lake_dir`. `next` sees a theorem's tries so far and names the tier of
+/// the next one, if any; it is asked after every try. Returns the tries
+/// of each goal, in order.
 pub(crate) fn run(
     goals: &[Goal],
     tiers: &[Tier],
+    first: &[Job],
+    next: &(dyn Fn(usize, &[Try]) -> Option<usize> + Sync),
     lake_dir: &Path,
     work: &Path,
     jobs: usize,
-) -> Result<BTreeMap<String, Outcome>> {
+) -> Result<Vec<Vec<Try>>> {
     std::fs::create_dir_all(work)?;
     // Lean runs in `lake_dir`, so the files are named absolutely.
     let work = &work.canonicalize()?;
-    let mut out: BTreeMap<String, Outcome> = goals
-        .iter()
-        .map(|g| (g.name.clone(), Outcome::default()))
-        .collect();
-    for (t, tier) in tiers.iter().enumerate() {
-        let open: Vec<&Goal> = goals
-            .iter()
-            .filter(|g| out.get(&g.name).is_some_and(|o| o.proved.is_none()))
-            .collect();
-        if open.is_empty() {
-            break;
-        }
-        let chunk = open.len().div_ceil(jobs.max(1));
-        let mut handles = Vec::new();
-        for (k, part) in open.chunks(chunk.max(1)).enumerate() {
-            let file: PathBuf = work.join(format!("Tier{t}_{k}.lean"));
-            let spans = write_file(&file, part, tier)?;
-            let dir = lake_dir.to_path_buf();
-            handles.push(std::thread::spawn(move || {
-                errors(&dir, &file).map(|e| (spans, e))
-            }));
-        }
-        for h in handles {
-            let (spans, msgs) = h
-                .join()
-                .map_err(|_| anyhow::anyhow!("a Lean run panicked"))??;
-            for (name, start, end) in spans {
-                let mine: Vec<&String> = msgs
-                    .errors
-                    .iter()
-                    .filter(|(l, _)| (start..=end).contains(l))
-                    .map(|(_, e)| e)
-                    .collect();
-                if let Some(o) = out.get_mut(&name) {
-                    if let Some(first) = mine.first() {
-                        o.errors.push((t, (*first).clone()));
-                    } else if msgs.clean.contains(&name) {
-                        o.proved = Some(t);
-                    } else {
-                        o.errors.push((
-                            t,
-                            "no error, but the theorem's axioms are not Lean's own (or were never reported)"
-                                .to_owned(),
-                        ));
+    let pool = Mutex::new(Pool {
+        queue: first.iter().copied().collect(),
+        running: 0,
+        tries: vec![Vec::new(); goals.len()],
+        error: None,
+    });
+    let wake = Condvar::new();
+    let lock = || pool.lock().unwrap_or_else(PoisonError::into_inner);
+    std::thread::scope(|s| {
+        for _ in 0..jobs.max(1) {
+            s.spawn(|| {
+                loop {
+                    let job = {
+                        let mut p = lock();
+                        loop {
+                            if p.error.is_some() {
+                                return;
+                            }
+                            if let Some(j) = p.queue.pop_front() {
+                                p.running += 1;
+                                break j;
+                            }
+                            if p.running == 0 {
+                                return;
+                            }
+                            p = wake.wait(p).unwrap_or_else(PoisonError::into_inner);
+                        }
+                    };
+                    let (Some(goal), Some(tier)) = (goals.get(job.goal), tiers.get(job.tier))
+                    else {
+                        lock().running -= 1;
+                        wake.notify_all();
+                        continue;
+                    };
+                    let result = attempt(goal, job.tier, tier, lake_dir, work);
+                    let mut p = lock();
+                    p.running -= 1;
+                    match result {
+                        Ok(t) => {
+                            report(goal, tier, &t);
+                            if let Some(list) = p.tries.get_mut(job.goal) {
+                                list.push(t);
+                                if let Some(n) = next(job.goal, list) {
+                                    // A second try goes first: its theorem
+                                    // has already waited once.
+                                    p.queue.push_front(Job {
+                                        goal: job.goal,
+                                        tier: n,
+                                    });
+                                }
+                            }
+                        }
+                        Err(e) => p.error = Some(e),
                     }
+                    drop(p);
+                    wake.notify_all();
                 }
-            }
+            });
         }
-        eprintln!(
-            "achates equiv: {}: {} of {} proved",
-            tier.label,
-            out.values().filter(|o| o.proved == Some(t)).count(),
-            open.len()
-        );
+    });
+    let p = pool.into_inner().unwrap_or_else(PoisonError::into_inner);
+    if let Some(e) = p.error {
+        return Err(e);
     }
-    Ok(out)
+    Ok(p.tries)
 }
 
-/// The first goal of an `unsolved goals` message, or the message's first
-/// lines, for the report.
+fn report(goal: &Goal, tier: &Tier, t: &Try) {
+    let hb = t
+        .heartbeats
+        .map(|h| format!(", {h} of {} heartbeats", t.budget))
+        .unwrap_or_default();
+    let what = match &t.failure {
+        None => "proved".to_owned(),
+        Some(Failure::Budget { at }) => format!("out of heartbeats at `{at}`"),
+        Some(_) => format!(
+            "failed: {}",
+            t.first_error.lines().next().unwrap_or("no error")
+        ),
+    };
+    eprintln!(
+        "achates equiv: {}: {}: {what} ({:.1} s{hb})",
+        goal.name, tier.label, t.seconds
+    );
+}
+
+/// The first lines of an error, for the report.
 pub(crate) fn summary(error: &str) -> String {
     let mut s = String::new();
     for l in error.lines().take(12) {
@@ -237,12 +332,50 @@ mod tests {
     #[test]
     fn only_lean_own_axioms_count_as_proved() {
         let ok = "'Equiv.Gen.bstrcmp' depends on axioms: [propext, Classical.choice, Quot.sound]";
-        assert_eq!(clean_axioms(ok).as_deref(), Some("bstrcmp"));
+        assert!(clean_axioms(ok));
+        assert!(clean_axioms("'Equiv.Gen.f' does not depend on any axioms"));
         let bad = "'Equiv.Gen.f' depends on axioms: [propext, sorryAx]";
-        assert_eq!(clean_axioms(bad), None);
+        assert!(!clean_axioms(bad));
         let native =
             "'Equiv.Gen.g' depends on axioms: [propext,\n Equiv.Gen.g._native.bv_decide.ax_1_7]";
-        assert_eq!(clean_axioms(native), None);
-        assert_eq!(clean_axioms("unrelated"), None);
+        assert!(!clean_axioms(native));
+        assert!(!clean_axioms("unrelated"));
+    }
+
+    #[test]
+    fn the_theorem_span_covers_the_budget_line_and_the_axiom_report() {
+        let goal = Goal {
+            name: "f".into(),
+            text: "/-- doc -/\ntheorem f : True := by\n  TACTIC\n".into(),
+            unfold: vec!["A.f".into()],
+        };
+        let tier = Tier {
+            label: "tier 0".into(),
+            tactic: "equiv_tier0 [UNFOLD]".into(),
+            budget: 7,
+        };
+        let (text, start, end) = attempt_file(&goal, &tier);
+        let lines: Vec<&str> = text.lines().collect();
+        assert_eq!(lines.get(start - 1), Some(&"equiv_budget 7 in"));
+        assert_eq!(lines.get(start), Some(&"/-- doc -/"));
+        assert_eq!(lines.get(end - 2), Some(&"  equiv_tier0 [A.f]"));
+        assert_eq!(lines.get(end - 1), Some(&"#print axioms Equiv.Gen.f"));
+    }
+
+    #[test]
+    fn messages_are_read_for_the_named_theorem() {
+        let out = concat!(
+            r#"{"data":"heartbeats used: 812","pos":{"line":15},"severity":"information"}"#,
+            "\n",
+            r#"{"data":"'Equiv.Gen.f' depends on axioms: [propext]","pos":{"line":20},"severity":"information"}"#,
+            "\n",
+            r#"{"data":"unsolved goals\n⊢ False","pos":{"line":18},"severity":"error"}"#,
+            "\n"
+        );
+        let m = messages(out, "f");
+        assert_eq!(m.heartbeats, Some(812));
+        assert_eq!(m.errors.len(), 1);
+        assert!(m.axioms.is_some());
+        assert!(messages(out, "g").axioms.is_none());
     }
 }

@@ -27,6 +27,12 @@ impl Def {
             || self.body.contains("termination_by")
             || tokens(&self.body).any(|t| t == self.name || self.name.ends_with(&format!(".{t}")))
     }
+
+    /// Has an `if`, a `match`, or a bind (`←`): a step that can fail,
+    /// which the tiers' rewriting turns into an `if`.
+    pub(crate) fn branches(&self) -> bool {
+        self.body.contains('←') || tokens(&self.body).any(|t| t == "if" || t == "match")
+    }
 }
 
 /// The identifiers of `text`, with their dots.
@@ -257,5 +263,20 @@ mod tests {
             .collect();
         let r = reach(&map, "Misc.Misc.Ctype_h.mp_tolower", &[]);
         assert!(r.contains("Misc.Misc.Ctype_h.mp_isupper"));
+    }
+
+    #[test]
+    fn a_step_that_can_fail_is_a_branch() {
+        let text = "namespace C\n\n\
+            def done (fuel : Nat) (state : I32) : M Bool := do\n  \
+            let mut state_v : I32 := state\n  \
+            return ((SInt.ofBool 32 (state_v == (3 : I32))) != 0)\n\n\
+            def width (fuel : Nat) (val : I32) : M I32 := do\n  \
+            let t1 : I32 ← SInt.shr val (SInt.toInt (6 : I32))\n  return t1\n\n\
+            def test (c : Std.U8) : Result Bool := do\n  if c >= 65#u8\n  then ok true\n  else ok false\n\n\
+            end C\n";
+        let defs = parse(text);
+        let branches: Vec<bool> = defs.iter().map(Def::branches).collect();
+        assert_eq!(branches, vec![false, true, true]);
     }
 }

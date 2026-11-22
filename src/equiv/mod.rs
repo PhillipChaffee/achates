@@ -1,14 +1,18 @@
 //! `achates equiv`: for each C function of the selection that has a Rust
 //! counterpart in the Aeneas output, the Lean theorem that the two are
-//! equal, and the attempt to prove it by fixed tactic tiers.
+//! equal, and the search for its proof by fixed tactic tiers: each
+//! theorem starts at the tier its shape predicts and gets at most two
+//! tries.
 //!
 //! The pairing is by name only: mpv's `misc/x.c` (or `x.h`) becomes the
 //! port's module `x`, and the C function's name in snake case its name
 //! there, as the port's conventions say. A function the rule does not find
 //! is reported, never guessed.
 
+mod cache;
 mod lean;
 mod prove;
+mod search;
 mod shape;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -21,8 +25,10 @@ use serde_json::Value;
 
 use crate::compdb::Entry;
 use crate::frontend;
+use cache::TryRecord;
 use lean::Def;
-use prove::{Goal, Outcome, Tier};
+use prove::{Goal, Job, Tier, Try};
+use search::{Args, Failure, Next, Reach};
 use shape::Proto;
 
 #[derive(Debug)]
@@ -34,46 +40,9 @@ pub(crate) struct Options {
     /// The bridge Lake project: theorems are written into it and checked
     /// with its `lake env`.
     pub(crate) lake_dir: PathBuf,
-    /// Attempt the proofs; otherwise only write the statements.
+    /// Search for the proofs; otherwise only write the statements.
     pub(crate) prove: bool,
     pub(crate) jobs: usize,
-}
-
-/// The tiers in the order they are tried.
-///
-/// Each has its own heartbeat budget, the most a try at that tier is
-/// allowed, set from measurement (`docs/equiv-report.md`, "Budgets"), in
-/// the units of `maxHeartbeats` (about 12,000 to the second per Lean
-/// process on the machine measured, four at a time):
-///
-/// * tier 0, 400 thousand (about 30 s): its one proof needs 316, and a
-///   theorem it runs out on goes to tier 1, which splits;
-/// * tier 1, 8 million (about 11 min): the largest proof measured,
-///   `h_to_i`, needs 4.2 million;
-/// * tier 2, 4 million (about 5 min): its proofs need at most 262
-///   thousand, no theorem that ran out closed with several times more, and
-///   three of them grew past 5 GB before twice this, too much for four
-///   tries at once on 16 GB.
-fn tiers() -> Vec<Tier> {
-    let t = |label: &str, tactic: &str, budget: u64| Tier {
-        label: label.to_owned(),
-        tactic: tactic.to_owned(),
-        budget,
-    };
-    vec![
-        t("tier 0", "equiv_tier0 [UNFOLD]", 400_000),
-        t("tier 1", "equiv_tier1 [UNFOLD]", 8_000_000),
-        t("tier 2", "equiv_tier2 [UNFOLD]", 4_000_000),
-    ]
-}
-
-/// The budget line and the statement with `tier`'s script.
-fn with_budget(goal: &Goal, tier: &Tier) -> String {
-    format!(
-        "set_option maxHeartbeats {} in\n{}",
-        tier.budget,
-        prove::proof(goal, tier)
-    )
 }
 
 /// What became of one C function.
@@ -93,6 +62,8 @@ struct Row {
     proved: Option<String>,
     open_reason: Option<String>,
     first_error: Option<String>,
+    /// The tries behind the outcome, in order.
+    tries: Vec<TryRecord>,
 }
 
 fn snake(name: &str) -> String {
@@ -164,40 +135,6 @@ fn protos(entries: &[&Entry]) -> Result<BTreeMap<(String, String), Proto>> {
     Ok(out)
 }
 
-/// What both sides reach, for sorting the open theorems.
-#[derive(Debug, Clone, Default)]
-struct Reach {
-    c_loops: bool,
-    reads_statics: bool,
-    scalar_only: bool,
-    axioms: Vec<String>,
-}
-
-/// Why an open theorem is open, from the first error of its most
-/// informative attempt and what both sides reach. A first sorting, checked
-/// by hand in the report.
-fn classify(error: &str, r: &Reach) -> String {
-    if !r.axioms.is_empty() {
-        return "Aeneas axiom reached".to_owned();
-    }
-    if error.contains("counterexample") && !error.contains("potentially spurious") {
-        return "possible mismatch: bv_decide found a counterexample".to_owned();
-    }
-    if r.c_loops {
-        return "loop: a C loop needs a fuel bound and an invariant".to_owned();
-    }
-    if error.contains("_loop") {
-        return "loop: a Rust recursion needs an induction".to_owned();
-    }
-    if r.reads_statics {
-        return "memory: static tables against Aeneas constants".to_owned();
-    }
-    if error.contains("StateT.run") || error.contains("Mem.") || error.contains("IsBstr") {
-        return "memory correspondence".to_owned();
-    }
-    "arithmetic or unfolding".to_owned()
-}
-
 fn strings(e: &Value, key: &str) -> Vec<String> {
     e.get(key)
         .and_then(Value::as_array)
@@ -208,6 +145,13 @@ fn strings(e: &Value, key: &str) -> Vec<String> {
                 .collect()
         })
         .unwrap_or_default()
+}
+
+/// What a pair reaches on each side, and what follows from it.
+struct Reached {
+    c: BTreeSet<String>,
+    r: BTreeSet<String>,
+    reach: Reach,
 }
 
 /// Both sides, loaded once.
@@ -255,6 +199,30 @@ impl Sides {
         })
     }
 
+    /// What the C definition `c` and the Rust one `rust` reach.
+    fn reached(&self, c: &str, rust: &str) -> Reached {
+        let c_reach = lean::reach(&self.c_defs, c, &[]);
+        let r_reach = lean::reach(&self.r_defs, rust, &[self.r_prefix.as_str()]);
+        let c_bodies = || c_reach.iter().filter_map(|n| self.c_defs.get(n));
+        let r_bodies = || r_reach.iter().filter_map(|n| self.r_defs.get(n));
+        let reach = Reach {
+            c_loops: c_bodies().any(|d| d.recursive() || d.body.contains("Fuel.mk")),
+            reads_statics: c_bodies().any(|d| d.body.contains("Statics.")),
+            axioms: r_reach
+                .iter()
+                .filter(|n| self.r_defs.get(*n).is_some_and(|d| d.axiom))
+                .cloned()
+                .collect(),
+            branches: c_bodies().chain(r_bodies()).any(Def::branches),
+            args: Args::Scalars,
+        };
+        Reached {
+            c: c_reach,
+            r: r_reach,
+            reach,
+        }
+    }
+
     /// The row of one `status.json` entry, and its goal if a template applies.
     fn pair(&self, e: &Value) -> (Row, Option<(Goal, Reach)>) {
         let get = |k: &str| e.get(k).and_then(Value::as_str).unwrap_or("").to_owned();
@@ -275,6 +243,7 @@ impl Sides {
             proved: None,
             open_reason: None,
             first_error: None,
+            tries: vec![],
         };
         if let Some(why) = self.unmatched(&rust, &c_name) {
             row.status = why;
@@ -303,19 +272,11 @@ impl Sides {
             );
             return (row, None);
         }
-        let c_reach = lean::reach(&self.c_defs, &lean_name, &[]);
-        let r_reach = lean::reach(&self.r_defs, &rust, &[self.r_prefix.as_str()]);
-        let c_bodies = || c_reach.iter().filter_map(|n| self.c_defs.get(n));
-        let mut reach = Reach {
-            c_loops: c_bodies().any(|d| d.recursive() || d.body.contains("Fuel.mk")),
-            reads_statics: c_bodies().any(|d| d.body.contains("Statics.")),
-            scalar_only: false,
-            axioms: r_reach
-                .iter()
-                .filter(|n| self.r_defs.get(*n).is_some_and(|d| d.axiom))
-                .cloned()
-                .collect(),
-        };
+        let Reached {
+            c: c_reach,
+            r: r_reach,
+            mut reach,
+        } = self.reached(&lean_name, &rust);
         row.rust_axioms.clone_from(&reach.axioms);
         let thm = lean_name
             .rsplit('.')
@@ -329,11 +290,17 @@ impl Sides {
             }
             Ok(st) => {
                 "generated".clone_into(&mut row.status);
-                reach.scalar_only = st.shape.starts_with("scalar arguments");
+                reach.args = if st.bstr_arg {
+                    Args::Bstrs
+                } else if st.cstr_arg {
+                    Args::CStrings
+                } else {
+                    Args::Scalars
+                };
                 row.shape = Some(st.shape);
                 row.preconditions = st.preconditions;
                 // Recursive definitions are left folded: unfolding one does
-                // not terminate. Loops are tier 2's business.
+                // not terminate.
                 let c_unfold = c_reach
                     .iter()
                     .filter(|n| self.c_defs.get(*n).is_some_and(|d| !d.recursive()));
@@ -362,94 +329,187 @@ pub(crate) fn run(entries: &[&Entry], opts: &Options) -> Result<String> {
     let sides = Sides::load(entries, opts)?;
     let mut rows = Vec::new();
     let mut goals = Vec::new();
-    let mut meta: BTreeMap<String, Reach> = BTreeMap::new();
+    let mut reach = Vec::new();
     for e in &status {
         let (row, goal) = sides.pair(e);
         rows.push(row);
-        if let Some((g, reach)) = goal {
-            meta.insert(g.name.clone(), reach);
+        if let Some((g, r)) = goal {
             goals.push(g);
+            reach.push(r);
         }
     }
-    let tiers = tiers();
-    let outcomes: BTreeMap<String, Outcome> = if opts.prove {
-        prove::run(
-            &goals,
-            &tiers,
-            &opts.lake_dir,
-            &opts.lake_dir.join("attempts"),
-            opts.jobs,
-        )?
+    let tiers = search::tiers();
+    let outcomes = if opts.prove {
+        Some(search_all(opts, &goals, &reach, &tiers)?)
     } else {
-        BTreeMap::new()
+        None
     };
-    write_outputs(opts, &goals, &tiers, &outcomes, &mut rows, &meta)?;
+    write_outputs(opts, &goals, &tiers, outcomes.as_ref(), &mut rows)?;
     Ok(summary(&rows, &tiers))
+}
+
+/// What became of one theorem in a run.
+#[derive(Debug, Clone)]
+struct Outcome {
+    entry: cache::Entry,
+}
+
+/// The record of one try.
+fn record(t: &Try) -> TryRecord {
+    let result = match &t.failure {
+        None => "proved".to_owned(),
+        Some(Failure::Budget { at }) => format!("out of heartbeats at `{at}`"),
+        Some(Failure::Unsolved(_)) => "unsolved goals".to_owned(),
+        Some(Failure::Script(line)) => format!("script step failed: {line}"),
+        Some(Failure::Axioms(a)) => format!("axioms not Lean's own: {a}"),
+        Some(Failure::Stopped(why)) => format!("stopped: {why}"),
+    };
+    TryRecord {
+        tier: t.tier,
+        budget: t.budget,
+        heartbeats: t.heartbeats,
+        seconds: (t.seconds * 10.0).round() / 10.0,
+        result,
+        first_error: (!t.first_error.is_empty()).then(|| t.first_error.clone()),
+    }
+}
+
+/// After a theorem's tries so far, the tier of the next, if it gets one:
+/// never after a proof, never a third, and only where the failure points
+/// to a tier that has what the theorem lacks.
+fn next_tier(tries: &[Try], r: &Reach) -> Option<usize> {
+    let last = tries.last()?;
+    let failure = last.failure.as_ref()?;
+    if tries.len() >= search::TRIES {
+        return None;
+    }
+    match search::decide(last.tier, failure, r) {
+        Next::Tier(t) => Some(t),
+        Next::Stop(_) => None,
+    }
+}
+
+/// Why a theorem is open after `tries`.
+fn open_reason(tries: &[Try], r: &Reach, tiers: &[Tier]) -> String {
+    let Some((last, failure)) = tries.last().and_then(|t| Some((t, t.failure.as_ref()?))) else {
+        return String::new();
+    };
+    match search::decide(last.tier, failure, r) {
+        Next::Stop(why) => why,
+        Next::Tier(t) => format!(
+            "{} tries made; {} would be next",
+            tries.len(),
+            tiers.get(t).map_or("another tier", |t| t.label.as_str())
+        ),
+    }
+}
+
+/// The search: every theorem starts at its predicted tier.
+fn search_all(
+    opts: &Options,
+    goals: &[Goal],
+    reach: &[Reach],
+    tiers: &[Tier],
+) -> Result<Vec<Outcome>> {
+    let first: Vec<Job> = (0..goals.len())
+        .map(|i| Job {
+            goal: i,
+            tier: reach.get(i).map_or(0, search::predict),
+        })
+        .collect();
+    let work = opts.lake_dir.join("attempts");
+    if let Ok(dir) = std::fs::read_dir(&work) {
+        for e in dir.flatten() {
+            if e.path().extension().is_some_and(|x| x == "lean") {
+                let _ = std::fs::remove_file(e.path());
+            }
+        }
+    }
+    let next = |g: usize, tries: &[Try]| next_tier(tries, reach.get(g)?);
+    let tries = prove::run(
+        goals,
+        tiers,
+        &first,
+        &next,
+        &opts.lake_dir,
+        &work,
+        opts.jobs,
+    )?;
+    Ok((0..goals.len())
+        .map(|i| {
+            let ts = tries.get(i).map(Vec::as_slice).unwrap_or_default();
+            let proved = ts.last().filter(|t| t.failure.is_none());
+            let r = reach.get(i).cloned().unwrap_or_default();
+            Outcome {
+                entry: cache::Entry {
+                    proved: proved.map(|t| t.tier),
+                    reason: proved.is_none().then(|| open_reason(ts, &r, tiers)),
+                    tries: ts.iter().map(record).collect(),
+                    axioms: proved.and_then(|t| t.axioms.clone()),
+                },
+            }
+        })
+        .collect())
+}
+
+/// The budget line and the statement with `tier`'s script.
+fn with_budget(goal: &Goal, tier: &Tier) -> String {
+    format!(
+        "set_option maxHeartbeats {} in\n{}",
+        tier.budget,
+        prove::proof(goal, tier)
+    )
 }
 
 fn write_outputs(
     opts: &Options,
     goals: &[Goal],
     tiers: &[Tier],
-    outcomes: &BTreeMap<String, Outcome>,
+    outcomes: Option<&Vec<Outcome>>,
     rows: &mut [Row],
-    meta: &BTreeMap<String, Reach>,
 ) -> Result<()> {
     let mut proved = String::from(prove::HEADER);
     let mut open = String::from(
-        "/-! The generated theorems no tier proved, each with the tactic of the last\n\
-         tier tried and that tier's first error. This file is not built. -/\n\n",
+        "/-! The generated theorems no tier proved, each with the script of its\n\
+         last try and that try's first error. This file is not built. -/\n\n",
     );
     open.push_str(prove::HEADER);
-    let last = tiers.last().cloned().unwrap_or_else(|| Tier {
+    let fallback = Tier {
         label: String::new(),
         tactic: "skip".to_owned(),
         budget: 0,
-    });
-    for g in goals {
-        let o = outcomes.get(&g.name);
+    };
+    for (i, g) in goals.iter().enumerate() {
+        let o = outcomes.and_then(|o| o.get(i));
         let row = rows
             .iter_mut()
             .find(|r| r.c == g.name && r.status == "generated");
-        if let Some(t) = o.and_then(|o| o.proved) {
-            let tier = tiers.get(t).cloned().unwrap_or_else(|| last.clone());
-            let _ = writeln!(proved, "{}", with_budget(g, &tier));
+        if let Some((t, o)) = o.and_then(|o| Some((o.entry.proved?, o))) {
+            let tier = tiers.get(t).unwrap_or(&fallback);
+            let _ = writeln!(proved, "{}", with_budget(g, tier));
             if let Some(r) = row {
-                r.proved = Some(tier.label);
+                r.proved = Some(tier.label.clone());
+                r.tries.clone_from(&o.entry.tries);
             }
         } else {
-            // The attempt that got furthest says most about why a
-            // theorem is open: tier 1 for scalars, whose tier 2 stops at
-            // once, and the last tier for memory.
-            let reach = meta.get(&g.name).cloned().unwrap_or_default();
-            let pick = if reach.scalar_only {
-                1
-            } else {
-                tiers.len().saturating_sub(1)
-            };
-            let generic = tiers.get(pick).cloned().unwrap_or_else(|| last.clone());
-            let err = o
-                .and_then(|o| {
-                    o.errors
-                        .iter()
-                        .find(|(t, _)| *t == pick)
-                        .or_else(|| o.errors.last())
-                })
-                .map(|(_, e)| e.clone())
-                .unwrap_or_default();
-            let _ = writeln!(
-                open,
-                "/- First error of {}:\n{}-/",
-                generic.label,
-                prove::summary(&err)
-            );
-            let _ = writeln!(open, "{}", with_budget(g, &generic));
-            if let Some(r) = row
-                && opts.prove
-            {
-                r.open_reason = Some(classify(&err, &reach));
-                r.first_error = Some(prove::summary(&err));
+            let last = o.and_then(|o| o.entry.tries.last());
+            let tier = last
+                .and_then(|t| tiers.get(t.tier))
+                .or_else(|| tiers.first())
+                .unwrap_or(&fallback);
+            let err = last.and_then(|t| t.first_error.clone()).unwrap_or_default();
+            let _ = writeln!(open, "/- First error of {}:\n{err}-/", tier.label);
+            let _ = writeln!(open, "{}", with_budget(g, tier));
+            if let (Some(r), Some(o)) = (row, o) {
+                r.open_reason.clone_from(&o.entry.reason);
+                r.first_error = Some(err);
+                r.tries.clone_from(&o.entry.tries);
             }
+        }
+    }
+    for r in rows.iter_mut() {
+        for t in &mut r.tries {
+            t.first_error = None;
         }
     }
     proved.push_str("end Equiv.Gen\n");
@@ -464,6 +524,17 @@ fn write_outputs(
         serde_json::to_string_pretty(&rows)? + "\n",
     )?;
     Ok(())
+}
+
+/// How a row's outcome was reached, for the summary: the tiers tried.
+fn tried(r: &Row) -> String {
+    let tiers: Vec<String> = r.tries.iter().map(|t| t.tier.to_string()).collect();
+    let n = r.tries.len();
+    format!(
+        "{n} {} (tier {})",
+        if n == 1 { "try" } else { "tries" },
+        tiers.join(", then ")
+    )
 }
 
 fn summary(rows: &[Row], tiers: &[Tier]) -> String {
@@ -507,6 +578,14 @@ fn summary(rows: &[Row], tiers: &[Tier]) -> String {
             count(&|r| r.proved.as_deref() == Some(t.label.as_str()))
         );
     }
+    let fresh = || rows.iter();
+    let _ = writeln!(
+        s,
+        "tries this run: {} ({} theorems with one, {} with two)",
+        fresh().map(|r| r.tries.len()).sum::<usize>(),
+        fresh().filter(|r| r.tries.len() == 1).count(),
+        fresh().filter(|r| r.tries.len() == 2).count()
+    );
     let mut open: BTreeMap<String, usize> = BTreeMap::new();
     for r in rows {
         if let Some(o) = &r.open_reason {
@@ -526,8 +605,11 @@ fn summary(rows: &[Row], tiers: &[Tier]) -> String {
             r.status,
             r.proved
                 .as_ref()
-                .map(|p| format!(", proved at {p}"))
-                .or_else(|| r.open_reason.as_ref().map(|o| format!(", open: {o}")))
+                .map(|p| format!(", proved at {p}, {}", tried(r)))
+                .or_else(|| r
+                    .open_reason
+                    .as_ref()
+                    .map(|o| format!(", open after {}: {o}", tried(r))))
                 .unwrap_or_default()
         );
     }
@@ -537,6 +619,52 @@ fn summary(rows: &[Row], tiers: &[Tier]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn failed(tier: usize, failure: Failure) -> Try {
+        Try {
+            tier,
+            budget: 1,
+            heartbeats: None,
+            seconds: 1.0,
+            failure: Some(failure),
+            first_error: "e".into(),
+            axioms: None,
+        }
+    }
+
+    #[test]
+    fn a_theorem_gets_at_most_two_tries() {
+        let r = Reach {
+            args: Args::Bstrs,
+            branches: true,
+            ..Reach::default()
+        };
+        let branch = Failure::Unsolved(search::Residual {
+            branch: true,
+            ..search::Residual::default()
+        });
+        let memory = Failure::Unsolved(search::Residual {
+            memory: search::Left::Memory,
+            ..search::Residual::default()
+        });
+        // An `if` left at tier 0 points to tier 1.
+        let one = [failed(0, branch.clone())];
+        assert_eq!(next_tier(&one, &r), Some(1));
+        // Memory left at tier 1 points to tier 2, but that would be a
+        // third try.
+        let two = [failed(0, branch), failed(1, memory.clone())];
+        assert_eq!(search::decide(1, &memory, &r), Next::Tier(2));
+        assert_eq!(next_tier(&two, &r), None);
+        let tiers = search::tiers();
+        assert_eq!(
+            open_reason(&two, &r, &tiers),
+            "2 tries made; tier 2 would be next"
+        );
+        // A proof ends the search.
+        let mut proved = failed(2, memory);
+        proved.failure = None;
+        assert_eq!(next_tier(&[proved], &r), None);
+    }
 
     #[test]
     fn the_naming_rule() {

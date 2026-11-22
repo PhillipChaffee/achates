@@ -139,7 +139,7 @@ struct EquivArgs {
     /// The bridge Lake project that builds both sides.
     #[arg(long)]
     lake_dir: PathBuf,
-    /// Run the proof tiers; without it only the statements are written.
+    /// Search for proofs; without it only the statements are written.
     #[arg(long)]
     prove: bool,
     /// Lean processes to run at once.
