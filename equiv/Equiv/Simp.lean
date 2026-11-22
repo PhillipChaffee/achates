@@ -6,7 +6,7 @@ an `if` whose condition and branches are bit-vector terms: a C signed
 overflow check and an Aeneas `tryMk` both become `BitVec.saddOverflow`,
 a C `int` comparison and an Aeneas `i32` comparison both become
 `BitVec.sle`. After `split`, each branch is a question about fixed-width
-bit-vectors, which `bv_omega` decides when they are arithmetic.
+bit-vectors, which `bvk` (`Equiv.Tactic`) decides when they are arithmetic.
 
 Each lemma is an unfolding of a runtime or library definition or a fact
 about bit-vectors; none mentions a particular mpv function.

@@ -55,7 +55,7 @@ macro "unchanged" : tactic => `(tactic| (
 the caller's memory extended by the call's locals, or of the Rust side's
 library calls, or one case split whose infeasible branch is dropped. -/
 macro "sym_step_mem" : tactic => `(tactic| first
-    | (rw [Equiv.s_alloca]; on_goal 2 => decide)
+    | (rw [Equiv.s_alloca]; on_goal 2 => (simp only [Achates.Mem.allocLimit]; decide))
     | (rw [Equiv.s_storeBytes]; on_goal 2 => (simp only [equiv_mem, *] <;> omega))
     | (rw [Equiv.s_add]; on_goal 2 => (simp only [equiv_mem, *] <;> omega))
     | (rw [Equiv.s_load]; on_goal 2 => (simp only [equiv_mem, *] <;> omega))
@@ -92,7 +92,8 @@ macro "leaf_close" : tactic => `(tactic| (
         Aeneas.Std.UScalar.val] at *
       all_goals try simp only [equiv_unfold]
       all_goals try rfl
-      all_goals try bv_omega))
+      all_goals try (simp_all; done)
+      all_goals try bvk))
 
 /-- What both tier 2 entries do first: take the representation hypotheses
 apart, add the length bounds, take fuel 0 and unfold both sides. -/

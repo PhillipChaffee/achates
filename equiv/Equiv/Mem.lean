@@ -3,12 +3,12 @@ import Equiv.Attr
 open Achates
 namespace Equiv
 
-theorem run_alloc (kind : BlockKind) (size align : Nat) (fill : MByte) (m : Mem) (h : size < 2 ^ 47) :
+theorem run_alloc (kind : BlockKind) (size align : Nat) (fill : MByte) (m : Mem) (h : size < Mem.allocLimit) :
     (Mem.alloc kind size align fill).run m =
       .ok (.obj m.blocks.size 0,
         { m with blocks := m.blocks.push { data := Array.replicate size fill, align, kind } }) := by
   unfold Mem.alloc
-  rw [if_neg (by omega)]
+  rw [if_neg (Nat.not_le.mpr h)]
   rfl
 
 theorem run_access {m : Mem} {b : Nat} {off : Int} {n al : Nat} {w : Bool} {blk : Block}
@@ -197,7 +197,7 @@ theorem s_add {m : Mem} {b : Nat} {off : Int} {es : Nat} {i : Int} (h : AddOk m 
     exact run_add hb hl h0 hn
   · exact h.elim
 
-theorem s_alloca (size align : Nat) (m : Mem) (h : size < 2 ^ 47) :
+theorem s_alloca (size align : Nat) (m : Mem) (h : size < Mem.allocLimit) :
     (Mem.alloca size align).run m =
       .ok (.obj m.blocks.size 0,
         { m with blocks := m.blocks.push { data := Array.replicate size .undef, align, kind := .stack } }) :=
