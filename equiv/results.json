@@ -1,0 +1,2530 @@
+[
+  {
+    "c": "bstrcmp",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstrcmp",
+    "status": "generated",
+    "shape": "bstr arguments, scalar result",
+    "preconditions": [
+      "`str1` (`struct bstr`) is a view of `s_str1`: its start is an object pointer to live memory holding those bytes",
+      "`str2` (`struct bstr`) is a view of `s_str2`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": "tier 2: memory and memcmp lemmas",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstrcasecmp",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstrcasecmp",
+    "status": "not generated: the C side takes external functions as parameters (strncasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstrchr",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstrchr",
+    "status": "generated",
+    "shape": "bstr and scalar arguments, scalar result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a Rust recursion needs an induction",
+    "first_error": "unsolved goals\ncase isFalse.isFalse\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nc : Achates.I32\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\n"
+  },
+  {
+    "c": "bstrrchr",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstrrchr",
+    "status": "not generated: the C side takes external functions as parameters (memrchr)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstrcspn",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstrcspn",
+    "status": "generated",
+    "shape": "C string and bstr arguments, scalar result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes",
+      "`reject` (`ptr<const char:i8>`) points to live memory holding the bytes of `s_reject` and then a NUL"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a C loop needs a fuel bound and an invariant",
+    "first_error": "unsolved goals\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nreject : Achates.Ptr\ns_reject : Aeneas.Std.Slice Aeneas.Std.U8\nh_reject : IsCStr m reject s_reject\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\n"
+  },
+  {
+    "c": "bstrspn",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstrspn",
+    "status": "generated",
+    "shape": "C string and bstr arguments, scalar result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes",
+      "`accept` (`ptr<const char:i8>`) points to live memory holding the bytes of `s_accept` and then a NUL"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a C loop needs a fuel bound and an invariant",
+    "first_error": "unsolved goals\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\naccept : Achates.Ptr\ns_accept : Aeneas.Std.Slice Aeneas.Std.U8\nh_accept : IsCStr m accept s_accept\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\n"
+  },
+  {
+    "c": "bstr_find",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_find",
+    "status": "generated",
+    "shape": "bstr arguments, scalar result",
+    "preconditions": [
+      "`haystack` (`struct bstr`) is a view of `s_haystack`: its start is an object pointer to live memory holding those bytes",
+      "`needle` (`struct bstr`) is a view of `s_needle`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a C loop needs a fuel bound and an invariant",
+    "first_error": "unsolved goals\nm : Achates.Mem\nhaystack : Achates.Agg\ns_haystack : Aeneas.Std.Slice Aeneas.Std.U8\nneedle : Achates.Agg\ns_needle : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝⁵ : haystack.bytes.size = 16\nleft✝⁴ : needle.bytes.size = 16\nw✝¹ w✝ : Achates.Ptr\nleft✝³ : Achates.Agg.get Achates.Ptr haystack 0 = Except.ok w✝¹\nleft✝² : Achates.Agg.get Achates.Ptr needle 0 = Except.ok w✝\nleft✝¹ : Achates.Agg.get Achates.U64 haystack 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_haystack).length)\n"
+  },
+  {
+    "c": "bstr_lstrip",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_lstrip",
+    "status": "generated",
+    "shape": "bstr arguments, bstr view result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a C loop needs a fuel bound and an invariant",
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n"
+  },
+  {
+    "c": "bstr_strip",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_strip",
+    "status": "generated",
+    "shape": "bstr arguments, bstr view result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a C loop needs a fuel bound and an invariant",
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n"
+  },
+  {
+    "c": "bstr_split",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_split",
+    "status": "no template yet: parameter lists differ: C has 3, Rust has 2",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_split_tok",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_split_tok",
+    "status": "no template yet: parameter lists differ: C has 4, Rust has 2",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_splice",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_splice",
+    "status": "generated",
+    "shape": "bstr and scalar arguments, bstr view result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "arithmetic or unfolding",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+  },
+  {
+    "c": "bstrtoll",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstrtoll",
+    "status": "not generated: the C side takes external functions as parameters (strtoll)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstrtod",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.bstr.bstrtod` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_splitchar",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_splitchar",
+    "status": "no template yet: parameter lists differ: C has 3, Rust has 2",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_strip_linebreaks",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_strip_linebreaks",
+    "status": "generated",
+    "shape": "bstr arguments, bstr view result",
+    "preconditions": [
+      "the memory holds the static objects as `Statics.init` leaves them",
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "memory: static tables against Aeneas constants",
+    "first_error": "unsolved goals\nm : Achates.Mem\nh_statics : StaticsReady m\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n"
+  },
+  {
+    "c": "bstr_eatstart",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_eatstart",
+    "status": "no template yet: argument `ptr<struct bstr>` ↔ `Slice Std.U8`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_eatend",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_eatend",
+    "status": "no template yet: argument `ptr<struct bstr>` ↔ `Slice Std.U8`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_lower",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_lower",
+    "status": "no template yet: result `void` ↔ `Slice Std.U8`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_sscanf",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.bstr.bstr_sscanf` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_parse_utf8_code_length",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_parse_utf8_code_length",
+    "status": "not generated: the C side takes external functions as parameters (mp_log2)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_decode_partial_utf8",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_decode_partial_utf8",
+    "status": "not generated: the C side takes external functions as parameters (mp_log2)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_decode_utf8",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_decode_utf8",
+    "status": "not generated: the C side takes external functions as parameters (mp_log2)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_split_utf8",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_split_utf8",
+    "status": "not generated: the C side takes external functions as parameters (mp_log2)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_validate_utf8",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_validate_utf8",
+    "status": "not generated: the C side takes external functions as parameters (mp_log2)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_sanitize_utf8_latin1",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_sanitize_utf8_latin1",
+    "status": "not generated: the C side takes external functions as parameters (mp_append_utf8_bstr, mp_log2)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "resize_append",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.resize_append",
+    "status": "no template yet: allocation: the C side takes a talloc parent or a logger",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [
+      "rmpv_misc.alloc.vec.Vec.capacity",
+      "rmpv_misc.alloc.vec.Vec.reserve_exact"
+    ],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_xappend",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_xappend",
+    "status": "no template yet: allocation: the C side takes a talloc parent or a logger",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [
+      "rmpv_misc.alloc.vec.Vec.capacity",
+      "rmpv_misc.alloc.vec.Vec.reserve_exact"
+    ],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_xappend_asprintf",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.bstr.bstr_xappend_asprintf` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_xappend_vasprintf",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.bstr.bstr_xappend_vasprintf` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_case_startswith",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_case_startswith",
+    "status": "not generated: the C side takes external functions as parameters (strncasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_case_endswith",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_case_endswith",
+    "status": "not generated: the C side takes external functions as parameters (strncasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "h_to_i",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.h_to_i",
+    "status": "generated",
+    "shape": "scalar arguments, scalar result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "arithmetic or unfolding",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+  },
+  {
+    "c": "bstr_decode_hex",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_decode_hex",
+    "status": "no template yet: allocation: the C side takes a talloc parent or a logger",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_find_in_list0",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_find_in_list0",
+    "status": "not generated: the C side takes external functions as parameters (strncasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_in_list0",
+    "file": "../.mpv/misc/bstr.c",
+    "rust": "rmpv_misc.bstr.bstr_in_list0",
+    "status": "not generated: the C side takes external functions as parameters (strncasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr0",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstr0",
+    "status": "generated",
+    "shape": "C string arguments, bstr view result",
+    "preconditions": [
+      "`s` (`ptr<const char:i8>`) points to live memory holding the bytes of `s_s` and then a NUL"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "arithmetic or unfolding",
+    "first_error": "no match\n"
+  },
+  {
+    "c": "bstr_cut",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstr_cut",
+    "status": "generated",
+    "shape": "bstr and scalar arguments, bstr view result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "memory correspondence",
+    "first_error": "unsolved goals\ncase isTrue.isTrue.isTrue.isTrue.isTrue.isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nn : Achates.I32\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\n"
+  },
+  {
+    "c": "bstr_endswith",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstr_endswith",
+    "status": "generated",
+    "shape": "bstr arguments, scalar result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes",
+      "`suffix` (`struct bstr`) is a view of `s_suffix`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a Rust recursion needs an induction",
+    "first_error": "unsolved goals\ncase isFalse.isFalse\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nsuffix : Achates.Agg\ns_suffix : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝⁵ : str.bytes.size = 16\nleft✝⁴ : suffix.bytes.size = 16\nw✝¹ w✝ : Achates.Ptr\nleft✝³ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝¹\nleft✝² : Achates.Agg.get Achates.Ptr suffix 0 = Except.ok w✝\n"
+  },
+  {
+    "c": "bstr_endswith0",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstr_endswith0",
+    "status": "generated",
+    "shape": "C string and bstr arguments, scalar result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes",
+      "`suffix` (`ptr<const char:i8>`) points to live memory holding the bytes of `s_suffix` and then a NUL"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a Rust recursion needs an induction",
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nsuffix : Achates.Ptr\ns_suffix : Aeneas.Std.Slice Aeneas.Std.U8\nh_suffix : IsCStr m suffix s_suffix\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\n"
+  },
+  {
+    "c": "bstr_startswith",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstr_startswith",
+    "status": "generated",
+    "shape": "bstr arguments, scalar result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes",
+      "`v_prefix` (`struct bstr`) is a view of `s_v_prefix`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": "tier 2: memory and memcmp lemmas",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstrcasecmp0",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstrcasecmp0",
+    "status": "not generated: the C side takes external functions as parameters (strncasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstrcmp0",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstrcmp0",
+    "status": "generated",
+    "shape": "C string and bstr arguments, scalar result",
+    "preconditions": [
+      "`str1` (`struct bstr`) is a view of `s_str1`: its start is an object pointer to live memory holding those bytes",
+      "`str2` (`ptr<const char:i8>`) points to live memory holding the bytes of `s_str2` and then a NUL"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "arithmetic or unfolding",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+  },
+  {
+    "c": "bstrdup0",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstrdup0",
+    "status": "not generated: the C side takes external functions as parameters (ta_xstrndup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_isspace",
+    "file": "../.mpv/misc/ctype.h",
+    "rust": "rmpv_misc.ctype.mp_isspace",
+    "status": "generated",
+    "shape": "scalar arguments, truth value result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": "tier 1",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_tolower",
+    "file": "../.mpv/misc/ctype.h",
+    "rust": "rmpv_misc.ctype.mp_tolower",
+    "status": "generated",
+    "shape": "scalar arguments, scalar result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": "tier 1",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_isupper",
+    "file": "../.mpv/misc/ctype.h",
+    "rust": "rmpv_misc.ctype.mp_isupper",
+    "status": "generated",
+    "shape": "scalar arguments, truth value result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": "tier 1",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "ta_oom_p",
+    "file": "../.mpv/ta/ta.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.ta.ta_oom_p` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_charset_is_utf8",
+    "file": "../.mpv/misc/charset_conv.c",
+    "rust": "rmpv_misc.charset_conv.mp_charset_is_utf8",
+    "status": "not generated: the C side takes external functions as parameters (strcasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_charset_is_utf16",
+    "file": "../.mpv/misc/charset_conv.c",
+    "rust": "rmpv_misc.charset_conv.mp_charset_is_utf16",
+    "status": "not generated: the C side takes external functions as parameters (strncasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "ms_bom_guess",
+    "file": "../.mpv/misc/charset_conv.c",
+    "rust": "rmpv_misc.charset_conv.ms_bom_guess",
+    "status": "no template yet: result `ptr<const char:i8>` ↔ `Option (Slice Std.U8)`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_charset_guess",
+    "file": "../.mpv/misc/charset_conv.c",
+    "rust": "rmpv_misc.charset_conv.mp_charset_guess",
+    "status": "not generated: the C side takes external functions as parameters (mp_log2, mp_msg, strcasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_iconv_to_utf8",
+    "file": "../.mpv/misc/charset_conv.c",
+    "rust": "rmpv_misc.charset_conv.mp_iconv_to_utf8",
+    "status": "not generated: the C side takes external functions as parameters (mp_append_utf8_bstr, mp_log2)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_startswith0",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstr_startswith0",
+    "status": "generated",
+    "shape": "C string and bstr arguments, scalar result",
+    "preconditions": [
+      "`str` (`struct bstr`) is a view of `s_str`: its start is an object pointer to live memory holding those bytes",
+      "`v_prefix` (`ptr<const char:i8>`) points to live memory holding the bytes of `s_v_prefix` and then a NUL"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a Rust recursion needs an induction",
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nv_prefix : Achates.Ptr\ns_v_prefix : Aeneas.Std.Slice Aeneas.Std.U8\nh_v_prefix : IsCStr m v_prefix s_v_prefix\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\n"
+  },
+  {
+    "c": "ucdLookup",
+    "file": "../.mpv/misc/codepoint_width.c",
+    "rust": "rmpv_misc.codepoint_width.ucd_lookup",
+    "status": "generated",
+    "shape": "scalar arguments, scalar result",
+    "preconditions": [
+      "the memory holds the static objects as `Statics.init` leaves them"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "memory: static tables against Aeneas constants",
+    "first_error": "unsolved goals\ncase isFalse.isFalse.isFalse.isFalse.isTrue.isTrue.isTrue.isTrue.isTrue.isTrue\nm : Achates.Mem\nh_statics : StaticsReady m\ncp : Achates.U32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\nh✝⁹ : ¬((11#32).toInt < 0 ∨ (11#32).toInt ≥ ↑32)\nh✝⁸ : ¬((6#32).toInt < 0 ∨ (6#32).toInt ≥ ↑32)\nh✝⁷ : ¬((3#32).toInt < 0 ∨ (3#32).toInt ≥ ↑32)\nh✝⁶ : ¬((0#32).toInt < 0 ∨ (0#32).toInt ≥ ↑32)\nh✝⁵ : (11#32).toInt ≥ 0\n"
+  },
+  {
+    "c": "ucdGraphemeJoins",
+    "file": "../.mpv/misc/codepoint_width.c",
+    "rust": "rmpv_misc.codepoint_width.ucd_grapheme_joins",
+    "status": "generated",
+    "shape": "scalar arguments, scalar result",
+    "preconditions": [
+      "the memory holds the static objects as `Statics.init` leaves them"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "memory: static tables against Aeneas constants",
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nh_statics : StaticsReady m\nstate lead trail : Achates.I32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\nh✝ : (trail.bv &&& 15#32).smulOverflow 2#32 = true\n⊢ Agree (fun r m' y => Unchanged m m' ∧ y.bv = r.bv)\n    (do\n      let p ← StateT.run ((Achates.Ptr.obj 8 0).add 64 state.bv.toInt) m\n      let p ← StateT.run (p.1.add 4 (lead.bv &&& 15#32).toInt) p.2\n"
+  },
+  {
+    "c": "ucdGraphemeDone",
+    "file": "../.mpv/misc/codepoint_width.c",
+    "rust": "rmpv_misc.codepoint_width.ucd_grapheme_done",
+    "status": "generated",
+    "shape": "scalar arguments, scalar result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": "tier 0",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "ucdToCharacterWidth",
+    "file": "../.mpv/misc/codepoint_width.c",
+    "rust": "rmpv_misc.codepoint_width.ucd_to_character_width",
+    "status": "generated",
+    "shape": "scalar arguments, scalar result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": "tier 1",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "is_valid_partial_sequence",
+    "file": "../.mpv/misc/codepoint_width.c",
+    "rust": "rmpv_misc.codepoint_width.is_valid_partial_sequence",
+    "status": "generated",
+    "shape": "bstr arguments, scalar result",
+    "preconditions": [
+      "`seq` (`struct bstr`) is a view of `s_seq`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "arithmetic or unfolding",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+  },
+  {
+    "c": "term_disp_width",
+    "file": "../.mpv/misc/codepoint_width.c",
+    "rust": "rmpv_misc.codepoint_width.term_disp_width",
+    "status": "not generated: the C side takes external functions as parameters (mp_log2)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_eatstart0",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstr_eatstart0",
+    "status": "no template yet: argument `ptr<struct bstr>` ↔ `Slice Std.U8`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "queue_dtor",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.queue_dtor` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_create",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_create` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_set_wakeup_fn",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_set_wakeup_fn` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_set_onlock_fn",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_set_onlock_fn` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_append",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_append` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_enqueue",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_enqueue` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_enqueue_autofree",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_enqueue_autofree` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_enqueue_notify",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_enqueue_notify` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_cancel_fn",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_cancel_fn` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_run",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_run` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_queue_process",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_queue_process` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_interrupt",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_interrupt` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_adjust_timeout",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_adjust_timeout` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_lock",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_lock` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "external-order"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dispatch_unlock",
+    "file": "../.mpv/misc/dispatch.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.dispatch.mp_dispatch_unlock` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "external-order"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cond_broadcast",
+    "file": "../.mpv/osdep/threads-posix.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.threads_posix.mp_cond_broadcast` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cond_destroy",
+    "file": "../.mpv/osdep/threads-posix.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.threads_posix.mp_cond_destroy` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cond_init",
+    "file": "../.mpv/osdep/threads-posix.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.threads_posix.mp_cond_init` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cond_timedwait_until",
+    "file": "../.mpv/osdep/threads-posix.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.threads_posix.mp_cond_timedwait_until` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cond_timedwait",
+    "file": "../.mpv/osdep/threads-posix.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.threads_posix.mp_cond_timedwait` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cond_wait",
+    "file": "../.mpv/osdep/threads-posix.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.threads_posix.mp_cond_wait` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_mutex_init",
+    "file": "../.mpv/osdep/threads-posix.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.threads_posix.mp_mutex_init` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_hash_to_bstr",
+    "file": "../.mpv/misc/hash.c",
+    "rust": "rmpv_misc.hash.mp_hash_to_bstr",
+    "status": "not generated: the C side takes external functions as parameters (av_hash_alloc, av_hash_final, av_hash_freep, av_hash_get_size, av_hash_init, av_hash_update, bstr_xappend_asprintf)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_mkostemps",
+    "file": "../.mpv/misc/io_utils.c",
+    "rust": "rmpv_misc.io_utils.mp_mkostemps",
+    "status": "not generated: the C side takes external functions as parameters (__errno_location, av_random_bytes, mp_raw_time_ns, mp_tprintf_buf, open)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_save_to_file",
+    "file": "../.mpv/misc/io_utils.c",
+    "rust": "rmpv_misc.io_utils.mp_save_to_file",
+    "status": "not generated: the C side takes external functions as parameters (__errno_location, av_random_bytes, close, fclose, fdopen, fwrite, mp_raw_time_ns, mp_tprintf_buf, open, rename, ta_asprintf, unlink)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "ta_oom_s",
+    "file": "../.mpv/ta/ta.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.ta.ta_oom_s` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "eat_c",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.eat_c",
+    "status": "no template yet: parameter lists differ: C has 2, Rust has 3",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "eat_ws",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.eat_ws",
+    "status": "no template yet: parameter lists differ: C has 1, Rust has 2",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "json_skip_whitespace",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.json_skip_whitespace",
+    "status": "no template yet: parameter lists differ: C has 1, Rust has 2",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "read_id",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.read_id",
+    "status": "not generated: the C side takes external functions as parameters (ta_xstrndup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "read_str",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.read_str",
+    "status": "not generated: the C side takes external functions as parameters (mp_append_escaped_string)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "read_sub",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.read_sub",
+    "status": "not generated: the C side takes external functions as parameters (__errno_location, mp_append_escaped_string, strtod, strtoll, ta_xstrndup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "cmp-byte-difference",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "json_parse",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.json_parse",
+    "status": "not generated: the C side takes external functions as parameters (__errno_location, mp_append_escaped_string, strtod, strtoll, ta_xstrndup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "cmp-byte-difference",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "write_json_str",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.write_json_str",
+    "status": "not generated: the C side takes external functions as parameters (bstr_xappend_asprintf)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "add_indent",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.add_indent",
+    "status": "no template yet: argument `ptr<struct bstr>` ↔ `alloc.vec.Vec Std.U8`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [
+      "rmpv_misc.alloc.vec.Vec.capacity",
+      "rmpv_misc.alloc.vec.Vec.reserve_exact"
+    ],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "json_append",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.json_append",
+    "status": "not generated: the C side takes external functions as parameters (bstr_xappend_asprintf)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "json_append_str",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.json_append_str",
+    "status": "not generated: the C side takes external functions as parameters (bstr_xappend_asprintf)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "json_write",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.json_write",
+    "status": "not generated: the C side takes external functions as parameters (bstr_xappend_asprintf)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "json_write_pretty",
+    "file": "../.mpv/misc/json.c",
+    "rust": "rmpv_misc.json.json_write_pretty",
+    "status": "not generated: the C side takes external functions as parameters (bstr_xappend_asprintf)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_isalnum",
+    "file": "../.mpv/misc/ctype.h",
+    "rust": "rmpv_misc.ctype.mp_isalnum",
+    "status": "generated",
+    "shape": "scalar arguments, truth value result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": "tier 1",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_isalpha",
+    "file": "../.mpv/misc/ctype.h",
+    "rust": "rmpv_misc.ctype.mp_isalpha",
+    "status": "generated",
+    "shape": "scalar arguments, truth value result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": "tier 1",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_isdigit",
+    "file": "../.mpv/misc/ctype.h",
+    "rust": "rmpv_misc.ctype.mp_isdigit",
+    "status": "generated",
+    "shape": "scalar arguments, truth value result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": "tier 1",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_islower",
+    "file": "../.mpv/misc/ctype.h",
+    "rust": "rmpv_misc.ctype.mp_islower",
+    "status": "generated",
+    "shape": "scalar arguments, truth value result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": "tier 1",
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "lang_compare",
+    "file": "../.mpv/misc/language.c",
+    "rust": "rmpv_misc.language.lang_compare",
+    "status": "not generated: the C side takes external functions as parameters (strncasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "canonicalize",
+    "file": "../.mpv/misc/language.c",
+    "rust": "rmpv_misc.language.canonicalize",
+    "status": "not generated: the C side takes external functions as parameters (Misc.Language_c.lang_compare)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_match_lang",
+    "file": "../.mpv/misc/language.c",
+    "rust": "rmpv_misc.language.mp_match_lang",
+    "status": "not generated: the C side is not emitted",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_guess_lang_from_filename",
+    "file": "../.mpv/misc/language.c",
+    "rust": "rmpv_misc.language.mp_guess_lang_from_filename",
+    "status": "not generated: the C side takes external functions as parameters (memrchr, strncasecmp)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bsearch",
+    "file": "/usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.stdlib_bsearch.bsearch` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_natural_sort_cmp",
+    "file": "../.mpv/misc/natural_sort.c",
+    "rust": "rmpv_misc.natural_sort.mp_natural_sort_cmp",
+    "status": "generated",
+    "shape": "C string arguments, scalar result",
+    "preconditions": [
+      "`name1` (`ptr<const char:i8>`) points to live memory holding the bytes of `s_name1` and then a NUL",
+      "`name2` (`ptr<const char:i8>`) points to live memory holding the bytes of `s_name2` and then a NUL"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a C loop needs a fuel bound and an invariant",
+    "first_error": "Tactic `unfold` failed: did not unfold 'Equiv.IsBstr'\n\nm : Achates.Mem\nname1 : Achates.Ptr\ns_name1 : Aeneas.Std.Slice Aeneas.Std.U8\nh_name1 : IsCStr m name1 s_name1\nname2 : Achates.Ptr\ns_name2 : Aeneas.Std.Slice Aeneas.Std.U8\nh_name2 : IsCStr m name2 s_name2\n⊢ Equal (fun r m' y => Unchanged m m' ∧ y = i32 r)\n    (fun fuel => Misc.Misc.Natural_sort_c.mp_natural_sort_cmp fuel name1 name2) m\n    (rmpv_misc.natural_sort.mp_natural_sort_cmp s_name1 s_name2)\n"
+  },
+  {
+    "c": "node_init",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_init",
+    "status": "no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "node_array_add",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_array_add",
+    "status": "not generated: the C side is not emitted",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "node_map_add",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_map_add",
+    "status": "not generated: the C side takes external functions as parameters (node_map_badd)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "node_map_badd",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_map_badd",
+    "status": "not generated: the C side is not emitted",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "node_map_add_string",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_map_add_string",
+    "status": "not generated: the C side takes external functions as parameters (node_map_badd, ta_xstrdup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "node_map_add_bstr",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_map_add_bstr",
+    "status": "not generated: the C side takes external functions as parameters (node_map_badd, ta_xstrdup, ta_xstrndup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "node_map_add_int64",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_map_add_int64",
+    "status": "not generated: the C side takes external functions as parameters (node_map_badd)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "node_map_add_double",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_map_add_double",
+    "status": "not generated: the C side takes external functions as parameters (node_map_badd)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "node_map_add_flag",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_map_add_flag",
+    "status": "not generated: the C side takes external functions as parameters (node_map_badd)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "node_map_get",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_map_get",
+    "status": "no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "node_map_bget",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.node_map_bget",
+    "status": "no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "equal_mpv_value",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.equal_mpv_value",
+    "status": "no template yet: argument `ptr<const void>` ↔ `node.MpvNode`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "equal_mpv_node",
+    "file": "../.mpv/misc/node.c",
+    "rust": "rmpv_misc.node.equal_mpv_node",
+    "status": "no template yet: argument `ptr<const struct mpv_node>` ↔ `node.MpvNode`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_equals0",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstr_equals0",
+    "status": "generated",
+    "shape": "C string and bstr arguments, scalar result",
+    "preconditions": [
+      "`str1` (`struct bstr`) is a view of `s_str1`: its start is an object pointer to live memory holding those bytes",
+      "`str2` (`ptr<const char:i8>`) points to live memory holding the bytes of `s_str2` and then a NUL"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "arithmetic or unfolding",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+  },
+  {
+    "c": "bstr_equals",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstr_equals",
+    "status": "generated",
+    "shape": "bstr arguments, scalar result",
+    "preconditions": [
+      "`str1` (`struct bstr`) is a view of `s_str1`: its start is an object pointer to live memory holding those bytes",
+      "`str2` (`struct bstr`) is a view of `s_str2`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "arithmetic or unfolding",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+  },
+  {
+    "c": "bstrto0",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstrto0",
+    "status": "not generated: the C side takes external functions as parameters (ta_xstrdup, ta_xstrndup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_basename_bstr",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_basename_bstr",
+    "status": "not generated: the C side takes external functions as parameters (memrchr)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_basename",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_basename",
+    "status": "not generated: the C side takes external functions as parameters (memrchr)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_dirname",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_dirname",
+    "status": "not generated: the C side takes external functions as parameters (memrchr)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_path_strip_trailing_separator",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_path_strip_trailing_separator",
+    "status": "no template yet: result `void` ↔ `Slice Std.U8`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "split_ext",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.split_ext",
+    "status": "not generated: the C side takes external functions as parameters (memrchr)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_strip_ext",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_strip_ext",
+    "status": "not generated: the C side takes external functions as parameters (memrchr)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_get_ext",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_get_ext",
+    "status": "not generated: the C side takes external functions as parameters (memrchr)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_path_is_absolute",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_path_is_absolute",
+    "status": "generated",
+    "shape": "bstr arguments, scalar result",
+    "preconditions": [
+      "the memory holds the static objects as `Statics.init` leaves them",
+      "`path` (`struct bstr`) is a view of `s_path`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a Rust recursion needs an induction",
+    "first_error": "unsolved goals\ncase isTrue.isFalse\nm : Achates.Mem\nh_statics : StaticsReady m\npath : Achates.Agg\ns_path : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : path.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr path 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 path 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_path).length)\nright✝ : Region m w✝ ↑s_path\nh_len : (↑s_path).length < 18446744073709551616\n"
+  },
+  {
+    "c": "mp_path_join_bstr",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_path_join_bstr",
+    "status": "not generated: the C side takes external functions as parameters (ta_asprintf, ta_xstrndup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_path_join",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_path_join",
+    "status": "not generated: the C side takes external functions as parameters (ta_asprintf, ta_xstrndup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_getcwd",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_getcwd",
+    "status": "not generated: the C side takes external functions as parameters (__errno_location, getcwd, getenv, stat, ta_xstrdup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_normalize_path",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_normalize_path",
+    "status": "not generated: the C side takes external functions as parameters (__errno_location, getcwd, getenv, realpath, stat, ta_asprintf, ta_talloc_strdup_append_buffer, ta_talloc_strndup_append_buffer, ta_xstrdup, ta_xstrndup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "cmp-byte-difference",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_path_exists",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_path_exists",
+    "status": "not generated: the C side takes external functions as parameters (stat)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_path_isdir",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_path_isdir",
+    "status": "not generated: the C side takes external functions as parameters (stat)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_is_url",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_is_url",
+    "status": "generated",
+    "shape": "bstr arguments, scalar result",
+    "preconditions": [
+      "the memory holds the static objects as `Statics.init` leaves them",
+      "`path` (`struct bstr`) is a view of `s_path`: its start is an object pointer to live memory holding those bytes"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a C loop needs a fuel bound and an invariant",
+    "first_error": "unsolved goals\nm : Achates.Mem\nh_statics : StaticsReady m\npath : Achates.Agg\ns_path : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : path.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr path 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 path 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_path).length)\nright✝ : Region m w✝ ↑s_path\nh_len : (↑s_path).length < 18446744073709551616\nx✝¹ : ℕ\n"
+  },
+  {
+    "c": "mp_split_proto",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_split_proto",
+    "status": "no template yet: argument `ptr<struct bstr>` ↔ `Slice Std.U8`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_mkdirp",
+    "file": "../.mpv/misc/path_utils.c",
+    "rust": "rmpv_misc.path_utils.mp_mkdirp",
+    "status": "not generated: the C side takes external functions as parameters (mkdir, stat, ta_xstrdup)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "bstr_find0",
+    "file": "../.mpv/misc/bstr.h",
+    "rust": "rmpv_misc.bstr.bstr_find0",
+    "status": "generated",
+    "shape": "C string and bstr arguments, scalar result",
+    "preconditions": [
+      "`haystack` (`struct bstr`) is a view of `s_haystack`: its start is an object pointer to live memory holding those bytes",
+      "`needle` (`ptr<const char:i8>`) points to live memory holding the bytes of `s_needle` and then a NUL"
+    ],
+    "assumptions": [
+      "cmp-byte-difference"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "loop: a C loop needs a fuel bound and an invariant",
+    "first_error": "unsolved goals\nm : Achates.Mem\nhaystack : Achates.Agg\ns_haystack : Aeneas.Std.Slice Aeneas.Std.U8\nneedle : Achates.Ptr\ns_needle : Aeneas.Std.Slice Aeneas.Std.U8\nh_needle : IsCStr m needle s_needle\nleft✝² : haystack.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr haystack 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 haystack 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_haystack).length)\nright✝ : Region m w✝ ↑s_haystack\n"
+  },
+  {
+    "c": "rotl_u64",
+    "file": "../.mpv/misc/random.c",
+    "rust": "rmpv_misc.random.rotl_u64",
+    "status": "generated",
+    "shape": "scalar arguments, scalar result",
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": "arithmetic or unfolding",
+    "first_error": "unsolved goals\nm : Achates.Mem\nx : Achates.U64\nk : Achates.I32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\n⊢ Agree (fun r m' y => Unchanged m m' ∧ y.bv = r.bv)\n    (do\n      let p ←\n        do\n          let a ←\n            if k.bv.toInt < 0 ∨ k.bv.toInt ≥ ↑64 then\n"
+  },
+  {
+    "c": "splitmix64",
+    "file": "../.mpv/misc/random.c",
+    "rust": "rmpv_misc.random.splitmix64",
+    "status": "no template yet: argument `const ptr<unsigned long:u64>` ↔ `Std.U64`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_rand_seed",
+    "file": "../.mpv/misc/random.c",
+    "rust": "rmpv_misc.random.mp_rand_seed",
+    "status": "not generated: the C side takes external functions as parameters (av_random_bytes, mp_raw_time_ns)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_rand_next",
+    "file": "../.mpv/misc/random.c",
+    "rust": "rmpv_misc.random.mp_rand_next",
+    "status": "no template yet: argument `ptr<struct mp_rand_state>` ↔ `random.MpRandState`",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_rand_next_double",
+    "file": "../.mpv/misc/random.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.random.mp_rand_next_double` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "signed-zeros"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_rand_in_range32",
+    "file": "../.mpv/misc/random.c",
+    "rust": "rmpv_misc.random.mp_rand_in_range32",
+    "status": "not generated: the C side takes external functions as parameters (mp_round_next_power_of_2)",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_rendezvous",
+    "file": "../.mpv/misc/rendezvous.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.rendezvous.mp_rendezvous` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "worker_thread",
+    "file": "../.mpv/misc/thread_pool.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_pool.worker_thread` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "external-order"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "thread_pool_dtor",
+    "file": "../.mpv/misc/thread_pool.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_pool.thread_pool_dtor` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "add_thread",
+    "file": "../.mpv/misc/thread_pool.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_pool.add_thread` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_thread_pool_create",
+    "file": "../.mpv/misc/thread_pool.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_pool.mp_thread_pool_create` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "thread_pool_add",
+    "file": "../.mpv/misc/thread_pool.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_pool.thread_pool_add` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_thread_pool_queue",
+    "file": "../.mpv/misc/thread_pool.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_pool.mp_thread_pool_queue` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_thread_pool_run",
+    "file": "../.mpv/misc/thread_pool.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_pool.mp_thread_pool_run` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cond_signal",
+    "file": "../.mpv/osdep/threads-posix.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.threads_posix.mp_cond_signal` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_thread_set_name",
+    "file": "../.mpv/osdep/threads-posix.h",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.threads_posix.mp_thread_set_name` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_waiter_wait",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_waiter_wait` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_waiter_wakeup",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_waiter_wakeup` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_waiter_poll",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_waiter_poll` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "cancel_destroy",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.cancel_destroy` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "sequential-atomics"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cancel_new",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_cancel_new` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "alloc-succeeds",
+      "sequential-atomics",
+      "talloc-model"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "trigger_locked",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.trigger_locked` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "sequential-atomics"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cancel_trigger",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_cancel_trigger` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "sequential-atomics"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cancel_reset",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_cancel_reset` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "sequential-atomics"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cancel_test",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_cancel_test` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "sequential-atomics"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cancel_wait",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_cancel_wait` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "sequential-atomics"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "retrigger_locked",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.retrigger_locked` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "sequential-atomics"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cancel_set_cb",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_cancel_set_cb` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "sequential-atomics"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cancel_set_parent",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_cancel_set_parent` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "sequential-atomics"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  },
+  {
+    "c": "mp_cancel_get_fd",
+    "file": "../.mpv/misc/thread_tools.c",
+    "rust": null,
+    "status": "not matched: no `rmpv_misc.thread_tools.mp_cancel_get_fd` in the Aeneas output",
+    "shape": null,
+    "preconditions": [],
+    "assumptions": [
+      "sequential-atomics"
+    ],
+    "rust_axioms": [],
+    "proved": null,
+    "open_reason": null,
+    "first_error": null
+  }
+]
