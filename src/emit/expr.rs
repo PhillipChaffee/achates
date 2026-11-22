@@ -81,10 +81,6 @@ impl FnEmitter<'_> {
         };
         match self.u.lay.size_align(&t) {
             Ok(x) => Some(x),
-            Err(e) if e.contains("__va_list_tag") => {
-                self.refuse("variadic argument handling (va_start and friends) is not modelled");
-                None
-            }
             Err(e) => {
                 self.refuse(format!("layout: {e}"));
                 None
@@ -915,6 +911,7 @@ impl FnEmitter<'_> {
             } if !e.lvalue => self.member_value(e, base, field),
             ExprKind::Cast { kind, operand, .. } => self.cast(e, *kind, operand),
             ExprKind::Atomic { op, operands } => self.atomic(op, operands),
+            ExprKind::VaArg(list) => self.va_arg(&e.ty, list),
             ExprKind::Unsupported(u) => self.refuse(format!("{}: {}", u.clang_kind, u.reason)),
             ExprKind::CompoundLiteral(_)
             | ExprKind::InitList { .. }
@@ -1149,20 +1146,71 @@ impl FnEmitter<'_> {
                 };
                 self.of_bool(&format!("({v}.{f})"), &e.ty)
             }
-            _ if name.starts_with("__builtin_va_") => {
-                self.refuse("variadic argument handling (va_start and friends) is not modelled")
+            ("__builtin_va_start", [list, _last]) => {
+                let p = self.rv(list);
+                match (self.va_args.clone(), self.va_call.clone()) {
+                    (Some(a), Some(c)) => self.line(format!("VaList.start {p} {a} {c}")),
+                    _ => {
+                        self.refuse("va_start outside a variadic function");
+                    }
+                }
+                "()".into()
+            }
+            ("__builtin_va_end", [list]) => {
+                let p = self.rv(list);
+                let c = self.va_call.clone().unwrap_or_default();
+                self.line(format!("VaList.end {p} {c}"));
+                "()".into()
+            }
+            ("__builtin_va_copy", [dst, src]) => {
+                let d = self.rv(dst);
+                let s = self.rv(src);
+                let c = self.va_call.clone().unwrap_or_default();
+                self.line(format!("VaList.copy {d} {s} {c}"));
+                "()".into()
             }
             _ => self.refuse(format!("compiler builtin `{name}` is not modelled")),
         }
     }
 
+    /// `va_arg(list, t)`: the next variadic argument, read as `t`, which
+    /// must be compatible with the argument's promoted type.
+    fn va_arg(&mut self, t: &QualType, list: &Expr) -> String {
+        let list = self.rv(list);
+        let ty = self.lty(t);
+        match (&t.ty, self.kind(t)) {
+            (_, K::Int(int)) => {
+                let read = if int.signed { "argS" } else { "argU" };
+                let rank = va_rank(int);
+                self.bind(
+                    &ty,
+                    &format!("VaList.{read} {list} {} \"{rank}\"", int.bits),
+                )
+            }
+            (Type::Bool { .. }, _) | (_, K::Float(FloatKind::Float)) => {
+                // The default argument promotions never pass these types.
+                let spelt = va_spelling(t);
+                self.bind(
+                    &ty,
+                    &format!("(do let a ← VaList.next {list}; VaList.mismatch \"{spelt}\" a.1)"),
+                )
+            }
+            (_, K::Float(FloatKind::Double)) => self.bind(&ty, &format!("VaList.argF64 {list}")),
+            (Type::Pointer(pointee), _) => {
+                let spelt = va_spelling(pointee);
+                self.bind(&ty, &format!("VaList.argPtr {list} \"{spelt}\""))
+            }
+            _ => self.refuse(format!("va_arg of type {t} is not modelled")),
+        }
+    }
+
     fn var_arg(&mut self, v: &str, t: &QualType) -> String {
-        match self.kind(t) {
-            K::Int(i) if i.signed => format!("(VArg.sint {v})"),
-            K::Int(_) => format!("(VArg.uint {v})"),
-            K::Float(FloatKind::Double) => format!("(VArg.f64 {v})"),
-            K::Ptr => format!("(VArg.ptr {v})"),
-            K::Agg => format!("(VArg.agg {v})"),
+        match (&t.ty, self.kind(t)) {
+            (_, K::Int(i)) if i.signed => format!("(VArg.sint \"{}\" {v})", va_rank(i)),
+            (_, K::Int(i)) => format!("(VArg.uint \"{}\" {v})", va_rank(i)),
+            (_, K::Float(FloatKind::Double)) => format!("(VArg.f64 {v})"),
+            (Type::Pointer(p), K::Ptr) => format!("(VArg.ptr \"{}\" {v})", va_spelling(p)),
+            (_, K::Agg) => format!("(VArg.agg \"{}\" {v})", va_spelling(t)),
             _ => self.refuse(format!("argument of type {t} passed through `...`")),
         }
     }
@@ -1188,7 +1236,7 @@ impl FnEmitter<'_> {
             Target::Ext(n) => Err(n),
         };
         match target {
-            Ok((key, module, fname, Ok(def))) if def == *sig && !def.variadic => {
+            Ok((key, module, fname, Ok(def))) if def == *sig => {
                 self.res.callees.insert(key);
                 Some(format!("{module}.{} fuel", names::ident(&fname)))
             }
@@ -1282,8 +1330,10 @@ impl FnEmitter<'_> {
         };
         let mut fixed = Vec::new();
         let mut extra = Vec::new();
+        let mut values = Vec::new();
         for (i, a) in args.iter().enumerate() {
             let v = self.rv(a);
+            values.push(v.clone());
             if i < sig.params.len() {
                 fixed.push(v);
             } else {
@@ -1301,7 +1351,13 @@ impl FnEmitter<'_> {
             applied.push(' ');
             applied.push_str(a);
         }
-        let app = head.replace(" ARGS", &applied);
+        let mut app = head.replace(" ARGS", &applied);
+        // A `va_list` passed by value is a pointer to the caller's object.
+        for (a, v) in args.iter().zip(&values) {
+            if is_va_list_ptr(&a.ty) {
+                app = format!("VaList.passing {v} ({app})");
+            }
+        }
         if sig.ret == "Unit" {
             self.line(app);
             "()".into()
@@ -1318,4 +1374,53 @@ impl Lv {
             Self::Mem(p, o) => Self::Mem(p.clone(), *o),
         }
     }
+}
+
+/// The rank of an integer type as `va_arg` compares it: its C name without
+/// `signed` or `unsigned`.
+pub(crate) const fn va_rank(i: IntType) -> &'static str {
+    use crate::types::IntKind as I;
+    match i.kind {
+        I::Char | I::SChar | I::UChar => "char",
+        I::Short | I::UShort => "short",
+        I::Int | I::UInt => "int",
+        I::Long | I::ULong => "long",
+        I::LongLong | I::ULongLong => "long long",
+        I::Int128 | I::UInt128 => "__int128",
+    }
+}
+
+/// A type's C spelling as `va_arg` compares pointee types. Types whose
+/// compatibility the spelling does not decide (enums, arrays, functions,
+/// anonymous records) are marked with a leading `?`, which the runtime
+/// reports as unsupported unless the two spellings are equal.
+pub(crate) fn va_spelling(t: &QualType) -> String {
+    let mut open = false;
+    crate::types::walk(t, &mut |q| {
+        open |= matches!(
+            q.ty,
+            Type::Enum(_)
+                | Type::Array { .. }
+                | Type::Function(_)
+                | Type::Unsupported { .. }
+                | Type::Record {
+                    name: TagName::Anon(_) | TagName::Typedef(_),
+                    ..
+                }
+        );
+    });
+    match crate::types::to_c(t) {
+        Some(s) if !open => s,
+        _ => format!("?{t}"),
+    }
+}
+
+/// A `va_list` as a function parameter or argument: a pointer to the one
+/// `struct __va_list_tag` of the caller's object.
+pub(crate) fn is_va_list_ptr(t: &QualType) -> bool {
+    matches!(&t.ty, Type::Pointer(p) if is_va_tag(p))
+}
+
+pub(crate) fn is_va_tag(t: &QualType) -> bool {
+    matches!(&t.ty, Type::Record { kind: RecordKind::Struct, name: TagName::Tag(n) } if n == "__va_list_tag")
 }

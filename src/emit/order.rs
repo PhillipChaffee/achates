@@ -377,6 +377,13 @@ impl OrderCx<'_> {
                 all.mem_written = true;
                 all
             }
+            ExprKind::VaArg(list) => {
+                // Reads the list's position and advances it.
+                let mut all = self.eval(list, bad);
+                all.mem_read = true;
+                all.mem_written = true;
+                all
+            }
             ExprKind::TypeTrait { .. } => Effects::default(),
             _ => {
                 // Sequenced operands (`&&`, `||`, `?:`, comma) and
@@ -403,6 +410,20 @@ pub(crate) fn writes_memory(f: &Function, call_writes: &dyn Fn(Option<&str>) -> 
                 op: UnaryOp::PreInc | UnaryOp::PreDec | UnaryOp::PostInc | UnaryOp::PostDec,
                 operand,
             } => root(operand).is_none(),
+            // The variadic macros write only the state of the list they are
+            // given, which is the function's own when the list is a local.
+            ExprKind::Call {
+                direct: Some(name),
+                args,
+                ..
+            } if matches!(
+                name.as_str(),
+                "__builtin_va_start" | "__builtin_va_end" | "__builtin_va_copy"
+            ) =>
+            {
+                args.first().is_none_or(|a| decayed_root(a).is_none())
+            }
+            ExprKind::VaArg(list) => decayed_root(list).is_none(),
             ExprKind::Call { direct, .. } => cw(direct.as_deref()),
             ExprKind::Atomic { .. } => true,
             _ => false,

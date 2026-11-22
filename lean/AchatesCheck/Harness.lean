@@ -168,6 +168,7 @@ def hexOf (bs : Array MByte) : Except Err String :=
     | .byte v => pure (acc ++ hexByte v)
     | .undef => pure (acc ++ "??")
     | .frag _ _ => throw (.unsupported "a stored pointer where bytes are reported")
+    | .va _ _ => throw (.unsupported "a va_list where bytes are reported")
 
 def renderErr (e : Err) : String :=
   let one (s : String) : String := s.map fun c => if c == '\n' then ' ' else c

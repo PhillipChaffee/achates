@@ -403,7 +403,7 @@ fn sizeof_is_clangs_constant_and_its_operand_is_not_evaluated() {
 }
 
 #[test]
-fn variadic_argument_reads_are_unsupported_and_visible() {
+fn variadic_argument_reads_are_represented_and_statement_expressions_are_not() {
     let src = "#include <stdarg.h>\n\
                int sum(int n, ...) { va_list ap; va_start(ap, n); int s = 0;\n\
                for (int i = 0; i < n; i++) s += va_arg(ap, int); va_end(ap); return s; }\n\
@@ -412,12 +412,9 @@ fn variadic_argument_reads_are_unsupported_and_visible() {
     let l = load(&[("main.c", src)]);
     let sum = l.tu.functions.iter().find(|f| f.name == "sum").unwrap();
     let u = scan::unsupported_of(sum, &l.tu);
-    assert!(u.iter().any(|x| x.clang_kind == "VAArgExpr"), "{u:?}");
+    assert!(u.is_empty(), "{u:?}");
     let d = dump::function(sum, &l.tu);
-    assert!(
-        d.contains("UNSUPPORTED VAArgExpr: reading a variadic argument (`va_arg`) at "),
-        "{d}"
-    );
+    assert!(d.contains("va-arg : int:i32"), "{d}");
 
     let (_dir, entries) = fixture(&[("main.c", src)]);
     let s = survey::run(&compdb::select(&entries, "main.c").unwrap(), true).unwrap();
@@ -426,10 +423,10 @@ fn variadic_argument_reads_are_unsupported_and_visible() {
         .iter()
         .map(|r| (r.name.as_str(), r.counts.is_empty()))
         .collect();
-    assert_eq!(status, [("sum", false), ("plain", true), ("gnu", false)]);
+    assert_eq!(status, [("sum", true), ("plain", true), ("gnu", false)]);
     let text = survey::render(&s);
     assert!(
-        text.contains("total: 1 of 3 functions fully represented"),
+        text.contains("total: 2 of 3 functions fully represented"),
         "{text}"
     );
     assert!(

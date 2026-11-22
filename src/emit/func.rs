@@ -68,6 +68,12 @@ pub(crate) struct FnEmitter<'a> {
     pub(crate) in_static: bool,
     pub(crate) res: Emitted,
     pub(crate) ret: Option<QualType>,
+    /// In a variadic function, the Lean name of the number of its `...`
+    /// arguments (`VaList.enter`).
+    pub(crate) va_args: Option<String>,
+    /// In a function that uses `va_start`, `va_copy` or `va_end`, the Lean
+    /// name of the number of this call (`VaList.call`).
+    pub(crate) va_call: Option<String>,
 }
 
 impl<'a> FnEmitter<'a> {
@@ -98,6 +104,8 @@ impl<'a> FnEmitter<'a> {
             in_static: false,
             res: Emitted::default(),
             ret: None,
+            va_args: None,
+            va_call: None,
         }
     }
 
@@ -665,14 +673,24 @@ impl<'a> FnEmitter<'a> {
 
     /// The body of `f` as `do`-block lines, with the parameter list.
     pub(crate) fn function(mut self, f: &Function) -> (Emitted, Vec<String>, Option<Sig>) {
-        if f.variadic {
-            self.refuse("variadic function definition: reading `...` arguments is not modelled");
-        }
         let classes = classify(f);
         self.temps.clone_from(&classes.temps);
         self.ret = Some(f.ret.clone());
         self.ind = 2;
-        let params = self.declare(f, &classes);
+        let mut params = self.declare(f, &classes);
+        let mut prologue = Vec::new();
+        let mut epilogue = Vec::new();
+        if f.variadic {
+            params.push("(«variadic args» : List VArg)".to_owned());
+            prologue.push("let «va args» ← VaList.enter «variadic args»".to_owned());
+            epilogue.push("VaList.leave «va args»".to_owned());
+            self.va_args = Some("«va args»".into());
+        }
+        if uses_va_macros(f) {
+            prologue.push("let «va call» ← VaList.call".to_owned());
+            epilogue.insert(0, "VaList.checkEnded «va call»".to_owned());
+            self.va_call = Some("«va call»".into());
+        }
         self.collect_locals(&f.body, &classes);
         let ret = self.lty(&f.ret);
         let falls = self.stmt(&f.body);
@@ -689,21 +707,25 @@ impl<'a> FnEmitter<'a> {
             .map(str::to_owned)
             .collect();
         let mut lines = Vec::new();
-        if self.frame_objs.is_empty() {
+        if self.frame_objs.is_empty() && prologue.is_empty() {
             // Written one level deeper, for the case below.
             lines.extend(
                 body.iter()
                     .map(|l| l.strip_prefix("  ").unwrap_or(l).to_owned()),
             );
         } else {
+            lines.extend(prologue.iter().map(|l| format!("  {l}")));
             for (p, size, align) in &self.frame_objs {
                 lines.push(format!("  let {p} ← Mem.alloca {size} {align}"));
             }
             lines.push(format!("  let result : {ret} ← (do"));
             lines.extend(body);
             lines.push(format!("    : M {ret})"));
-            let objs: Vec<&str> = self.frame_objs.iter().map(|o| o.0.as_str()).collect();
-            lines.push(format!("  Mem.popFrame [{}]", objs.join(", ")));
+            if !self.frame_objs.is_empty() {
+                let objs: Vec<&str> = self.frame_objs.iter().map(|o| o.0.as_str()).collect();
+                lines.push(format!("  Mem.popFrame [{}]", objs.join(", ")));
+            }
+            lines.extend(epilogue.iter().map(|l| format!("  {l}")));
             lines.push("  pure result".to_owned());
         }
         let sig = Some(self.sig_of_fn(f));
@@ -733,4 +755,22 @@ fn elem_const(t: &QualType) -> bool {
         Type::Array { elem, .. } => elem.quals.is_const || elem_const(elem),
         _ => false,
     }
+}
+
+/// Whether `f` invokes `va_start`, `va_copy` or `va_end`, which clang
+/// gives as calls of builtins.
+fn uses_va_macros(f: &Function) -> bool {
+    let mut found = false;
+    crate::emit::order::for_each_expr(&f.body, &mut |e| {
+        if let crate::ir::ExprKind::Call {
+            direct: Some(name), ..
+        } = &e.kind
+        {
+            found |= matches!(
+                name.as_str(),
+                "__builtin_va_start" | "__builtin_va_end" | "__builtin_va_copy"
+            );
+        }
+    });
+    found
 }

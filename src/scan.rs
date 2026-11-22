@@ -117,6 +117,7 @@ pub(crate) fn children(e: &Expr) -> Vec<&Expr> {
         ExprKind::Unary { operand: a, .. }
         | ExprKind::Cast { operand: a, .. }
         | ExprKind::CompoundLiteral(a)
+        | ExprKind::VaArg(a)
         | ExprKind::Member { base: a, .. }
         | ExprKind::Predefined { value: a, .. }
         | ExprKind::TypeTrait {

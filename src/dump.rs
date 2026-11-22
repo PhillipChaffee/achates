@@ -322,6 +322,7 @@ fn label(k: &ExprKind) -> String {
         ExprKind::ImplicitValueInit => "zero-init".into(),
         ExprKind::Predefined { name, .. } => format!("predefined {name}"),
         ExprKind::Atomic { op, .. } => format!("atomic {op}"),
+        ExprKind::VaArg(_) => "va-arg".into(),
         ExprKind::Unsupported(u) => unsupported(u),
     }
 }

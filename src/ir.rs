@@ -420,5 +420,8 @@ pub(crate) enum ExprKind {
         op: String,
         operands: Vec<Expr>,
     },
+    /// `va_arg(list, T)`, `T` being the expression's type; `list` is the
+    /// `va_list` as a pointer to its one element.
+    VaArg(Box<Expr>),
     Unsupported(Unsupported),
 }

@@ -4,3 +4,4 @@ import Achates.Float
 import Achates.Memory
 import Achates.Libc
 import Achates.Talloc
+import Achates.Vararg

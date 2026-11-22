@@ -27,7 +27,13 @@ pub(crate) struct Layouts {
     pub(crate) records: BTreeMap<RecordKey, RecordLayout>,
     /// The integer type clang chose for each enum.
     pub(crate) enums: BTreeMap<TagName, crate::types::IntType>,
+    /// `sizeof` and `_Alignof` of `__builtin_va_list`, an array of one
+    /// `struct __va_list_tag` on x86-64.
+    pub(crate) va_list: Option<(u64, u64)>,
 }
+
+/// The size and alignment of a `va_list` the runtime's `VaList` assumes.
+pub(crate) const VA_LIST: (u64, u64) = (24, 8);
 
 /// The questions about one record, as indices into the list sent to clang.
 struct Plan {
@@ -191,8 +197,17 @@ pub(crate) fn probe(entry: &Entry, args: &ClangArgs, tu: &TranslationUnit) -> Re
         pl.questions
             .push("_Alignof(__int128) == sizeof(__int128)".into());
     }
+    let va = pl.questions.len();
+    pl.questions.push("sizeof(__builtin_va_list)".into());
+    pl.questions.push("_Alignof(__builtin_va_list)".into());
     let answers = probe::ask(entry, args, &pl.questions)?;
-    for (q, a) in pl.questions.iter().zip(&answers).skip(first_scalar) {
+    for (q, a) in pl
+        .questions
+        .iter()
+        .zip(&answers)
+        .skip(first_scalar)
+        .take(va - first_scalar)
+    {
         if *a != Ok(1) {
             bail!(
                 "{}: the Lean runtime takes `{q}` to hold, and clang answered {a:?}",
@@ -200,7 +215,13 @@ pub(crate) fn probe(entry: &Entry, args: &ClangArgs, tu: &TranslationUnit) -> Re
             );
         }
     }
-    let mut out = Layouts::default();
+    let mut out = Layouts {
+        va_list: match (answers.get(va), answers.get(va + 1)) {
+            (Some(Ok(s)), Some(Ok(a))) => Some((*s, *a)),
+            _ => None,
+        },
+        ..Layouts::default()
+    };
     for p in &plans {
         resolve(p, 0, &answers, &mut out.records);
     }
@@ -221,6 +242,22 @@ impl Layouts {
                 let (s, a) = self.size_align(elem)?;
                 let n = len.ok_or("array of unknown length")?;
                 Ok((s.checked_mul(n).ok_or("array size overflows")?, a))
+            }
+            Type::Record {
+                kind: RecordKind::Struct,
+                name: TagName::Tag(n),
+            } if n == "__va_list_tag"
+                && !self
+                    .records
+                    .contains_key(&(RecordKind::Struct, TagName::Tag(n.clone()))) =>
+            {
+                match self.va_list {
+                    Some(l) if l == VA_LIST => Ok(l),
+                    Some(l) => Err(format!(
+                        "va_list has size and alignment {l:?}; the runtime's VaList takes {VA_LIST:?}"
+                    )),
+                    None => Err("clang could not be asked the size of va_list".into()),
+                }
             }
             Type::Record { kind, name } => {
                 let l = self

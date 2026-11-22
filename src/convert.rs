@@ -1028,9 +1028,12 @@ impl<'u, 'r> FnCx<'u, 'r> {
                 let operands = ch.iter().map(|a| self.expr(a)).collect();
                 self.mk(v, ExprKind::Atomic { op, operands })
             }
+            "VAArgExpr" => {
+                let list = self.boxed(v, 0);
+                self.mk(v, ExprKind::VaArg(list))
+            }
             k => {
                 let reason = match k {
-                    "VAArgExpr" => "reading a variadic argument (`va_arg`)".to_owned(),
                     "StmtExpr" => "GNU statement expression `({ ... })`".to_owned(),
                     "BinaryConditionalOperator" => "GNU `a ?: b`".to_owned(),
                     "GenericSelectionExpr" => "`_Generic` selection".to_owned(),

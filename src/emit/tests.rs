@@ -276,6 +276,24 @@ cases! {
     t_partly_initialised_struct_copy => SameAsC,
     t_misaligned_access => Ub("needs alignment 4"),
     t_address_as_integer => Stops("unsupported conversion of an object or function address"),
+    t_va_sum => SameAsC,
+    t_va_mixed => SameAsC,
+    t_va_promotions => SameAsC,
+    t_va_corresponding => SameAsC,
+    t_va_copy => SameAsC,
+    t_va_list_passed_on => SameAsC,
+    t_va_struct_argument => SameAsC,
+    t_va_past_end => Ub("va_arg past the last variadic argument"),
+    t_va_wrong_type => Ub("va_arg of type int for an argument of type double"),
+    t_va_long_as_long_long => Ub("va_arg of type unsigned long long for an argument of type long"),
+    t_va_negative_as_unsigned => Ub("that it cannot represent"),
+    t_va_int_as_pointer => Ub("va_arg of type int * for an argument of type int"),
+    t_va_float => Ub("va_arg of type float for an argument of type double"),
+    t_va_missing_end => Ub("did not va_end"),
+    t_va_used_after_passing => Ub("passed to a function that read from it"),
+    t_va_start_twice => Ub("va_start into a va_list that was not ended"),
+    t_va_end_twice => Ub("va_end on an object that holds no va_list"),
+    t_va_qualified_pointer => Stops("unsupported va_arg of type const char * for an argument of type char *"),
 }
 
 fn refusal_of(tag: &str, source: &str, function: &str) -> String {
@@ -289,11 +307,11 @@ fn refusal_of(tag: &str, source: &str, function: &str) -> String {
 }
 
 #[test]
-fn refuses_reading_variadic_arguments() {
-    let src = "#include <stdarg.h>\nint f(int n, ...) { va_list ap; va_start(ap, n); va_end(ap); return n; }\n";
+fn refuses_va_arg_of_a_struct() {
+    let src = "#include <stdarg.h>\nstruct s { int a; };\nint f(int n, ...) { va_list ap; va_start(ap, n); struct s x = va_arg(ap, struct s); va_end(ap); return x.a; }\n";
     let line = refusal_of("variadic", src, "f");
     assert!(
-        line.contains("not emitted") && line.contains("variadic"),
+        line.contains("not emitted") && line.contains("va_arg of type struct s"),
         "{line}"
     );
 }
@@ -319,7 +337,7 @@ fn refuses_backward_goto() {
 
 #[test]
 fn unemitted_callee_becomes_a_parameter() {
-    let src = "#include <stdarg.h>\nint v(int n, ...) { va_list ap; va_start(ap, n); va_end(ap); return n; }\nint f(void) { return v(1, 2); }\nint puts(const char *);\nint g(void) { return puts(\"x\"); }\n";
+    let src = "int v(int n) { again: n--; if (n > 0) goto again; return n; }\nint f(void) { return v(1); }\nint puts(const char *);\nint g(void) { return puts(\"x\"); }\nint printf(const char *, ...);\nint h(void) { return printf(\"%d\", 1); }\n";
     let (dir, summary) = emit_fixture("param", src).expect("emission runs");
     let externals =
         std::fs::read_to_string(dir.join("lean/Fix/Externals.lean")).expect("externals written");
@@ -335,8 +353,16 @@ fn unemitted_callee_becomes_a_parameter() {
         "{externals}"
     );
     assert!(
-        externals.contains("class Ext.v where\n  call : I32 → List VArg → M I32"),
+        externals.contains("class Ext.v where\n  call : I32 → M I32"),
         "{externals}"
+    );
+    assert!(
+        externals.contains("class Ext.printf where\n  call : Ptr → List VArg → M I32"),
+        "{externals}"
+    );
+    assert!(
+        module.contains("Ext.printf.call Statics.str_1 [(VArg.sint \"int\" (1 : I32))]"),
+        "{module}"
     );
     assert!(
         module.contains("def g [Ext.puts] (fuel : Nat) : M I32"),

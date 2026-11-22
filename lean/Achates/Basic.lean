@@ -39,6 +39,9 @@ inductive MByte where
   | byte (b : UInt8)
   /-- Byte `i` of the representation of a stored pointer. -/
   | frag (p : Ptr) (i : Nat)
+  /-- Byte `i` of a `va_list` object that holds the list numbered `list`
+  (see `Mem.vaLists`). C gives these bytes no meaning of their own. -/
+  | va (list : Nat) (i : Nat)
   deriving Repr, DecidableEq, Inhabited
 
 inductive BlockKind where
@@ -62,10 +65,51 @@ structure Block where
   dtor : Option Ptr := none
   deriving Repr, Inhabited
 
+/-- The C type of an argument passed through `...`, after the default
+argument promotions, as far as `va_arg` must match it. -/
+inductive VTy where
+  /-- An integer type: its signedness, width, and rank by its C name without
+  `signed`/`unsigned` (`int`, `long`, `long long`, `__int128`). -/
+  | int (signed : Bool) (bits : Nat) (rank : String)
+  | double
+  /-- A pointer, by the C spelling of the type it points to. -/
+  | ptr (pointee : String)
+  /-- A struct or union, by its C spelling. -/
+  | agg (name : String)
+  deriving Repr, DecidableEq, Inhabited
+
+/-- The `...` arguments of one call of a variadic function: each with its
+promoted type and its bytes, as memory would hold them. They exist while the
+call runs. -/
+structure VaArgs where
+  args : Array (VTy × Array MByte)
+  live : Bool := true
+  deriving Repr, Inhabited
+
+/-- One `va_list` value, made by `va_start` or `va_copy`. -/
+structure VaState where
+  /-- The arguments it walks, as an index into `Mem.vaArgs`. -/
+  args : Nat
+  /-- How many `va_arg` have read from it. -/
+  pos : Nat := 0
+  /-- The call of the function that made it, which must end it with `va_end`. -/
+  owner : Nat
+  ended : Bool := false
+  /-- Passed to a function that read from it: its value in the passing
+  function is indeterminate, and only `va_end` may be applied (C11 7.16p3). -/
+  spent : Bool := false
+  deriving Repr, Inhabited
+
 /-- Memory: blocks are never reused, so a pointer to a freed block stays
-recognisable as dangling. -/
+recognisable as dangling. The variadic argument lists and `va_list` values
+live beside the blocks; the bytes of a `va_list` object refer to one of
+`vaLists` (`MByte.va`). -/
 structure Mem where
   blocks : Array Block := #[]
+  vaArgs : Array VaArgs := #[]
+  vaLists : Array VaState := #[]
+  /-- Calls of functions that use `va_start`, `va_copy` or `va_end` so far. -/
+  vaCalls : Nat := 0
   deriving Repr, Inhabited
 
 abbrev M := StateT Mem (Except Err)

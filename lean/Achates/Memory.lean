@@ -30,6 +30,7 @@ def leNat (bs : Array MByte) : Except Err Nat :=
         throw (.unsupported "read of an uninitialised byte through a character type (unspecified value)")
       else throw (.ub "read of uninitialised memory")
     | .frag _ _ => throw (.unsupported "read of a stored pointer's bytes as an integer")
+    | .va _ _ => throw (.unsupported "read of a va_list object's bytes as an integer")
 
 instance {w : Nat} : CVal (UInt w) where
   size := w / 8
@@ -95,13 +96,16 @@ structure Agg where
 
 instance : Inhabited Float32 := ⟨Float32.ofBits 0⟩
 
-/-- An argument passed through `...`, after the default argument promotions. -/
+/-- An argument passed through `...`, after the default argument promotions,
+with its C type as `va_arg` must match it: the rank of an integer type
+(`int`, `long`, `long long`, `__int128`), the spelling of a pointer's
+pointee type, the spelling of a struct or union type. -/
 inductive VArg where
-  | sint {w : Nat} (v : SInt w)
-  | uint {w : Nat} (v : UInt w)
+  | sint {w : Nat} (rank : String) (v : SInt w)
+  | uint {w : Nat} (rank : String) (v : UInt w)
   | f64 (v : Float)
-  | ptr (p : Ptr)
-  | agg (a : Agg)
+  | ptr (pointee : String) (p : Ptr)
+  | agg (ty : String) (a : Agg)
 
 namespace Mem
 
@@ -205,6 +209,7 @@ def loadByte (p : Ptr) : M UInt8 := do
   match ((← loadBytes p 1)[0]? : Option MByte) with
   | some (.byte v) => pure v
   | some (.frag _ _) => unsupported "read of a stored pointer's bytes as an integer"
+  | some (.va _ _) => unsupported "read of a va_list object's bytes as an integer"
   | _ => unsupported "read of an uninitialised byte through a character type (unspecified value)"
 
 end Mem

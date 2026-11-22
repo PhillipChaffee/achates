@@ -2,6 +2,7 @@
  * the Lean that Achates emits for it, and the two results are compared.
  * Cases whose behaviour C leaves undefined are run in Lean only. */
 #include <assert.h>
+#include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -397,3 +398,137 @@ ll t_uninitialised_char(void) { unsigned char c; return c; }
 ll t_partly_initialised_struct_copy(void) { struct pt a; a.x = 1; struct pt b = a; return b.x; }
 ll t_misaligned_access(void) { char buf[8] = {0}; int *p = (int *)(buf + 1); return *p; }
 ll t_address_as_integer(void) { int x = 0; return (long)&x != 0; }
+
+/* Variadic functions: `...` arguments after the default argument
+ * promotions, va_start, va_arg, va_copy, va_end, and a va_list passed on. */
+static ll va_sum(int n, ...) {
+    va_list ap;
+    va_start(ap, n);
+    ll s = 0;
+    for (int i = 0; i < n; i++)
+        s = s * 10 + va_arg(ap, int);
+    va_end(ap);
+    return s;
+}
+ll t_va_sum(void) { return va_sum(4, 1, 2, 3, 4) + va_sum(0); }
+static ll va_mixed(const char *kinds, ...) {
+    va_list ap;
+    va_start(ap, kinds);
+    ll s = 0;
+    for (const char *k = kinds; *k; k++) {
+        switch (*k) {
+        case 'i': s = s * 3 + va_arg(ap, int); break;
+        case 'u': s = s * 3 + va_arg(ap, unsigned); break;
+        case 'l': s = s * 3 + va_arg(ap, long); break;
+        case 'q': s = s * 3 + (ll)va_arg(ap, unsigned long long); break;
+        case 'd': s = s * 3 + (ll)(va_arg(ap, double) * 4); break;
+        case 's': s = s * 3 + strlen(va_arg(ap, char *)); break;
+        case 'c': s = s * 3 + strlen(va_arg(ap, const char *)); break;
+        case 'p': s = s * 3 + *va_arg(ap, int *); break;
+        }
+    }
+    va_end(ap);
+    return s;
+}
+ll t_va_mixed(void) {
+    int x = 7;
+    return va_mixed("iuldqsp", -5, 4000000000u, -3000000000L, 2.75, 1ull << 40, "four", &x);
+}
+/* char, short and _Bool arrive as int, float as double. */
+ll t_va_promotions(void) {
+    char c = 'a';
+    short h = -300;
+    float f = 1.5f;
+    _Bool b = 1;
+    return va_mixed("iiid", c, h, b, f);
+}
+/* A signed argument read as its unsigned type when the value fits both,
+ * and char * read as void *. */
+static ll va_corresponding(int n, ...) {
+    va_list ap;
+    va_start(ap, n);
+    unsigned u = va_arg(ap, unsigned);
+    int i = va_arg(ap, int);
+    void *p = va_arg(ap, void *);
+    va_end(ap);
+    return u + i + (p != 0);
+}
+ll t_va_corresponding(void) { return va_corresponding(3, 5, 6u, "x"); }
+static ll va_twice(int n, ...) {
+    va_list ap, again;
+    va_start(ap, n);
+    int first = va_arg(ap, int);
+    va_copy(again, ap);
+    int a = va_arg(ap, int);
+    int b = va_arg(again, int);
+    va_end(again);
+    va_end(ap);
+    va_start(ap, n);
+    int restarted = va_arg(ap, int);
+    va_end(ap);
+    return first * 1000 + a * 100 + b * 10 + restarted;
+}
+ll t_va_copy(void) { return va_twice(2, 3, 4); }
+static ll va_vsum(int n, va_list ap) {
+    ll s = 0;
+    while (n--)
+        s = s * 10 + va_arg(ap, int);
+    return s;
+}
+static ll va_through(int n, ...) {
+    va_list ap;
+    va_start(ap, n);
+    ll s = va_vsum(n, ap);
+    va_end(ap);
+    return s;
+}
+ll t_va_list_passed_on(void) { return va_through(3, 7, 8, 9); }
+struct va_pair { int a, b; };
+static ll va_count(int n, ...) { return n; }
+ll t_va_struct_argument(void) { struct va_pair p = {1, 2}; return va_count(2, p, 3.0); }
+ll t_va_past_end(void) { return va_sum(3, 1, 2); }
+ll t_va_wrong_type(void) { return va_sum(1, 2.0); }
+ll t_va_long_as_long_long(void) { return va_mixed("q", 5L); }
+ll t_va_negative_as_unsigned(void) { return va_corresponding(3, -5, 6, "x"); }
+ll t_va_int_as_pointer(void) { return va_mixed("p", 0); }
+static ll va_float(int n, ...) {
+    va_list ap;
+    va_start(ap, n);
+    float f = va_arg(ap, float);
+    va_end(ap);
+    return (ll)f;
+}
+ll t_va_float(void) { return va_float(1, 1.0f); }
+static ll va_no_end(int n, ...) {
+    va_list ap;
+    va_start(ap, n);
+    return va_arg(ap, int);
+}
+ll t_va_missing_end(void) { return va_no_end(1, 5); }
+static ll va_reuse(int n, ...) {
+    va_list ap;
+    va_start(ap, n);
+    ll s = va_vsum(1, ap);
+    s += va_arg(ap, int);
+    va_end(ap);
+    return s;
+}
+ll t_va_used_after_passing(void) { return va_reuse(2, 1, 2); }
+static ll va_restart(int n, ...) {
+    va_list ap;
+    va_start(ap, n);
+    va_start(ap, n);
+    va_end(ap);
+    return n;
+}
+ll t_va_start_twice(void) { return va_restart(0); }
+static ll va_end_twice(int n, ...) {
+    va_list ap;
+    va_start(ap, n);
+    va_end(ap);
+    va_end(ap);
+    return n;
+}
+ll t_va_end_twice(void) { return va_end_twice(0); }
+/* C11 makes this undefined and C23 defines it; the model does not choose. */
+ll t_va_qualified_pointer(void) { return va_mixed("c", "x"); }
