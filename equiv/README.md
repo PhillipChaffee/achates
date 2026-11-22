@@ -15,18 +15,22 @@ because both of their Lake packages are called `misc`. Neither is edited.
 | --- | --- |
 | `Equiv/Basic.lean` | The correspondence: integers, outcomes (`Agree`, `Equal`), memory (`Region`, `IsBstr`, `IsCStr`, `Unchanged`) |
 | `Equiv/Simp.lean` | Tier 1's rewriting of both sides' primitive operations into bit-vector `if`s |
-| `Equiv/Tactic.lean` | The tier 0 and tier 1 scripts |
+| `Equiv/Tactic.lean` | The tier 0 and tier 1 scripts, and `equiv_budget` (a theorem's heartbeat budget, and a report of what it used) |
 | `Equiv/Mem.lean` | Tier 2: the C memory operations on a caller's memory extended by a call's locals |
 | `Equiv/Libc.lean` | Tier 2: `bytesAt`, `checkRange`, `memcmp` of the C model over regions |
 | `Equiv/Port.lean` | Tier 2: the port's `memcmp` loop, by induction |
-| `Equiv/Lemmas.lean` | Tier 2 scripts, `StaticsReady` |
-| `Equiv/Proved.lean` | Generated: the theorems some tier proved, with that tier's script |
+| `Equiv/Lemmas.lean` | The tier 2 script, `StaticsReady` |
+| `Equiv/Proved.lean` | Generated: the theorems some tier proved, each with that tier's script and budget, and a check of its axioms |
 | `open/Open.lean` | Generated, not built: the theorems no tier proved, each with its first error |
-| `results.json`, `summary.txt` | Generated: per function, what happened |
+| `results.json`, `summary.txt` | Generated: per function, what happened, with each theorem's tries |
+| `tiers.json` | Generated: the search cache, per theorem its outcome, tries, budgets and times, under a key of everything the outcome depends on |
+| `attempts/` | Generated, not committed: one Lean file per try |
 
-`make equiv` (in the repository root) regenerates the last four and builds
-the project; `make equiv-build` only builds it, which checks the committed
-proofs. The report is `../docs/equiv-report.md`.
+`make equiv` (in the repository root) regenerates the generated files and
+builds the project; `make equiv-build` only builds it, which checks the
+committed proofs and their axioms. A theorem whose `tiers.json` entry still
+holds is not run again; `achates equiv --prove --no-cache` searches every
+theorem. The report is `../docs/equiv-report.md`.
 
 ## Setting up
 

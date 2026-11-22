@@ -64,8 +64,14 @@ ci: lint test lean pilot-emit pilot-build check-misc-fast
 
 # The equality theorems between mpv's misc/ in Lean (pilot/misc) and the rmpv
 # port's Aeneas output. Not part of `ci`: the bridge project builds the
-# Mathlib-based Aeneas side, about 4 minutes from clean on 4 cores, and the
-# proof run takes about 37 minutes more. equiv/README.md says how to set up its
+# Mathlib-based Aeneas side, about 4 minutes from clean on 4 cores. The proof
+# search starts each theorem at the tier predicted from its shape, gives it at
+# most two tries, and runs the tries in a pool of 4 Lean processes; from an
+# empty cache it takes about 14 minutes, and the build of the proofs about 6
+# more. equiv/tiers.json caches each outcome under a key of everything it
+# depends on, so with nothing changed the run takes about 20 seconds, and a
+# change searches again only the theorems that reach it. equiv-build then
+# rechecks every proof and its axioms. equiv/README.md says how to set up the
 # Lake packages.
 RMPV ?= $(CURDIR)/../rmpv
 RMPV_LEAN ?= $(RMPV)/pilot/misc-lean/MiscRec/RmpvMisc.lean
@@ -80,6 +86,7 @@ equiv:
 		echo "equiv skipped: needs $(MPV_COMPILE_COMMANDS) and $(RMPV_LEAN)"; \
 	fi
 
-# Checks the committed proofs (equiv/Equiv/Proved.lean) without re-running the tiers.
+# Checks the committed proofs (equiv/Equiv/Proved.lean) and their axioms without
+# running the search.
 equiv-build:
 	cd equiv && lake build
