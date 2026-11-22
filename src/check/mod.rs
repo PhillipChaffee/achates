@@ -578,6 +578,10 @@ impl Ctx<'_> {
         let mut res = FnResult::new(t.row, &self.opts.name);
         res.models = t.models.iter().map(|m| m.name.to_owned()).collect();
         let dir = self.run_dir(t);
+        // Nothing from an earlier run may stand in for this one's files.
+        if dir.exists() {
+            std::fs::remove_dir_all(&dir).with_context(|| format!("clearing {}", dir.display()))?;
+        }
         std::fs::create_dir_all(&dir).with_context(|| format!("creating {}", dir.display()))?;
         let mut generator = Gen::new(self.opts.seed, &t.row.key, &t.dict);
         let cases: Vec<String> = (0..self.opts.count)
