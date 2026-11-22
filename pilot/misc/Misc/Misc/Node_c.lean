@@ -69,9 +69,162 @@ def node_init (fuel : Nat) (dst : Ptr) (format : I32) (parent : Ptr) : M Unit :=
   Mem.popFrame [cl9]
   pure result
 
-/-- C function `node_map_add`, ../.mpv/misc/node.c:48.
+/-- C function `node_array_add`, ../.mpv/misc/node.c:36.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def node_map_add [Ext.node_map_badd] (fuel : Nat) (dst : Ptr) (key : Ptr) (format : I32) : M Ptr := do
+def node_array_add (fuel : Nat) (dst : Ptr) (format : I32) : M Ptr := do
+  let mut dst_v : Ptr := dst
+  let mut format_v : I32 := format
+  let t1 : Ptr ← Mem.load Ptr dst_v
+  let mut list_1 : Ptr := t1
+  let t2 : Ptr ← Ptr.add dst_v 1 8
+  let t3 : U32 ← Mem.load U32 t2
+  let mut t5 : Bool := false
+  if (t3 == (SInt.toU 32 (7 : I32))) then
+    let t4 : Ptr ← Mem.load Ptr dst_v
+    t5 := (t4 != Ptr.null)
+  let mut t6 : Unit := default
+  if t5 then
+    t6 := ()
+  else
+    Libc.«__assert_fail» Statics.str_119 Statics.str_114 (SInt.toU 32 (39 : I32)) Statics.str_120
+    t6 := ()
+  for _ in Fuel.mk fuel do
+    for _ in Once.mk do
+      let t7 : I32 ← Mem.load I32 list_1
+      let mut nextidx__2 : U64 := (SInt.toU 64 t7)
+      let t8 : Ptr ← Ptr.add list_1 1 8
+      let t9 : Ptr ← Mem.load Ptr t8
+      let t10 : U64 ← Talloc.ta_get_size t9
+      let t11 : U64 ← UInt.div t10 (16 : U64)
+      if (decide (nextidx__2 ≥ t11)) then
+        for _ in Fuel.mk fuel do
+          for _ in Once.mk do
+            let t12 : Ptr ← Ptr.add list_1 1 8
+            let t13 : Ptr ← Ptr.add list_1 1 8
+            let t14 : Ptr ← Mem.load Ptr t13
+            let t15 : U64 ← Talloc.ta_calc_prealloc_elems nextidx__2
+            let t16 : U64 ← Talloc.ta_calc_array_size (16 : U64) t15
+            let t17 : Ptr ← Talloc.ta_xrealloc_size list_1 t14 t16
+            let t18 : Ptr ← Talloc.ta_dbg_set_loc t17 Statics.str_121
+            Mem.store t12 t18
+          if !((0 : I32) != 0) then break
+    if !((0 : I32) != 0) then break
+  let t19 : Ptr ← Ptr.add list_1 1 8
+  let t20 : Ptr ← Mem.load Ptr t19
+  let t21 : I32 ← Mem.load I32 list_1
+  let t22 : Ptr ← Ptr.add t20 16 (SInt.toInt t21)
+  Misc.Node_c.node_init fuel t22 format_v dst_v
+  let t23 : Ptr ← Ptr.add list_1 1 8
+  let t24 : Ptr ← Mem.load Ptr t23
+  let t25 : I32 ← Mem.load I32 list_1
+  let t26 : I32 ← SInt.add t25 1
+  Mem.store list_1 t26
+  let t27 : Ptr ← Ptr.add t24 16 (SInt.toInt t25)
+  return t27
+
+/-- C function `node_map_badd`, ../.mpv/misc/node.c:54.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
+-/
+def node_map_badd (fuel : Nat) (dst : Ptr) (key : Agg) (format : I32) : M Ptr := do
+  let key_p ← Mem.alloca 16 8
+  let result : Ptr ← (do
+    let mut dst_v : Ptr := dst
+    Mem.storeAgg key_p key 8
+    let mut format_v : I32 := format
+    let t1 : Ptr ← Mem.load Ptr key_p
+    let mut t2 : Unit := default
+    if (t1 != Ptr.null) then
+      t2 := ()
+    else
+      Libc.«__assert_fail» Statics.str_124 Statics.str_114 (SInt.toU 32 (56 : I32)) Statics.str_125
+      t2 := ()
+    let t3 : Ptr ← Mem.load Ptr dst_v
+    let mut list_1 : Ptr := t3
+    let t4 : Ptr ← Ptr.add dst_v 1 8
+    let t5 : U32 ← Mem.load U32 t4
+    let mut t7 : Bool := false
+    if (t5 == (SInt.toU 32 (8 : I32))) then
+      let t6 : Ptr ← Mem.load Ptr dst_v
+      t7 := (t6 != Ptr.null)
+    let mut t8 : Unit := default
+    if t7 then
+      t8 := ()
+    else
+      Libc.«__assert_fail» Statics.str_126 Statics.str_114 (SInt.toU 32 (59 : I32)) Statics.str_125
+      t8 := ()
+    for _ in Fuel.mk fuel do
+      for _ in Once.mk do
+        let t9 : I32 ← Mem.load I32 list_1
+        let mut nextidx__2 : U64 := (SInt.toU 64 t9)
+        let t10 : Ptr ← Ptr.add list_1 1 8
+        let t11 : Ptr ← Mem.load Ptr t10
+        let t12 : U64 ← Talloc.ta_get_size t11
+        let t13 : U64 ← UInt.div t12 (16 : U64)
+        if (decide (nextidx__2 ≥ t13)) then
+          for _ in Fuel.mk fuel do
+            for _ in Once.mk do
+              let t14 : Ptr ← Ptr.add list_1 1 8
+              let t15 : Ptr ← Ptr.add list_1 1 8
+              let t16 : Ptr ← Mem.load Ptr t15
+              let t17 : U64 ← Talloc.ta_calc_prealloc_elems nextidx__2
+              let t18 : U64 ← Talloc.ta_calc_array_size (16 : U64) t17
+              let t19 : Ptr ← Talloc.ta_xrealloc_size list_1 t16 t18
+              let t20 : Ptr ← Talloc.ta_dbg_set_loc t19 Statics.str_127
+              Mem.store t14 t20
+            if !((0 : I32) != 0) then break
+      if !((0 : I32) != 0) then break
+    for _ in Fuel.mk fuel do
+      for _ in Once.mk do
+        let t21 : I32 ← Mem.load I32 list_1
+        let mut nextidx__3 : U64 := (SInt.toU 64 t21)
+        let t22 : Ptr ← Ptr.add list_1 1 16
+        let t23 : Ptr ← Mem.load Ptr t22
+        let t24 : U64 ← Talloc.ta_get_size t23
+        let t25 : U64 ← UInt.div t24 (8 : U64)
+        if (decide (nextidx__3 ≥ t25)) then
+          for _ in Fuel.mk fuel do
+            for _ in Once.mk do
+              let t26 : Ptr ← Ptr.add list_1 1 16
+              let t27 : Ptr ← Ptr.add list_1 1 16
+              let t28 : Ptr ← Mem.load Ptr t27
+              let t29 : U64 ← Talloc.ta_calc_prealloc_elems nextidx__3
+              let t30 : U64 ← Talloc.ta_calc_array_size (8 : U64) t29
+              let t31 : Ptr ← Talloc.ta_xrealloc_size list_1 t28 t30
+              let t32 : Ptr ← Talloc.ta_dbg_set_loc t31 Statics.str_128
+              Mem.store t26 t32
+            if !((0 : I32) != 0) then break
+      if !((0 : I32) != 0) then break
+    let t33 : Ptr ← Ptr.add list_1 1 16
+    let t34 : Ptr ← Mem.load Ptr t33
+    let t35 : I32 ← Mem.load I32 list_1
+    let t36 : Ptr ← Ptr.add t34 8 (SInt.toInt t35)
+    let t37 : Agg ← Mem.loadAgg key_p 16 8
+    let t38 : Ptr ← Misc.Bstr_h.bstrdup0 fuel list_1 t37
+    Mem.store t36 t38
+    let t39 : Ptr ← Ptr.add list_1 1 8
+    let t40 : Ptr ← Mem.load Ptr t39
+    let t41 : I32 ← Mem.load I32 list_1
+    let t42 : Ptr ← Ptr.add t40 16 (SInt.toInt t41)
+    Misc.Node_c.node_init fuel t42 format_v dst_v
+    let t43 : Ptr ← Ptr.add list_1 1 8
+    let t44 : Ptr ← Mem.load Ptr t43
+    let t45 : I32 ← Mem.load I32 list_1
+    let t46 : I32 ← SInt.add t45 1
+    Mem.store list_1 t46
+    let t47 : Ptr ← Ptr.add t44 16 (SInt.toInt t45)
+    return t47
+    : M Ptr)
+  Mem.popFrame [key_p]
+  pure result
+
+/-- C function `node_map_add`, ../.mpv/misc/node.c:48.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
+-/
+def node_map_add (fuel : Nat) (dst : Ptr) (key : Ptr) (format : I32) : M Ptr := do
   let mut dst_v : Ptr := dst
   let mut key_v : Ptr := key
   let mut format_v : I32 := format
@@ -82,12 +235,14 @@ def node_map_add [Ext.node_map_badd] (fuel : Nat) (dst : Ptr) (key : Ptr) (forma
     Libc.«__assert_fail» Statics.str_122 Statics.str_114 (SInt.toU 32 (50 : I32)) Statics.str_123
     t1 := ()
   let t2 : Agg ← Misc.Bstr_h.bstr0 fuel key_v
-  let t3 : Ptr ← Ext.node_map_badd.call dst_v t2 format_v
+  let t3 : Ptr ← Misc.Node_c.node_map_badd fuel dst_v t2 format_v
   return t3
 
 /-- C function `node_map_add_string`, ../.mpv/misc/node.c:70.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def node_map_add_string [Ext.node_map_badd] [Ext.ta_xstrdup] (fuel : Nat) (dst : Ptr) (key : Ptr) (val : Ptr) : M Unit := do
+def node_map_add_string (fuel : Nat) (dst : Ptr) (key : Ptr) (val : Ptr) : M Unit := do
   let mut dst_v : Ptr := dst
   let mut key_v : Ptr := key
   let mut val_v : Ptr := val
@@ -103,13 +258,15 @@ def node_map_add_string [Ext.node_map_badd] [Ext.ta_xstrdup] (fuel : Nat) (dst :
   let t4 : U32 := (SInt.toU 32 (1 : I32))
   Mem.store t3 t4
   let t5 : Ptr ← Mem.load Ptr dst_v
-  let t6 : Ptr ← Ext.ta_xstrdup.call t5 val_v
+  let t6 : Ptr ← Talloc.ta_xstrdup t5 val_v
   Mem.store entry_1 t6
   pure ()
 
 /-- C function `node_map_add_bstr`, ../.mpv/misc/node.c:79.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def node_map_add_bstr [Ext.node_map_badd] [Ext.ta_xstrdup] [Ext.ta_xstrndup] (fuel : Nat) (dst : Ptr) (key : Ptr) (val : Agg) : M Unit := do
+def node_map_add_bstr (fuel : Nat) (dst : Ptr) (key : Ptr) (val : Agg) : M Unit := do
   let val_p ← Mem.alloca 16 8
   let result : Unit ← (do
     let mut dst_v : Ptr := dst
@@ -137,8 +294,10 @@ def node_map_add_bstr [Ext.node_map_badd] [Ext.ta_xstrdup] [Ext.ta_xstrndup] (fu
   pure result
 
 /-- C function `node_map_add_int64`, ../.mpv/misc/node.c:88.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def node_map_add_int64 [Ext.node_map_badd] (fuel : Nat) (dst : Ptr) (key : Ptr) (v : I64) : M Unit := do
+def node_map_add_int64 (fuel : Nat) (dst : Ptr) (key : Ptr) (v : I64) : M Unit := do
   let mut dst_v : Ptr := dst
   let mut key_v : Ptr := key
   let mut v_v : I64 := v
@@ -147,8 +306,10 @@ def node_map_add_int64 [Ext.node_map_badd] (fuel : Nat) (dst : Ptr) (key : Ptr) 
   pure ()
 
 /-- C function `node_map_add_double`, ../.mpv/misc/node.c:93.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def node_map_add_double [Ext.node_map_badd] (fuel : Nat) (dst : Ptr) (key : Ptr) (v : F64) : M Unit := do
+def node_map_add_double (fuel : Nat) (dst : Ptr) (key : Ptr) (v : F64) : M Unit := do
   let mut dst_v : Ptr := dst
   let mut key_v : Ptr := key
   let mut v_v : F64 := v
@@ -157,8 +318,10 @@ def node_map_add_double [Ext.node_map_badd] (fuel : Nat) (dst : Ptr) (key : Ptr)
   pure ()
 
 /-- C function `node_map_add_flag`, ../.mpv/misc/node.c:98.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def node_map_add_flag [Ext.node_map_badd] (fuel : Nat) (dst : Ptr) (key : Ptr) (v : Bool) : M Unit := do
+def node_map_add_flag (fuel : Nat) (dst : Ptr) (key : Ptr) (v : Bool) : M Unit := do
   let mut dst_v : Ptr := dst
   let mut key_v : Ptr := key
   let mut v_v : Bool := v

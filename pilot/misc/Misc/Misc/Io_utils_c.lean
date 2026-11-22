@@ -53,9 +53,9 @@ def mp_mkostemps [Ext.«__errno_location»] [Ext.av_random_bytes] [Ext.mp_raw_ti
         let t11 : U64 ← Misc.Random_c.mp_rand_next fuel s_3
         let mut fuckmess_5 : U64 := t11
         Mem.zero crap_6 7
-        let t12 : Ptr ← Ext.mp_tprintf_buf.call crap_6 (7 : U64) Statics.str_75 [(VArg.uint fuckmess_5)]
+        let t12 : Ptr ← Ext.mp_tprintf_buf.call crap_6 (7 : U64) Statics.str_75 [(VArg.uint "long" fuckmess_5)]
         let t13 : Ptr ← Libc.memcpy t_2 crap_6 (SInt.toU 64 (6 : I32))
-        let t14 : I32 ← Ext.«open».call template_v (SInt.bor (SInt.bor (SInt.bor (2 : I32) (64 : I32)) (128 : I32)) flags_v) [(VArg.sint (384 : I32))]
+        let t14 : I32 ← Ext.«open».call template_v (SInt.bor (SInt.bor (SInt.bor (2 : I32) (64 : I32)) (128 : I32)) flags_v) [(VArg.sint "int" (384 : I32))]
         let mut res_7 : I32 := t14
         let mut t17 : Bool := true
         if !(decide (res_7 ≥ (0 : I32))) then
@@ -98,7 +98,7 @@ def mp_save_to_file [Ext.«__errno_location»] [Ext.av_random_bytes] [Ext.close]
         Libc.«__assert_fail» Statics.str_76 Statics.str_77 (SInt.toU 32 (63 : I32)) Statics.str_78
         t1 := ()
       Mem.store v_result_1 ((0 : I32) != 0)
-      let t2 : Ptr ← Ext.ta_asprintf.call Ptr.null Statics.str_79 [(VArg.ptr filepath_v)]
+      let t2 : Ptr ← Ext.ta_asprintf.call Ptr.null Statics.str_79 [(VArg.ptr "const char" filepath_v)]
       let t3 : Ptr ← Ta.Ta_h.ta_oom_s fuel t2
       Mem.store tmp_2 t3
       let t4 : Ptr ← Mem.load Ptr tmp_2

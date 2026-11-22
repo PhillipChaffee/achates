@@ -1,6 +1,7 @@
 import Achates
 import Misc.Statics
 import Misc.Externals
+import Misc.Misc.Bstr_c
 
 /-! Emitted by Achates from C; do not edit. -/
 
@@ -13,8 +14,10 @@ open Achates
 namespace Misc.Misc.Hash_c
 
 /-- C function `mp_hash_to_bstr`, ../.mpv/misc/hash.c:25.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def mp_hash_to_bstr [Ext.av_hash_alloc] [Ext.av_hash_final] [Ext.av_hash_freep] [Ext.av_hash_get_size] [Ext.av_hash_init] [Ext.av_hash_update] [Ext.bstr_xappend_asprintf] (fuel : Nat) (talloc_ctx : Ptr) (data : Ptr) (len : U64) (algorithm : Ptr) : M Agg := do
+def mp_hash_to_bstr [Ext.av_hash_alloc] [Ext.av_hash_final] [Ext.av_hash_freep] [Ext.av_hash_get_size] [Ext.av_hash_init] [Ext.av_hash_update] [Ext.vsnprintf] (fuel : Nat) (talloc_ctx : Ptr) (data : Ptr) (len : U64) (algorithm : Ptr) : M Agg := do
   let ctx_1 ← Mem.alloca 8 8
   let hash_3 ← Mem.alloca 64 1
   let ret_4 ← Mem.alloca 16 8
@@ -53,7 +56,7 @@ def mp_hash_to_bstr [Ext.av_hash_alloc] [Ext.av_hash_final] [Ext.av_hash_freep] 
       for _ in Once.mk do
         let t10 : Ptr ← Ptr.add hash_3 1 (SInt.toInt n_5)
         let t11 : U8 ← Mem.load U8 t10
-        let t12 : I32 ← Ext.bstr_xappend_asprintf.call talloc_ctx_v ret_4 Statics.str_73 [(VArg.sint (UInt.toS 32 t11))]
+        let t12 : I32 ← Misc.Bstr_c.bstr_xappend_asprintf fuel talloc_ctx_v ret_4 Statics.str_73 [(VArg.sint "int" (UInt.toS 32 t11))]
         pure ()
       let t13 : I32 := n_5
       let t14 : I32 ← SInt.add t13 1

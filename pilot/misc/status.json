@@ -280,21 +280,19 @@
     "function": "bstr_sscanf",
     "line": 245,
     "origin": "MainFile",
-    "lean": null,
-    "status": "not emitted",
-    "reasons": [
-      "variadic function definition: reading `...` arguments is not modelled",
-      "variadic argument handling (va_start and friends) is not modelled"
-    ],
+    "lean": "Misc.Misc.Bstr_c.bstr_sscanf",
+    "status": "emitted",
+    "reasons": [],
     "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
     "externals": [
-      "ta_xstrndup",
       "vsscanf"
     ],
     "models": [
-      "ta_free"
+      "ta_free",
+      "ta_xstrndup"
     ]
   },
   {
@@ -440,28 +438,32 @@
     "function": "bstr_xappend_asprintf",
     "line": 384,
     "origin": "MainFile",
-    "lean": null,
-    "status": "not emitted",
-    "reasons": [
-      "variadic function definition: reading `...` arguments is not modelled",
-      "variadic argument handling (va_start and friends) is not modelled"
+    "lean": "Misc.Misc.Bstr_c.bstr_xappend_asprintf",
+    "status": "emitted",
+    "reasons": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
-    "assumptions": [],
     "externals": [
-      "bstr_xappend_vasprintf"
+      "vsnprintf"
     ],
-    "models": []
+    "models": [
+      "__assert_fail",
+      "abort",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
+    ]
   },
   {
     "file": "../.mpv/misc/bstr.c",
     "function": "bstr_xappend_vasprintf",
     "line": 393,
     "origin": "MainFile",
-    "lean": null,
-    "status": "not emitted",
-    "reasons": [
-      "variadic argument handling (va_start and friends) is not modelled"
-    ],
+    "lean": "Misc.Misc.Bstr_c.bstr_xappend_vasprintf",
+    "status": "emitted",
+    "reasons": [],
     "assumptions": [
       "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
@@ -692,11 +694,14 @@
     "lean": "Misc.Misc.Bstr_h.bstrdup0",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
-    "externals": [
-      "ta_xstrndup"
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
-    "models": []
+    "externals": [],
+    "models": [
+      "ta_xstrndup"
+    ]
   },
   {
     "file": "../.mpv/misc/ctype.h",
@@ -1429,7 +1434,10 @@
     "lean": "Misc.Misc.Hash_c.mp_hash_to_bstr",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
     "externals": [
       "av_hash_alloc",
       "av_hash_final",
@@ -1437,10 +1445,14 @@
       "av_hash_get_size",
       "av_hash_init",
       "av_hash_update",
-      "bstr_xappend_asprintf"
+      "vsnprintf"
     ],
     "models": [
-      "__assert_fail"
+      "__assert_fail",
+      "abort",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size"
     ]
   },
   {
@@ -1560,11 +1572,14 @@
     "lean": "Misc.Misc.Json_c.read_id",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
-    "externals": [
-      "ta_xstrndup"
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
-    "models": []
+    "externals": [],
+    "models": [
+      "ta_xstrndup"
+    ]
   },
   {
     "file": "../.mpv/misc/json.c",
@@ -1599,8 +1614,7 @@
       "__errno_location",
       "mp_append_escaped_string",
       "strtod",
-      "strtoll",
-      "ta_xstrndup"
+      "strtoll"
     ],
     "models": [
       "abort",
@@ -1611,6 +1625,7 @@
       "ta_dbg_set_loc",
       "ta_get_size",
       "ta_xrealloc_size",
+      "ta_xstrndup",
       "ta_zalloc_size"
     ]
   },
@@ -1631,8 +1646,7 @@
       "__errno_location",
       "mp_append_escaped_string",
       "strtod",
-      "strtoll",
-      "ta_xstrndup"
+      "strtoll"
     ],
     "models": [
       "abort",
@@ -1643,6 +1657,7 @@
       "ta_dbg_set_loc",
       "ta_get_size",
       "ta_xrealloc_size",
+      "ta_xstrndup",
       "ta_zalloc_size"
     ]
   },
@@ -1659,7 +1674,7 @@
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
     "externals": [
-      "bstr_xappend_asprintf"
+      "vsnprintf"
     ],
     "models": [
       "__assert_fail",
@@ -1707,7 +1722,7 @@
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
     "externals": [
-      "bstr_xappend_asprintf"
+      "vsnprintf"
     ],
     "models": [
       "__assert_fail",
@@ -1732,7 +1747,7 @@
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
     "externals": [
-      "bstr_xappend_asprintf"
+      "vsnprintf"
     ],
     "models": [
       "__assert_fail",
@@ -1757,7 +1772,7 @@
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
     "externals": [
-      "bstr_xappend_asprintf"
+      "vsnprintf"
     ],
     "models": [
       "__assert_fail",
@@ -1782,7 +1797,7 @@
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
     "externals": [
-      "bstr_xappend_asprintf"
+      "vsnprintf"
     ],
     "models": [
       "__assert_fail",
@@ -1875,13 +1890,12 @@
     "function": "mp_match_lang",
     "line": 254,
     "origin": "MainFile",
-    "lean": null,
-    "status": "not emitted",
-    "reasons": [
-      "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order"
-    ],
+    "lean": "Misc.Misc.Language_c.mp_match_lang",
+    "status": "emitted",
+    "reasons": [],
     "assumptions": [
       "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "external-reads: strncasecmp, strcasecmp and memrchr, taken as parameters, write no memory, as POSIX and glibc specify them; where C leaves the order of a call that reaches one of them and another operand open, the definition relies on this",
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
     "externals": [
@@ -1970,11 +1984,9 @@
     "function": "node_array_add",
     "line": 36,
     "origin": "MainFile",
-    "lean": null,
-    "status": "not emitted",
-    "reasons": [
-      "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order"
-    ],
+    "lean": "Misc.Misc.Node_c.node_array_add",
+    "status": "emitted",
+    "reasons": [],
     "assumptions": [
       "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
@@ -1999,13 +2011,22 @@
     "lean": "Misc.Misc.Node_c.node_map_add",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
-    "externals": [
-      "node_map_badd"
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
+    "externals": [],
     "models": [
       "__assert_fail",
-      "strlen"
+      "abort",
+      "strlen",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size",
+      "ta_xstrndup",
+      "ta_zalloc_size"
     ]
   },
   {
@@ -2013,18 +2034,14 @@
     "function": "node_map_badd",
     "line": 54,
     "origin": "MainFile",
-    "lean": null,
-    "status": "not emitted",
-    "reasons": [
-      "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order"
-    ],
+    "lean": "Misc.Misc.Node_c.node_map_badd",
+    "status": "emitted",
+    "reasons": [],
     "assumptions": [
       "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
-    "externals": [
-      "ta_xstrndup"
-    ],
+    "externals": [],
     "models": [
       "__assert_fail",
       "abort",
@@ -2033,6 +2050,7 @@
       "ta_dbg_set_loc",
       "ta_get_size",
       "ta_xrealloc_size",
+      "ta_xstrndup",
       "ta_zalloc_size"
     ]
   },
@@ -2044,14 +2062,23 @@
     "lean": "Misc.Misc.Node_c.node_map_add_string",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
-    "externals": [
-      "node_map_badd",
-      "ta_xstrdup"
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
+    "externals": [],
     "models": [
       "__assert_fail",
-      "strlen"
+      "abort",
+      "strlen",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size",
+      "ta_xstrdup",
+      "ta_xstrndup",
+      "ta_zalloc_size"
     ]
   },
   {
@@ -2062,15 +2089,23 @@
     "lean": "Misc.Misc.Node_c.node_map_add_bstr",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
-    "externals": [
-      "node_map_badd",
-      "ta_xstrdup",
-      "ta_xstrndup"
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
+    "externals": [],
     "models": [
       "__assert_fail",
-      "strlen"
+      "abort",
+      "strlen",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size",
+      "ta_xstrdup",
+      "ta_xstrndup",
+      "ta_zalloc_size"
     ]
   },
   {
@@ -2081,13 +2116,22 @@
     "lean": "Misc.Misc.Node_c.node_map_add_int64",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
-    "externals": [
-      "node_map_badd"
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
+    "externals": [],
     "models": [
       "__assert_fail",
-      "strlen"
+      "abort",
+      "strlen",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size",
+      "ta_xstrndup",
+      "ta_zalloc_size"
     ]
   },
   {
@@ -2098,13 +2142,22 @@
     "lean": "Misc.Misc.Node_c.node_map_add_double",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
-    "externals": [
-      "node_map_badd"
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
+    "externals": [],
     "models": [
       "__assert_fail",
-      "strlen"
+      "abort",
+      "strlen",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size",
+      "ta_xstrndup",
+      "ta_zalloc_size"
     ]
   },
   {
@@ -2115,13 +2168,22 @@
     "lean": "Misc.Misc.Node_c.node_map_add_flag",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
-    "externals": [
-      "node_map_badd"
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
+    "externals": [],
     "models": [
       "__assert_fail",
-      "strlen"
+      "abort",
+      "strlen",
+      "ta_calc_array_size",
+      "ta_calc_prealloc_elems",
+      "ta_dbg_set_loc",
+      "ta_get_size",
+      "ta_xrealloc_size",
+      "ta_xstrndup",
+      "ta_zalloc_size"
     ]
   },
   {
@@ -2237,12 +2299,15 @@
     "lean": "Misc.Misc.Bstr_h.bstrto0",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
-    "externals": [
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
+    "externals": [],
+    "models": [
       "ta_xstrdup",
       "ta_xstrndup"
-    ],
-    "models": []
+    ]
   },
   {
     "file": "../.mpv/misc/path_utils.c",
@@ -2375,14 +2440,17 @@
     "lean": "Misc.Misc.Path_utils_c.mp_path_join_bstr",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
     "externals": [
-      "ta_asprintf",
-      "ta_xstrndup"
+      "ta_asprintf"
     ],
     "models": [
       "abort",
-      "strchr"
+      "strchr",
+      "ta_xstrndup"
     ]
   },
   {
@@ -2393,15 +2461,18 @@
     "lean": "Misc.Misc.Path_utils_c.mp_path_join",
     "status": "emitted",
     "reasons": [],
-    "assumptions": [],
+    "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
+      "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
+    ],
     "externals": [
-      "ta_asprintf",
-      "ta_xstrndup"
+      "ta_asprintf"
     ],
     "models": [
       "abort",
       "strchr",
-      "strlen"
+      "strlen",
+      "ta_xstrndup"
     ]
   },
   {
@@ -2420,8 +2491,7 @@
       "__errno_location",
       "getcwd",
       "getenv",
-      "stat",
-      "ta_xstrdup"
+      "stat"
     ],
     "models": [
       "abort",
@@ -2432,7 +2502,8 @@
       "ta_dbg_set_loc",
       "ta_free",
       "ta_get_size",
-      "ta_xrealloc_size"
+      "ta_xrealloc_size",
+      "ta_xstrdup"
     ]
   },
   {
@@ -2456,9 +2527,7 @@
       "stat",
       "ta_asprintf",
       "ta_talloc_strdup_append_buffer",
-      "ta_talloc_strndup_append_buffer",
-      "ta_xstrdup",
-      "ta_xstrndup"
+      "ta_talloc_strndup_append_buffer"
     ],
     "models": [
       "abort",
@@ -2475,7 +2544,9 @@
       "ta_get_size",
       "ta_new_context",
       "ta_steal_",
-      "ta_xrealloc_size"
+      "ta_xrealloc_size",
+      "ta_xstrdup",
+      "ta_xstrndup"
     ]
   },
   {
@@ -2549,16 +2620,17 @@
     "status": "emitted",
     "reasons": [],
     "assumptions": [
+      "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported",
       "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported"
     ],
     "externals": [
       "mkdir",
-      "stat",
-      "ta_xstrdup"
+      "stat"
     ],
     "models": [
       "strchr",
-      "ta_free"
+      "ta_free",
+      "ta_xstrdup"
     ]
   },
   {

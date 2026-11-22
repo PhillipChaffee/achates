@@ -215,8 +215,10 @@ def mp_path_is_absolute (fuel : Nat) (path : Agg) : M Bool := do
   pure result
 
 /-- C function `mp_path_join_bstr`, ../.mpv/misc/path_utils.c:142.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def mp_path_join_bstr [Ext.ta_asprintf] [Ext.ta_xstrndup] (fuel : Nat) (talloc_ctx : Ptr) (p1 : Agg) (p2 : Agg) : M Ptr := do
+def mp_path_join_bstr [Ext.ta_asprintf] (fuel : Nat) (talloc_ctx : Ptr) (p1 : Agg) (p2 : Agg) : M Ptr := do
   let p1_p ← Mem.alloca 16 8
   let p2_p ← Mem.alloca 16 8
   let result : Ptr ← (do
@@ -266,7 +268,7 @@ def mp_path_join_bstr [Ext.ta_asprintf] [Ext.ta_xstrndup] (fuel : Nat) (talloc_c
       t28 := t27
     else
       t28 := Statics.str_97
-    let t29 : Ptr ← Ext.ta_asprintf.call talloc_ctx_v Statics.str_137 [(VArg.sint (UInt.toS 32 t20)), (VArg.ptr t23), (VArg.ptr (if ((SInt.ofBool 32 have_separator_1) != 0) then Statics.str_97 else Statics.str_138)), (VArg.sint (UInt.toS 32 t25)), (VArg.ptr t28)]
+    let t29 : Ptr ← Ext.ta_asprintf.call talloc_ctx_v Statics.str_137 [(VArg.sint "int" (UInt.toS 32 t20)), (VArg.ptr "char" t23), (VArg.ptr "char" (if ((SInt.ofBool 32 have_separator_1) != 0) then Statics.str_97 else Statics.str_138)), (VArg.sint "int" (UInt.toS 32 t25)), (VArg.ptr "char" t28)]
     let t30 : Ptr ← Ta.Ta_h.ta_oom_s fuel t29
     return t30
     : M Ptr)
@@ -274,8 +276,10 @@ def mp_path_join_bstr [Ext.ta_asprintf] [Ext.ta_xstrndup] (fuel : Nat) (talloc_c
   pure result
 
 /-- C function `mp_path_join`, ../.mpv/misc/path_utils.c:163.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def mp_path_join [Ext.ta_asprintf] [Ext.ta_xstrndup] (fuel : Nat) (talloc_ctx : Ptr) (p1 : Ptr) (p2 : Ptr) : M Ptr := do
+def mp_path_join [Ext.ta_asprintf] (fuel : Nat) (talloc_ctx : Ptr) (p1 : Ptr) (p2 : Ptr) : M Ptr := do
   let mut talloc_ctx_v : Ptr := talloc_ctx
   let mut p1_v : Ptr := p1
   let mut p2_v : Ptr := p2
@@ -288,7 +292,7 @@ def mp_path_join [Ext.ta_asprintf] [Ext.ta_xstrndup] (fuel : Nat) (talloc_ctx : 
 Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def mp_getcwd [Ext.«__errno_location»] [Ext.getcwd] [Ext.getenv] [Ext.stat] [Ext.ta_xstrdup] (fuel : Nat) (talloc_ctx : Ptr) : M Ptr := do
+def mp_getcwd [Ext.«__errno_location»] [Ext.getcwd] [Ext.getenv] [Ext.stat] (fuel : Nat) (talloc_ctx : Ptr) : M Ptr := do
   let pwd_st_2 ← Mem.alloca 144 8
   let dot_st_3 ← Mem.alloca 144 8
   let result : Ptr ← (do
@@ -323,7 +327,7 @@ def mp_getcwd [Ext.«__errno_location»] [Ext.getcwd] [Ext.getenv] [Ext.stat] [E
       let t15 : U64 ← Mem.load U64 t14
       t16 := (t13 == t15)
     if t16 then
-      let t17 : Ptr ← Ext.ta_xstrdup.call talloc_ctx_v e_wd_1
+      let t17 : Ptr ← Talloc.ta_xstrdup talloc_ctx_v e_wd_1
       return t17
     let t18 : U64 ← Talloc.ta_calc_array_size (1 : U64) (SInt.toU 64 (20 : I32))
     let t19 : Ptr ← Talloc.ta_alloc_size talloc_ctx_v t18
@@ -393,7 +397,7 @@ Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes o
 Assumes cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def mp_normalize_path [Ext.«__errno_location»] [Ext.getcwd] [Ext.getenv] [Ext.realpath] [Ext.stat] [Ext.ta_asprintf] [Ext.ta_talloc_strdup_append_buffer] [Ext.ta_talloc_strndup_append_buffer] [Ext.ta_xstrdup] [Ext.ta_xstrndup] (fuel : Nat) (talloc_ctx : Ptr) (path : Ptr) : M Ptr := do
+def mp_normalize_path [Ext.«__errno_location»] [Ext.getcwd] [Ext.getenv] [Ext.realpath] [Ext.stat] [Ext.ta_asprintf] [Ext.ta_talloc_strdup_append_buffer] [Ext.ta_talloc_strndup_append_buffer] (fuel : Nat) (talloc_ctx : Ptr) (path : Ptr) : M Ptr := do
   let tmp_1 ← Mem.alloca 8 8
   let v_result_2 ← Mem.alloca 8 8
   let next_4 ← Mem.alloca 8 8
@@ -416,7 +420,7 @@ def mp_normalize_path [Ext.«__errno_location»] [Ext.getcwd] [Ext.getenv] [Ext.
         let t6 : I32 ← Libc.strcmp path_v Statics.str_105
         t7 := (!(t6 != 0))
       if t7 then
-        let t8 : Ptr ← Ext.ta_xstrdup.call talloc_ctx_v path_v
+        let t8 : Ptr ← Talloc.ta_xstrdup talloc_ctx_v path_v
         return t8
       let t9 : Ptr ← Talloc.ta_new_context Ptr.null
       let t10 : Ptr ← Ta.Ta_h.ta_oom_p fuel t9
@@ -429,14 +433,14 @@ def mp_normalize_path [Ext.«__errno_location»] [Ext.getcwd] [Ext.getenv] [Ext.
         let t14 : Ptr ← Misc.Path_utils_c.mp_getcwd fuel t13
         let mut cwd_3 : Ptr := t14
         if (!(cwd_3 != Ptr.null)) then
-          let t15 : Ptr ← Ext.ta_xstrdup.call talloc_ctx_v path_v
+          let t15 : Ptr ← Talloc.ta_xstrdup talloc_ctx_v path_v
           Mem.store v_result_2 t15
           break
         let t16 : Ptr ← Mem.load Ptr tmp_1
         let t17 : Ptr ← Misc.Path_utils_c.mp_path_join fuel t16 cwd_3 path_v
         path_v := t17
       let t18 : Ptr ← Mem.load Ptr tmp_1
-      let t19 : Ptr ← Ext.ta_xstrdup.call t18 Statics.str_97
+      let t19 : Ptr ← Talloc.ta_xstrdup t18 Statics.str_97
       Mem.store v_result_2 t19
       Mem.undefine next_4 8
       let t20 : U64 ← Libc.strlen path_v
@@ -486,7 +490,7 @@ def mp_normalize_path [Ext.«__errno_location»] [Ext.getcwd] [Ext.getenv] [Ext.
               if t42 then
                 let t43 : Ptr ← Ext.realpath.call path_v Ptr.null
                 let mut tmp_result_7 : Ptr := t43
-                let t44 : Ptr ← Ext.ta_xstrdup.call talloc_ctx_v (if (tmp_result_7 != Ptr.null) then tmp_result_7 else path_v)
+                let t44 : Ptr ← Talloc.ta_xstrdup talloc_ctx_v (if (tmp_result_7 != Ptr.null) then tmp_result_7 else path_v)
                 Mem.store v_result_2 t44
                 Libc.free tmp_result_7
                 j45 := true
@@ -598,14 +602,15 @@ def mp_split_proto (fuel : Nat) (path : Agg) (out_url : Ptr) : M Agg := do
   pure result
 
 /-- C function `mp_mkdirp`, ../.mpv/misc/path_utils.c:318.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def mp_mkdirp [Ext.mkdir] [Ext.stat] [Ext.ta_xstrdup] (fuel : Nat) (dir : Ptr) : M Unit := do
+def mp_mkdirp [Ext.mkdir] [Ext.stat] (fuel : Nat) (dir : Ptr) : M Unit := do
   let mut dir_v : Ptr := dir
   let t1 : Bool ← Misc.Path_utils_c.mp_path_exists fuel dir_v
   if t1 then
     return ()
-  let t2 : Ptr ← Ext.ta_xstrdup.call Ptr.null dir_v
+  let t2 : Ptr ← Talloc.ta_xstrdup Ptr.null dir_v
   let mut path_1 : Ptr := t2
   let t3 : Ptr ← Ptr.add path_1 1 (SInt.toInt (1 : I32))
   let mut cdir_2 : Ptr := t3

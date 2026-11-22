@@ -634,6 +634,98 @@ def bstr_sanitize_utf8_latin1 [Ext.mp_append_utf8_bstr] [Ext.mp_log2] (fuel : Na
   Mem.popFrame [s_p, new_1, left_2, cl8, cl26]
   pure result
 
+/-- C function `bstr_xappend_vasprintf`, ../.mpv/misc/bstr.c:393.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
+-/
+def bstr_xappend_vasprintf [Ext.vsnprintf] (fuel : Nat) (talloc_ctx : Ptr) (s : Ptr) (fmt : Ptr) (ap : Ptr) : M I32 := do
+  let «va call» ← VaList.call
+  let size_1 ← Mem.alloca 4 4
+  let copy_2 ← Mem.alloca 24 8
+  let result : I32 ← (do
+    let mut talloc_ctx_v : Ptr := talloc_ctx
+    let mut s_v : Ptr := s
+    let mut fmt_v : Ptr := fmt
+    let mut ap_v : Ptr := ap
+    Mem.undefine size_1 4
+    Mem.undefine copy_2 24
+    VaList.copy copy_2 ap_v «va call»
+    let t1 : Ptr ← Mem.load Ptr s_v
+    let t2 : U64 ← Talloc.ta_get_size t1
+    let t3 : Ptr ← Ptr.add s_v 1 8
+    let t4 : U64 ← Mem.load U64 t3
+    let mut avail_3 : U64 := (t2 - t4)
+    let t5 : Ptr ← Mem.load Ptr s_v
+    let mut t10 : Ptr := default
+    if (t5 != Ptr.null) then
+      let t6 : Ptr ← Mem.load Ptr s_v
+      let t7 : Ptr ← Ptr.add s_v 1 8
+      let t8 : U64 ← Mem.load U64 t7
+      let t9 : Ptr ← Ptr.add t6 1 (UInt.toInt t8)
+      t10 := t9
+    else
+      t10 := Ptr.null
+    let mut dest_4 : Ptr := t10
+    let t11 : I32 ← VaList.passing copy_2 (Ext.vsnprintf.call dest_4 avail_3 fmt_v copy_2)
+    Mem.store size_1 t11
+    VaList.end copy_2 «va call»
+    let t12 : I32 ← Mem.load I32 size_1
+    if (decide (t12 < (0 : I32))) then
+      let t13 : I32 ← Mem.load I32 size_1
+      return t13
+    let mut t16 : Bool := true
+    if !(decide (avail_3 < (SInt.toU 64 (1 : I32)))) then
+      let t14 : I32 ← Mem.load I32 size_1
+      let t15 : I32 ← SInt.add t14 (1 : I32)
+      t16 := (decide ((SInt.toU 64 t15) > avail_3))
+    if t16 then
+      let t17 : I32 ← Mem.load I32 size_1
+      let t18 : I32 ← SInt.add t17 (1 : I32)
+      Misc.Bstr_c.resize_append fuel talloc_ctx_v s_v (SInt.toU 64 t18)
+      let t19 : Ptr ← Mem.load Ptr s_v
+      let t20 : Ptr ← Ptr.add s_v 1 8
+      let t21 : U64 ← Mem.load U64 t20
+      let t22 : Ptr ← Ptr.add t19 1 (UInt.toInt t21)
+      let t23 : I32 ← Mem.load I32 size_1
+      let t24 : I32 ← SInt.add t23 (1 : I32)
+      let t25 : I32 ← VaList.passing ap_v (Ext.vsnprintf.call t22 (SInt.toU 64 t24) fmt_v ap_v)
+      pure ()
+    let t26 : Ptr ← Ptr.add s_v 1 8
+    let t27 : U64 ← Mem.load U64 t26
+    let t28 : I32 ← Mem.load I32 size_1
+    let t29 : U64 := (t27 + (SInt.toU 64 t28))
+    Mem.store t26 t29
+    let t30 : I32 ← Mem.load I32 size_1
+    return t30
+    : M I32)
+  Mem.popFrame [size_1, copy_2]
+  VaList.checkEnded «va call»
+  pure result
+
+/-- C function `bstr_xappend_asprintf`, ../.mpv/misc/bstr.c:384.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
+-/
+def bstr_xappend_asprintf [Ext.vsnprintf] (fuel : Nat) (talloc_ctx : Ptr) (s : Ptr) (fmt : Ptr) («variadic args» : List VArg) : M I32 := do
+  let «va args» ← VaList.enter «variadic args»
+  let «va call» ← VaList.call
+  let ap_1 ← Mem.alloca 24 8
+  let result : I32 ← (do
+    let mut talloc_ctx_v : Ptr := talloc_ctx
+    let mut s_v : Ptr := s
+    let mut fmt_v : Ptr := fmt
+    Mem.undefine ap_1 24
+    VaList.start ap_1 «va args» «va call»
+    let t1 : I32 ← VaList.passing ap_1 (Misc.Bstr_c.bstr_xappend_vasprintf fuel talloc_ctx_v s_v fmt_v ap_1)
+    let mut ret_2 : I32 := t1
+    VaList.end ap_1 «va call»
+    return ret_2
+    : M I32)
+  Mem.popFrame [ap_1]
+  VaList.checkEnded «va call»
+  VaList.leave «va args»
+  pure result
+
 /-- C function `bstr_case_startswith`, ../.mpv/misc/bstr.c:415.
 -/
 def bstr_case_startswith [Ext.strncasecmp] (fuel : Nat) (s : Agg) (v_prefix : Agg) : M Bool := do

@@ -144,8 +144,10 @@ def bstr_startswith (fuel : Nat) (str : Agg) (v_prefix : Agg) : M Bool := do
   pure result
 
 /-- C function `bstrdup0`, ../.mpv/misc/bstr.h:39.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def bstrdup0 [Ext.ta_xstrndup] (fuel : Nat) (talloc_ctx : Ptr) (str : Agg) : M Ptr := do
+def bstrdup0 (fuel : Nat) (talloc_ctx : Ptr) (str : Agg) : M Ptr := do
   let str_p ← Mem.alloca 16 8
   let result : Ptr ← (do
     let mut talloc_ctx_v : Ptr := talloc_ctx
@@ -153,7 +155,7 @@ def bstrdup0 [Ext.ta_xstrndup] (fuel : Nat) (talloc_ctx : Ptr) (str : Agg) : M P
     let t1 : Ptr ← Mem.load Ptr str_p
     let t2 : Ptr ← Ptr.add str_p 1 8
     let t3 : U64 ← Mem.load U64 t2
-    let t4 : Ptr ← Ext.ta_xstrndup.call talloc_ctx_v t1 t3
+    let t4 : Ptr ← Talloc.ta_xstrndup talloc_ctx_v t1 t3
     return t4
     : M Ptr)
   Mem.popFrame [str_p]
@@ -176,8 +178,10 @@ def bstr_startswith0 (fuel : Nat) (str : Agg) (v_prefix : Ptr) : M Bool := do
   pure result
 
 /-- C function `bstrto0`, ../.mpv/misc/bstr.h:45.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def bstrto0 [Ext.ta_xstrdup] [Ext.ta_xstrndup] (fuel : Nat) (talloc_ctx : Ptr) (str : Agg) : M Ptr := do
+def bstrto0 (fuel : Nat) (talloc_ctx : Ptr) (str : Agg) : M Ptr := do
   let str_p ← Mem.alloca 16 8
   let result : Ptr ← (do
     let mut talloc_ctx_v : Ptr := talloc_ctx
@@ -189,7 +193,7 @@ def bstrto0 [Ext.ta_xstrdup] [Ext.ta_xstrndup] (fuel : Nat) (talloc_ctx : Ptr) (
       let t3 : Ptr ← Misc.Bstr_h.bstrdup0 fuel talloc_ctx_v t2
       t5 := t3
     else
-      let t4 : Ptr ← Ext.ta_xstrdup.call talloc_ctx_v Statics.str_97
+      let t4 : Ptr ← Talloc.ta_xstrdup talloc_ctx_v Statics.str_97
       t5 := t4
     return t5
     : M Ptr)

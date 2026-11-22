@@ -92,14 +92,14 @@ def mp_charset_guess [Ext.mp_log2] [Ext.mp_msg] [Ext.strcasecmp] (fuel : Nat) (t
     let t2 : I8 ← Mem.load I8 t1
     if ((SInt.toS 32 t2) == (43 : I32)) then
       let t3 : Ptr ← Ptr.add user_cp_v 1 (SInt.toInt (1 : I32))
-      Ext.mp_msg.call log_v (5 : I32) Statics.str_29 [(VArg.ptr t3)]
+      Ext.mp_msg.call log_v (5 : I32) Statics.str_29 [(VArg.ptr "const char" t3)]
       let t4 : Ptr ← Ptr.add user_cp_v 1 (SInt.toInt (1 : I32))
       return t4
     let t5 : Agg ← Mem.loadAgg buf_p 16 8
     let t6 : Ptr ← Misc.Charset_conv_c.ms_bom_guess fuel t5
     let mut bom_cp_1 : Ptr := t6
     if (bom_cp_1 != Ptr.null) then
-      Ext.mp_msg.call log_v (5 : I32) Statics.str_30 [(VArg.ptr bom_cp_1)]
+      Ext.mp_msg.call log_v (5 : I32) Statics.str_30 [(VArg.ptr "const char" bom_cp_1)]
       return bom_cp_1
     let t7 : Agg ← Mem.loadAgg buf_p 16 8
     let t8 : I32 ← Misc.Bstr_c.bstr_validate_utf8 fuel t7
@@ -122,7 +122,7 @@ def mp_charset_guess [Ext.mp_log2] [Ext.mp_msg] [Ext.strcasecmp] (fuel : Nat) (t
         res_3 := t13
     else
       res_3 := user_cp_v
-    Ext.mp_msg.call log_v (5 : I32) Statics.str_35 [(VArg.ptr res_3)]
+    Ext.mp_msg.call log_v (5 : I32) Statics.str_35 [(VArg.ptr "const char" res_3)]
     return res_3
     : M Ptr)
   Mem.popFrame [buf_p]

@@ -52,10 +52,6 @@ class Ext.av_hash_update where
 class Ext.av_random_bytes where
   call : Ptr → U64 → M I32
 
-/-- C function `bstr_xappend_asprintf`. -/
-class Ext.bstr_xappend_asprintf where
-  call : Ptr → Ptr → Ptr → List VArg → M I32
-
 /-- C function `clock_gettime`. -/
 class Ext.clock_gettime where
   call : I32 → Ptr → M I32
@@ -131,10 +127,6 @@ class Ext.mp_time_ns_add where
 /-- C function `mp_tprintf_buf`. -/
 class Ext.mp_tprintf_buf where
   call : Ptr → U64 → Ptr → List VArg → M Ptr
-
-/-- C function `node_map_badd`. -/
-class Ext.node_map_badd where
-  call : Ptr → Agg → I32 → M Ptr
 
 /-- C function `open`. -/
 class Ext.«open» where
@@ -272,17 +264,17 @@ class Ext.ta_talloc_strdup_append_buffer where
 class Ext.ta_talloc_strndup_append_buffer where
   call : Ptr → Ptr → U64 → M Ptr
 
-/-- C function `ta_xstrdup`. -/
-class Ext.ta_xstrdup where
-  call : Ptr → Ptr → M Ptr
-
-/-- C function `ta_xstrndup`. -/
-class Ext.ta_xstrndup where
-  call : Ptr → Ptr → U64 → M Ptr
-
 /-- C function `unlink`. -/
 class Ext.unlink where
   call : Ptr → M I32
+
+/-- C function `vsnprintf`. -/
+class Ext.vsnprintf where
+  call : Ptr → U64 → Ptr → Ptr → M I32
+
+/-- C function `vsscanf`. -/
+class Ext.vsscanf where
+  call : Ptr → Ptr → Ptr → M I32
 
 /-- C function `write`. -/
 class Ext.write where

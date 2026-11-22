@@ -413,6 +413,34 @@ def bstr_lower (fuel : Nat) (str : Agg) : M Unit := do
   Mem.popFrame [str_p]
   pure result
 
+/-- C function `bstr_sscanf`, ../.mpv/misc/bstr.c:245.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
+-/
+def bstr_sscanf [Ext.vsscanf] (fuel : Nat) (str : Agg) (format : Ptr) («variadic args» : List VArg) : M I32 := do
+  let «va args» ← VaList.enter «variadic args»
+  let «va call» ← VaList.call
+  let str_p ← Mem.alloca 16 8
+  let va_2 ← Mem.alloca 24 8
+  let result : I32 ← (do
+    Mem.storeAgg str_p str 8
+    let mut format_v : Ptr := format
+    let t1 : Agg ← Mem.loadAgg str_p 16 8
+    let t2 : Ptr ← Misc.Bstr_h.bstrdup0 fuel Ptr.null t1
+    let mut ptr_1 : Ptr := t2
+    Mem.undefine va_2 24
+    VaList.start va_2 «va args» «va call»
+    let t3 : I32 ← VaList.passing va_2 (Ext.vsscanf.call ptr_1 format_v va_2)
+    let mut ret_3 : I32 := t3
+    VaList.end va_2 «va call»
+    Talloc.ta_free ptr_1
+    return ret_3
+    : M I32)
+  Mem.popFrame [str_p, va_2]
+  VaList.checkEnded «va call»
+  VaList.leave «va args»
+  pure result
+
 /-- C function `bstr_case_endswith`, ../.mpv/misc/bstr.c:421.
 -/
 def bstr_case_endswith [Ext.strncasecmp] (fuel : Nat) (s : Agg) (suffix : Agg) : M Bool := do

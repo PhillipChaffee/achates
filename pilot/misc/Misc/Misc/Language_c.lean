@@ -3,10 +3,12 @@ import Misc.Statics
 import Misc.Externals
 import Misc.Misc.Bstr_c
 import Misc.Misc.Bstr_c.Part2
+import Misc.Misc.Bstr_h
 import Misc.Misc.Bstr_h.Part2
 import Misc.Misc.Ctype_h
 import Misc.Misc.Path_utils_c
 import Misc.Sys.Stdlib_bsearch_h
+import Misc.Ta.Ta_h
 
 /-! Emitted by Achates from C; do not edit. -/
 
@@ -67,6 +69,149 @@ def canonicalize [Ext.Misc_Language_c_lang_compare] (fuel : Nat) (lang : Agg) : 
     return t10
     : M Agg)
   Mem.popFrame [lang_p, cl3]
+  pure result
+
+/-- C function `mp_match_lang`, ../.mpv/misc/language.c:254.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes external-reads: strncasecmp, strcasecmp and memrchr, taken as parameters, write no memory, as POSIX and glibc specify them; where C leaves the order of a call that reaches one of them and another operand open, the definition relies on this.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
+-/
+def mp_match_lang [Ext.Misc_Language_c_lang_compare] [Ext.strncasecmp] (fuel : Nat) (langs : Ptr) (lang : Ptr) : M I32 := do
+  let ta_ctx_1 ← Mem.alloca 8 8
+  let lang_parts_n_2 ← Mem.alloca 4 4
+  let lang_parts_3 ← Mem.alloca 8 8
+  let rest_4 ← Mem.alloca 16 8
+  let s_5 ← Mem.alloca 16 8
+  let best_score_7 ← Mem.alloca 4 4
+  let s_11 ← Mem.alloca 16 8
+  let result : I32 ← (do
+    let mut langs_v : Ptr := langs
+    let mut lang_v : Ptr := lang
+    for _ in Once.mk do
+      if (!(lang_v != Ptr.null)) then
+        return (0 : I32)
+      let t1 : Ptr ← Talloc.ta_new_context Ptr.null
+      let t2 : Ptr ← Ta.Ta_h.ta_oom_p fuel t1
+      Mem.store ta_ctx_1 t2
+      Mem.store lang_parts_n_2 (0 : I32)
+      Mem.store lang_parts_3 Ptr.null
+      let t3 : Agg ← Misc.Bstr_h.bstr0 fuel lang_v
+      Mem.storeAgg rest_4 t3 8
+      for _ in Fuel.mk fuel do
+        let t4 : Ptr ← Ptr.add rest_4 1 8
+        let t5 : U64 ← Mem.load U64 t4
+        if !(t5 != 0) then break
+        let t6 : Agg ← Mem.loadAgg rest_4 16 8
+        let t7 : Agg ← Misc.Bstr_c.bstr_split fuel t6 Statics.str_105 rest_4
+        Mem.storeAgg s_5 t7 8
+        for _ in Fuel.mk fuel do
+          for _ in Once.mk do
+            for _ in Fuel.mk fuel do
+              for _ in Once.mk do
+                let t8 : I32 ← Mem.load I32 lang_parts_n_2
+                let mut nextidx__6 : U64 := (SInt.toU 64 t8)
+                let t9 : Ptr ← Mem.load Ptr lang_parts_3
+                let t10 : U64 ← Talloc.ta_get_size t9
+                let t11 : U64 ← UInt.div t10 (16 : U64)
+                if (decide (nextidx__6 ≥ t11)) then
+                  for _ in Fuel.mk fuel do
+                    for _ in Once.mk do
+                      let t12 : Ptr ← Mem.load Ptr ta_ctx_1
+                      let t13 : Ptr ← Mem.load Ptr lang_parts_3
+                      let t14 : U64 ← Talloc.ta_calc_prealloc_elems nextidx__6
+                      let t15 : U64 ← Talloc.ta_calc_array_size (16 : U64) t14
+                      let t16 : Ptr ← Talloc.ta_xrealloc_size t12 t13 t15
+                      let t17 : Ptr ← Talloc.ta_dbg_set_loc t16 Statics.str_106
+                      Mem.store lang_parts_3 t17
+                    if !((0 : I32) != 0) then break
+              if !((0 : I32) != 0) then break
+            let t18 : Ptr ← Mem.load Ptr lang_parts_3
+            let t19 : I32 ← Mem.load I32 lang_parts_n_2
+            let t20 : Ptr ← Ptr.add t18 16 (SInt.toInt t19)
+            let t21 : Agg ← Mem.loadAgg s_5 16 8
+            Mem.storeAgg t20 t21 8
+            let t22 : I32 ← Mem.load I32 lang_parts_n_2
+            let t23 : I32 ← SInt.add t22 1
+            Mem.store lang_parts_n_2 t23
+          if !((0 : I32) != 0) then break
+      Mem.store best_score_7 (0 : I32)
+      let t24 : I32 ← Mem.load I32 lang_parts_n_2
+      if (!(t24 != 0)) then
+        break
+      let mut idx_8 : I32 := (0 : I32)
+      for _ in Fuel.mk fuel do
+        let mut t27 : Bool := false
+        if (langs_v != Ptr.null) then
+          let t25 : Ptr ← Ptr.add langs_v 8 (SInt.toInt idx_8)
+          let t26 : Ptr ← Mem.load Ptr t25
+          t27 := (t26 != Ptr.null)
+        if !t27 then break
+        for _ in Once.mk do
+          let t28 : Ptr ← Ptr.add langs_v 8 (SInt.toInt idx_8)
+          let t29 : Ptr ← Mem.load Ptr t28
+          let t30 : Agg ← Misc.Bstr_h.bstr0 fuel t29
+          Mem.storeAgg rest_4 t30 8
+          let mut part_9 : I32 := (0 : I32)
+          let mut score_10 : I32 := (0 : I32)
+          for _ in Fuel.mk fuel do
+            let t31 : Ptr ← Ptr.add rest_4 1 8
+            let t32 : U64 ← Mem.load U64 t31
+            if !(t32 != 0) then break
+            let t33 : Agg ← Mem.loadAgg rest_4 16 8
+            let t34 : Agg ← Misc.Bstr_c.bstr_split fuel t33 Statics.str_105 rest_4
+            Mem.storeAgg s_11 t34 8
+            if (!(part_9 != 0)) then
+              let t35 : Ptr ← Mem.load Ptr lang_parts_3
+              let t36 : Ptr ← Ptr.add t35 16 (SInt.toInt (0 : I32))
+              let t37 : Agg ← Mem.loadAgg t36 16 8
+              let t38 : Agg ← Misc.Language_c.canonicalize fuel t37
+              let t39 : Agg ← Mem.loadAgg s_11 16 8
+              let t40 : Agg ← Misc.Language_c.canonicalize fuel t39
+              let t41 : I32 ← Misc.Bstr_c.bstrcasecmp fuel t38 t40
+              if (t41 != 0) then
+                break
+              let t42 : I32 ← SInt.sub (2147483647 : I32) idx_8
+              score_10 := t42
+              let t43 : I32 := part_9
+              let t44 : I32 ← SInt.add t43 1
+              part_9 := t44
+              continue
+            let t45 : I32 ← Mem.load I32 lang_parts_n_2
+            if (decide (part_9 ≥ t45)) then
+              break
+            let t46 : Ptr ← Mem.load Ptr lang_parts_3
+            let t47 : Ptr ← Ptr.add t46 16 (SInt.toInt part_9)
+            let t48 : Agg ← Mem.loadAgg t47 16 8
+            let t49 : Agg ← Mem.loadAgg s_11 16 8
+            let t50 : I32 ← Misc.Bstr_c.bstrcasecmp fuel t48 t49
+            if (t50 != 0) then
+              let t51 : I32 ← SInt.sub score_10 (1000 : I32)
+              score_10 := t51
+            let t52 : I32 := part_9
+            let t53 : I32 ← SInt.add t52 1
+            part_9 := t53
+          let t54 : I32 ← Mem.load I32 lang_parts_n_2
+          let t55 : I32 ← SInt.sub t54 part_9
+          let t56 : I32 ← SInt.mul t55 (1000 : I32)
+          let t57 : I32 ← SInt.sub score_10 t56
+          score_10 := t57
+          let t58 : I32 ← Mem.load I32 best_score_7
+          let mut t60 : I32 := default
+          if (decide (t58 > score_10)) then
+            let t59 : I32 ← Mem.load I32 best_score_7
+            t60 := t59
+          else
+            t60 := score_10
+          Mem.store best_score_7 t60
+        let t61 : I32 := idx_8
+        let t62 : I32 ← SInt.add t61 1
+        idx_8 := t62
+    let t63 : Ptr ← Mem.load Ptr ta_ctx_1
+    Talloc.ta_free t63
+    let t64 : I32 ← Mem.load I32 best_score_7
+    return t64
+    : M I32)
+  Mem.popFrame [ta_ctx_1, lang_parts_n_2, lang_parts_3, rest_4, s_5, best_score_7, s_11]
   pure result
 
 /-- C function `mp_guess_lang_from_filename`, ../.mpv/misc/language.c:303.

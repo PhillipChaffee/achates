@@ -17,7 +17,7 @@
 ../.mpv/misc/bstr.c:223 bstr_eatstart: emitted
 ../.mpv/misc/bstr.c:231 bstr_eatend: emitted
 ../.mpv/misc/bstr.c:239 bstr_lower: emitted
-../.mpv/misc/bstr.c:245 bstr_sscanf: not emitted: variadic function definition: reading `...` arguments is not modelled; variadic argument handling (va_start and friends) is not modelled
+../.mpv/misc/bstr.c:245 bstr_sscanf: emitted
 ../.mpv/misc/bstr.c:256 bstr_parse_utf8_code_length: emitted
 ../.mpv/misc/bstr.c:264 bstr_decode_partial_utf8: emitted
 ../.mpv/misc/bstr.c:295 bstr_decode_utf8: emitted
@@ -26,8 +26,8 @@
 ../.mpv/misc/bstr.c:339 bstr_sanitize_utf8_latin1: emitted
 ../.mpv/misc/bstr.c:361 resize_append: emitted
 ../.mpv/misc/bstr.c:374 bstr_xappend: emitted
-../.mpv/misc/bstr.c:384 bstr_xappend_asprintf: not emitted: variadic function definition: reading `...` arguments is not modelled; variadic argument handling (va_start and friends) is not modelled
-../.mpv/misc/bstr.c:393 bstr_xappend_vasprintf: not emitted: variadic argument handling (va_start and friends) is not modelled
+../.mpv/misc/bstr.c:384 bstr_xappend_asprintf: emitted
+../.mpv/misc/bstr.c:393 bstr_xappend_vasprintf: emitted
 ../.mpv/misc/bstr.c:415 bstr_case_startswith: emitted
 ../.mpv/misc/bstr.c:421 bstr_case_endswith: emitted
 ../.mpv/misc/bstr.c:427 h_to_i: emitted
@@ -104,14 +104,14 @@
 ../.mpv/misc/ctype.h:11 mp_islower: emitted
 ../.mpv/misc/language.c:241 lang_compare: emitted
 ../.mpv/misc/language.c:247 canonicalize: emitted
-../.mpv/misc/language.c:254 mp_match_lang: not emitted: an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
+../.mpv/misc/language.c:254 mp_match_lang: emitted
 ../.mpv/misc/language.c:303 mp_guess_lang_from_filename: emitted
 /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h:20 bsearch: emitted
 ../.mpv/misc/natural_sort.c:26 mp_natural_sort_cmp: emitted
 ../.mpv/misc/node.c:12 node_init: emitted
-../.mpv/misc/node.c:36 node_array_add: not emitted: an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
+../.mpv/misc/node.c:36 node_array_add: emitted
 ../.mpv/misc/node.c:48 node_map_add: emitted
-../.mpv/misc/node.c:54 node_map_badd: not emitted: an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
+../.mpv/misc/node.c:54 node_map_badd: emitted
 ../.mpv/misc/node.c:70 node_map_add_string: emitted
 ../.mpv/misc/node.c:79 node_map_add_bstr: emitted
 ../.mpv/misc/node.c:88 node_map_add_int64: emitted
@@ -174,22 +174,22 @@
 ../.mpv/misc/thread_tools.c:243 mp_cancel_get_fd: emitted
 
 Selected functions, emitted of total, per file:
-    33 / 36   ../.mpv/misc/bstr.c
+    36 / 36   ../.mpv/misc/bstr.c
      5 / 5    ../.mpv/misc/charset_conv.c
      6 / 6    ../.mpv/misc/codepoint_width.c
     15 / 15   ../.mpv/misc/dispatch.c
      1 / 1    ../.mpv/misc/hash.c
      2 / 2    ../.mpv/misc/io_utils.c
     13 / 13   ../.mpv/misc/json.c
-     3 / 4    ../.mpv/misc/language.c
+     4 / 4    ../.mpv/misc/language.c
      1 / 1    ../.mpv/misc/natural_sort.c
-    11 / 13   ../.mpv/misc/node.c
+    13 / 13   ../.mpv/misc/node.c
     17 / 17   ../.mpv/misc/path_utils.c
      6 / 6    ../.mpv/misc/random.c
      1 / 1    ../.mpv/misc/rendezvous.c
      7 / 7    ../.mpv/misc/thread_pool.c
     14 / 14   ../.mpv/misc/thread_tools.c
-   135 / 141  total
+   141 / 141  total
 
 Header functions, emitted of total, per file:
     14 / 14   ../.mpv/misc/bstr.h
@@ -199,45 +199,45 @@ Header functions, emitted of total, per file:
      1 / 1    /usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h
     33 / 33   total
 
-Emitted without taking any selection function as a parameter: 146
+Emitted without taking any selection function as a parameter: 163
 
 Reasons a function was not emitted, by number of functions:
-     3  an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
-     3  variadic argument handling (va_start and friends) is not modelled
-     2  variadic function definition: reading `...` arguments is not modelled
 
 Assumptions, by number of emitted functions that rest on them:
-    32  talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported
+    50  talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported
+    45  alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported
     31  cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign
-    26  alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported
     11  sequential-atomics: atomic loads and stores are plain loads and stores; no other thread runs
      3  external-order: where C leaves the order of two operands open and one calls a function taken as a parameter while the other reads memory, that function does not write what the other reads; operands are evaluated left to right
+     1  external-reads: strncasecmp, strcasecmp and memrchr, taken as parameters, write no memory, as POSIX and glibc specify them; where C leaves the order of a call that reaches one of them and another operand open, the definition relies on this
      1  signed-zeros: compiled with -fno-signed-zeros, so the compiled C may differ from this definition in the sign of a zero
 
 Modelled functions, by number of emitted functions that depend on them:
-    61  __assert_fail
-    44  strlen
-    30  abort
+    65  __assert_fail
+    45  strlen
+    42  abort
+    38  ta_dbg_set_loc
+    31  ta_get_size
+    31  ta_xrealloc_size
     27  memcmp
-    26  ta_dbg_set_loc
-    19  ta_get_size
-    19  ta_xrealloc_size
-    14  strchr
+    19  ta_calc_array_size
+    16  ta_calc_prealloc_elems
+    16  ta_xstrndup
+    15  strchr
+    15  ta_free
     13  memmove
-    13  ta_free
-    10  ta_calc_array_size
+    12  ta_zalloc_size
      8  ta_alloc_size
-     7  ta_calc_prealloc_elems
+     6  ta_xstrdup
      4  memcpy
      4  strcmp
      4  strncmp
-     4  ta_zalloc_size
      3  memchr
      3  ta_set_destructor
+     2  ta_new_context
      2  ta_steal_
      1  free
      1  memset
-     1  ta_new_context
 
 Functions taken as parameters, by number of emitted functions that depend on them:
     30  pthread_mutex_lock
@@ -246,19 +246,16 @@ Functions taken as parameters, by number of emitted functions that depend on the
     19  pthread_cond_destroy
     18  pthread_mutex_destroy
     10  pthread_cond_wait
+    10  strncasecmp
      9  mp_log2
      9  pthread_join
-     9  strncasecmp
-     9  ta_xstrndup
      8  Misc.Thread_tools_c.cancel_destroy (in the selection: not emitted, or in a call cycle across files)
      8  close
      8  memrchr
+     8  vsnprintf
      7  Misc.Thread_pool_c.thread_pool_dtor (in the selection: not emitted, or in a call cycle across files)
      7  __errno_location
      7  write
-     6  bstr_xappend_asprintf (in the selection: not emitted, or in a call cycle across files)
-     6  node_map_badd (in the selection: not emitted, or in a call cycle across files)
-     6  ta_xstrdup
      5  clock_gettime
      5  pthread_cond_signal
      5  pthread_cond_timedwait
@@ -275,12 +272,12 @@ Functions taken as parameters, by number of emitted functions that depend on the
      4  pthread_mutexattr_init
      4  pthread_mutexattr_settype
      4  ta_asprintf
+     3  Misc.Language_c.lang_compare (in the selection: not emitted, or in a call cycle across files)
      3  av_random_bytes
      3  mp_append_escaped_string
      3  mp_raw_time_ns
      3  strtod
      3  strtoll
-     2  Misc.Language_c.lang_compare (in the selection: not emitted, or in a call cycle across files)
      2  getcwd
      2  getenv
      2  mp_append_utf8_bstr
@@ -310,3 +307,4 @@ Functions taken as parameters, by number of emitted functions that depend on the
      1  ta_talloc_strdup_append_buffer
      1  ta_talloc_strndup_append_buffer
      1  unlink
+     1  vsscanf

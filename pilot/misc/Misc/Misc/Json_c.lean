@@ -54,8 +54,10 @@ def json_skip_whitespace (fuel : Nat) (src : Ptr) : M Unit := do
   pure ()
 
 /-- C function `read_id`, ../.mpv/misc/json.c:83.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
+Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def read_id [Ext.ta_xstrndup] (fuel : Nat) (ta_parent : Ptr) (dst : Ptr) (src : Ptr) : M I32 := do
+def read_id (fuel : Nat) (ta_parent : Ptr) (dst : Ptr) (src : Ptr) : M I32 := do
   let mut ta_parent_v : Ptr := ta_parent
   let mut dst_v : Ptr := dst
   let mut src_v : Ptr := src
@@ -96,7 +98,7 @@ def read_id [Ext.ta_xstrndup] (fuel : Nat) (ta_parent : Ptr) (dst : Ptr) (src : 
   else
     let t22 : Ptr ← Mem.load Ptr src_v
     let t23 : I64 ← Ptr.diff t22 start_1 1
-    let t24 : Ptr ← Ext.ta_xstrndup.call ta_parent_v start_1 (SInt.toU 64 t23)
+    let t24 : Ptr ← Talloc.ta_xstrndup ta_parent_v start_1 (SInt.toU 64 t23)
     start_1 := t24
   let t25 : Ptr ← Ptr.add dst_v 1 8
   let t26 : U32 := (SInt.toU 32 (1 : I32))
@@ -184,7 +186,7 @@ Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes o
 Assumes cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def read_sub [Ext.«__errno_location»] [Ext.mp_append_escaped_string] [Ext.strtod] [Ext.strtoll] [Ext.ta_xstrndup] (fuel : Nat) (ta_parent : Ptr) (dst : Ptr) (src : Ptr) (max_depth : I32) : M I32 :=
+def read_sub [Ext.«__errno_location»] [Ext.mp_append_escaped_string] [Ext.strtod] [Ext.strtoll] (fuel : Nat) (ta_parent : Ptr) (dst : Ptr) (src : Ptr) (max_depth : I32) : M I32 :=
   match fuel with
   | 0 => throw .outOfFuel
   | fuel + 1 => do
@@ -316,7 +318,7 @@ Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes o
 Assumes cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def json_parse [Ext.«__errno_location»] [Ext.mp_append_escaped_string] [Ext.strtod] [Ext.strtoll] [Ext.ta_xstrndup] (fuel : Nat) (ta_parent : Ptr) (dst : Ptr) (src : Ptr) (max_depth : I32) : M I32 :=
+def json_parse [Ext.«__errno_location»] [Ext.mp_append_escaped_string] [Ext.strtod] [Ext.strtoll] (fuel : Nat) (ta_parent : Ptr) (dst : Ptr) (src : Ptr) (max_depth : I32) : M I32 :=
   match fuel with
   | 0 => throw .outOfFuel
   | fuel + 1 => do
@@ -454,7 +456,7 @@ end
 Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def write_json_str [Ext.bstr_xappend_asprintf] (fuel : Nat) (b : Ptr) (str : Ptr) : M Unit := do
+def write_json_str [Ext.vsnprintf] (fuel : Nat) (b : Ptr) (str : Ptr) : M Unit := do
   let cl15 ← Mem.alloca 16 8
   let cl21 ← Mem.alloca 16 8
   let cl26 ← Mem.alloca 16 8
@@ -534,12 +536,12 @@ def write_json_str [Ext.bstr_xappend_asprintf] (fuel : Nat) (b : Ptr) (str : Ptr
             let t37 : U8 ← Mem.load U8 t36
             let t38 : Ptr ← Ptr.add Statics.g_Misc_Json_c_special_escape 1 (UInt.toInt t37)
             let t39 : I8 ← Mem.load I8 t38
-            let t40 : I32 ← Ext.bstr_xappend_asprintf.call Ptr.null b_v Statics.str_93 [(VArg.sint (SInt.toS 32 t39))]
+            let t40 : I32 ← Misc.Bstr_c.bstr_xappend_asprintf fuel Ptr.null b_v Statics.str_93 [(VArg.sint "int" (SInt.toS 32 t39))]
             pure ()
           else
             let t41 : Ptr ← Ptr.add cur_1 1 (SInt.toInt (0 : I32))
             let t42 : U8 ← Mem.load U8 t41
-            let t43 : I32 ← Ext.bstr_xappend_asprintf.call Ptr.null b_v Statics.str_94 [(VArg.sint (UInt.toS 32 t42))]
+            let t43 : I32 ← Misc.Bstr_c.bstr_xappend_asprintf fuel Ptr.null b_v Statics.str_94 [(VArg.sint "int" (UInt.toS 32 t42))]
             pure ()
       let t44 : Ptr ← Ptr.add cur_1 1 (SInt.toInt (1 : I32))
       str_v := t44
@@ -578,7 +580,7 @@ def add_indent (fuel : Nat) (b : Ptr) (indent : I32) : M Unit := do
 Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def json_append [Ext.bstr_xappend_asprintf] (fuel : Nat) (b : Ptr) (src : Ptr) (indent : I32) : M I32 :=
+def json_append [Ext.vsnprintf] (fuel : Nat) (b : Ptr) (src : Ptr) (indent : I32) : M I32 :=
   match fuel with
   | 0 => throw .outOfFuel
   | fuel + 1 => do
@@ -601,13 +603,13 @@ def json_append [Ext.bstr_xappend_asprintf] (fuel : Nat) (b : Ptr) (src : Ptr) (
         return (0 : I32)
       if t4 ≤ 2 then
         let t8 : I64 ← Mem.load I64 src_v
-        let t9 : I32 ← Ext.bstr_xappend_asprintf.call Ptr.null b_v Statics.str_96 [(VArg.sint t8)]
+        let t9 : I32 ← Misc.Bstr_c.bstr_xappend_asprintf fuel Ptr.null b_v Statics.str_96 [(VArg.sint "long" t8)]
         return (0 : I32)
       if t4 ≤ 3 then
         let t10 : F64 ← Mem.load F64 src_v
         let mut px_1 : Ptr := (if (((SInt.ofBool 32 (t10.isFinite)) != 0) || (indent_v == (0 : I32))) then Statics.str_97 else Statics.str_90)
         let t11 : F64 ← Mem.load F64 src_v
-        let t12 : I32 ← Ext.bstr_xappend_asprintf.call Ptr.null b_v Statics.str_98 [(VArg.ptr px_1), (VArg.f64 t11), (VArg.ptr px_1)]
+        let t12 : I32 ← Misc.Bstr_c.bstr_xappend_asprintf fuel Ptr.null b_v Statics.str_98 [(VArg.ptr "const char" px_1), (VArg.f64 t11), (VArg.ptr "const char" px_1)]
         return (0 : I32)
       if t4 ≤ 4 then
         if (indent_v == (0 : I32)) then
@@ -669,7 +671,7 @@ termination_by structural fuel
 Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def json_append_str [Ext.bstr_xappend_asprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) (indent : I32) : M I32 := do
+def json_append_str [Ext.vsnprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) (indent : I32) : M I32 := do
   let buffer_1 ← Mem.alloca 16 8
   let result : I32 ← (do
     let mut dst_v : Ptr := dst
@@ -691,7 +693,7 @@ def json_append_str [Ext.bstr_xappend_asprintf] (fuel : Nat) (dst : Ptr) (src : 
 Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def json_write [Ext.bstr_xappend_asprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) : M I32 := do
+def json_write [Ext.vsnprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) : M I32 := do
   let mut dst_v : Ptr := dst
   let mut src_v : Ptr := src
   let t1 : I32 ← Misc.Json_c.json_append_str fuel dst_v src_v (SInt.ofInt 32 (-1))
@@ -701,7 +703,7 @@ def json_write [Ext.bstr_xappend_asprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) 
 Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
-def json_write_pretty [Ext.bstr_xappend_asprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) : M I32 := do
+def json_write_pretty [Ext.vsnprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) : M I32 := do
   let mut dst_v : Ptr := dst
   let mut src_v : Ptr := src
   let t1 : I32 ← Misc.Json_c.json_append_str fuel dst_v src_v (0 : I32)
