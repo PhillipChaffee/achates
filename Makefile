@@ -65,7 +65,7 @@ ci: lint test lean pilot-emit pilot-build check-misc-fast
 # The equality theorems between mpv's misc/ in Lean (pilot/misc) and the rmpv
 # port's Aeneas output. Not part of `ci`: the bridge project builds the
 # Mathlib-based Aeneas side, about 4 minutes from clean on 4 cores, and the
-# proof run takes about 5 minutes more. equiv/README.md says how to set up its
+# proof run takes about 37 minutes more. equiv/README.md says how to set up its
 # Lake packages.
 RMPV ?= $(CURDIR)/../rmpv
 RMPV_LEAN ?= $(RMPV)/pilot/misc-lean/MiscRec/RmpvMisc.lean

@@ -38,3 +38,8 @@ generated inputs, plants bugs in the C to show the comparison notices them,
 and says per function whether the two agree. How it works and what it found
 on `misc/` is in [docs/check-report.md](docs/check-report.md); `make
 check-misc` reruns it and writes `pilot/misc/check.json`.
+
+The equality theorems between the emitted `misc/` and the rmpv port's Aeneas
+output, their generator (`achates equiv`) and the measured proof rate are
+described in [docs/equiv-report.md](docs/equiv-report.md); the bridge Lake
+project is `equiv/`.
