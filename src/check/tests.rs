@@ -71,6 +71,7 @@ fn honest() -> &'static Report {
         "half",
         "format_sum",
         "vformat_sum",
+        "list_chars",
     ];
     match RUN.get_or_init(|| run("honest", &all, 400, None)) {
         Ok(r) => r,
@@ -105,9 +106,9 @@ fn a_correct_function_agrees_and_catches_its_mutants() {
 }
 
 #[test]
-fn printf_arguments_through_dots_and_a_va_list_are_checked() {
+fn printf_arguments_and_string_lists_are_checked() {
     let r = honest();
-    for name in ["format_sum", "vformat_sum"] {
+    for name in ["format_sum", "vformat_sum", "list_chars"] {
         let f = result(r, name);
         assert_eq!(
             f.status,

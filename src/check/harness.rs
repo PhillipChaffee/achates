@@ -33,7 +33,8 @@ fn lean_ty(s: &Shape) -> String {
         | Shape::Slot { .. }
         | Shape::Ptr { .. }
         | Shape::Format
-        | Shape::VaList => "Ptr".into(),
+        | Shape::VaList
+        | Shape::StrList { .. } => "Ptr".into(),
     }
 }
 
@@ -91,6 +92,7 @@ impl Lean {
             Shape::TallocCtx => "  tallocCtx".to_owned(),
             Shape::Slot { .. } => "  pure Ptr.null".to_owned(),
             Shape::VaList => "  vaList".to_owned(),
+            Shape::StrList { .. } => "  strList".to_owned(),
             Shape::Format => {
                 let mut b = String::from("  match ← fmtIndex with\n");
                 for (k, f) in format::PRINTF.iter().enumerate() {
@@ -158,9 +160,11 @@ impl Lean {
             Shape::Float(FloatKind::Double) => "  pure (obsFloat v)".to_owned(),
             Shape::Bstr => "  obsBstr v".to_owned(),
             Shape::CStr => "  obsCStr v".to_owned(),
-            Shape::TallocCtx | Shape::Slot { .. } | Shape::Format | Shape::VaList => {
-                "  obsPtr v".to_owned()
-            }
+            Shape::TallocCtx
+            | Shape::Slot { .. }
+            | Shape::Format
+            | Shape::VaList
+            | Shape::StrList { .. } => "  obsPtr v".to_owned(),
             Shape::Struct { fields, .. } => {
                 let mut b = String::from("  observe do\n    let mut out := \"{\"\n");
                 for (i, f) in fields.iter().enumerate() {
@@ -579,6 +583,9 @@ impl C {
             Shape::CStr => "    return ck_cstr();".to_owned(),
             Shape::TallocCtx => "    return ck_ctx();".to_owned(),
             Shape::Slot { .. } | Shape::VaList => "    return NULL;".to_owned(),
+            Shape::StrList { c_type } => format!(
+                "    const char *t = ck_tok();\n    if (t[0] == 'N')\n        return NULL;\n    size_t n = strtoull(t + 1, NULL, 10);\n    char **v = malloc((n + 1) * sizeof *v);\n    if (!v)\n        ck_die(\"out of memory\");\n    for (size_t i = 0; i < n; i++)\n        v[i] = ck_cstr();\n    v[n] = NULL;\n    ck_reg(v, (n + 1) * sizeof *v, CK_OBJ);\n    return ({c_type})v;"
+            ),
             Shape::Format => {
                 let mut b = String::from(
                     "    const char *t = ck_tok();\n    ck_fmt = (int)strtol(t + 1, NULL, 10);\n    switch (ck_fmt) {\n",
@@ -637,9 +644,11 @@ impl C {
             Shape::Float(FloatKind::Double) => "    ck_obs_f64(v);".to_owned(),
             Shape::Bstr => "    ck_obs_bstr(v);".to_owned(),
             Shape::CStr => "    ck_obs_cstr(v);".to_owned(),
-            Shape::TallocCtx | Shape::Slot { .. } | Shape::Format | Shape::VaList => {
-                "    ck_obs_ptr(v);".to_owned()
-            }
+            Shape::TallocCtx
+            | Shape::Slot { .. }
+            | Shape::Format
+            | Shape::VaList
+            | Shape::StrList { .. } => "    ck_obs_ptr(v);".to_owned(),
             Shape::Struct { fields, .. } => {
                 let mut b = String::from("    putchar('{');\n");
                 for (i, f) in fields.iter().enumerate() {

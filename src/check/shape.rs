@@ -65,6 +65,11 @@ pub(crate) enum Shape {
     Format,
     /// A `va_list` holding the arguments the preceding format asks for.
     VaList,
+    /// A null-terminated array of C strings that the function only reads
+    /// (`char **langs`, walked until `langs[i]` is null).
+    StrList {
+        c_type: String,
+    },
 }
 
 impl Shape {
@@ -72,9 +77,10 @@ impl Shape {
     pub(crate) fn c_type(&self) -> String {
         match self {
             Self::Bool => "_Bool".into(),
-            Self::Int { c_type, .. } | Self::Slot { c_type } | Self::Struct { c_type, .. } => {
-                c_type.clone()
-            }
+            Self::Int { c_type, .. }
+            | Self::Slot { c_type }
+            | Self::Struct { c_type, .. }
+            | Self::StrList { c_type } => c_type.clone(),
             Self::Float(FloatKind::Float) => "float".into(),
             Self::Float(FloatKind::Double) => "double".into(),
             Self::Bstr => "struct bstr".into(),
@@ -208,6 +214,11 @@ fn uses(f: &Function, index: usize) -> Uses {
                 op: UnaryOp::Not,
                 operand,
             } if is_param(operand, index) => u.null_tests += 1,
+            // `p && ...`: clang gives a logical operand no conversion node.
+            ExprKind::Logical { lhs, rhs, .. } => {
+                u.null_tests +=
+                    usize::from(is_param(lhs, index)) + usize::from(is_param(rhs, index));
+            }
             ExprKind::Binary {
                 op: BinOp::Eq | BinOp::Ne,
                 lhs,
@@ -448,6 +459,21 @@ impl<'a> Shapes<'a> {
                 }
             }
             Type::Function(_) => Err("a function pointer".into()),
+            Type::Pointer(inner)
+                if matches!(
+                    inner.ty,
+                    Type::Int(IntType {
+                        kind: IntKind::Char,
+                        ..
+                    })
+                ) && u.writes == 0
+                    && u.args.is_empty()
+                    && u.other() == 0
+                    && u.reads + u.arithmetic > 0 =>
+            {
+                let c_type = to_c(t).ok_or("no C name")?;
+                Ok(Shape::StrList { c_type })
+            }
             Type::Pointer(_) => {
                 if u.reads == 0 && u.arithmetic == 0 && u.args.is_empty() && u.other() == 0 {
                     let c_type = to_c(&unqualified(p)).ok_or("no C name")?;

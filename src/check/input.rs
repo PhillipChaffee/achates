@@ -363,6 +363,17 @@ impl<'d> Gen<'d> {
                 }
             }
             Shape::TallocCtx => out.push(if self.rng.chance(1, 4) { "N" } else { "C" }.into()),
+            Shape::StrList { .. } => {
+                if self.rng.chance(1, 12) {
+                    out.push("N".into());
+                } else {
+                    let n = self.rng.below(6);
+                    out.push(format!("L{n}"));
+                    for _ in 0..n {
+                        self.shape(&Shape::CStr, out);
+                    }
+                }
+            }
             // Neither takes a token: a slot starts null, and a `va_list`
             // holds the arguments its format read.
             Shape::Slot { .. } | Shape::VaList => {}

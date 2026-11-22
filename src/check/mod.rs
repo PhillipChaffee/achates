@@ -127,6 +127,10 @@ struct Target<'a> {
     module: String,
     plan: Plan,
     models: Vec<&'static ExtModel>,
+    /// Functions of the selection the emitted code takes as parameters,
+    /// supplied by their own emitted definitions, callees first: key and
+    /// Lean name.
+    selection: Vec<(String, String)>,
     /// The file the function's text is in and the unit's main file.
     def_file: PathBuf,
     main_file: PathBuf,
@@ -572,6 +576,11 @@ impl Ctx<'_> {
     fn check_one(&self, t: &Target<'_>) -> Result<FnResult> {
         let mut res = FnResult::new(t.row, &self.opts.name);
         res.models = t.models.iter().map(|m| m.name.to_owned()).collect();
+        res.models.extend(
+            t.selection
+                .iter()
+                .map(|(k, _)| format!("{k} (its emitted definition)")),
+        );
         let dir = self.run_dir(t);
         // Nothing from an earlier run may stand in for this one's files.
         if dir.exists() {
@@ -805,6 +814,43 @@ fn lake(dir: &Path, args: &[&str]) -> Result<Ran> {
     )
 }
 
+/// `Check/Instances.lean`: the models and the selection functions the
+/// targets' definitions take as parameters.
+fn instances(root: &str, targets: &[Target<'_>]) -> String {
+    let mut inst = format!(
+        "import {root}\nimport AchatesCheck\n\n/-! The models `achates check` supplies for functions the emitted code\ntakes as parameters. Written by `achates check`; do not edit. -/\n\nopen Achates\n\n"
+    );
+    let used: BTreeSet<&str> = targets
+        .iter()
+        .flat_map(|t| t.models.iter().map(|m| m.name))
+        .collect();
+    for m in EXT_MODELS.iter().filter(|m| used.contains(m.name)) {
+        let _ = writeln!(
+            inst,
+            "instance : {root}.{} := ⟨{}⟩",
+            ext_class(m.name),
+            m.lean
+        );
+    }
+    // Selection functions after the models, each after what it needs.
+    let mut done: Vec<&str> = Vec::new();
+    for t in targets {
+        for (k, lean) in &t.selection {
+            if done.contains(&k.as_str()) {
+                continue;
+            }
+            done.push(k);
+            let _ = writeln!(
+                inst,
+                "instance : {root}.{} := ⟨{lean} {}⟩",
+                ext_class(k),
+                harness::FUEL
+            );
+        }
+    }
+    inst
+}
+
 /// Writes the driver project for `targets` and builds it. A function whose
 /// module does not compile is taken out and reported, and the rest is
 /// built again.
@@ -835,21 +881,7 @@ fn build_driver(
         ),
     )?;
     put(&dir.join("lean-toolchain"), "leanprover/lean4:v4.36.0\n")?;
-    let mut inst = format!(
-        "import {root}\nimport AchatesCheck\n\n/-! The models `achates check` supplies for functions the emitted code\ntakes as parameters. Written by `achates check`; do not edit. -/\n\nopen Achates\n\n"
-    );
-    let used: BTreeSet<&str> = targets
-        .iter()
-        .flat_map(|t| t.models.iter().map(|m| m.name))
-        .collect();
-    for m in EXT_MODELS.iter().filter(|m| used.contains(m.name)) {
-        let _ = writeln!(
-            inst,
-            "instance : {root}.{} := ⟨{}⟩",
-            ext_class(m.name),
-            m.lean
-        );
-    }
+    let inst = instances(root, targets);
     put(&check.join("Instances.lean"), &inst)?;
     for t in targets.iter() {
         let lean_name = format!("{root}.{}.{}", t.row.module, names::ident(&t.row.name));
@@ -907,6 +939,52 @@ fn build_driver(
     }
 }
 
+/// What the check supplies for the functions an emitted definition takes
+/// as parameters.
+#[derive(Default)]
+struct Supply {
+    models: Vec<&'static ExtModel>,
+    /// Keys of selection functions supplied by their emitted definitions,
+    /// in an order in which each comes after what it needs.
+    selection: Vec<String>,
+}
+
+impl Supply {
+    /// Whether `e` can be supplied: by a model of the check, or, for a
+    /// function of the selection that is emitted but taken as a parameter
+    /// (it is reached through a pointer from a file that cannot import
+    /// it), by its own definition, when everything that needs can be
+    /// supplied in turn and it does not need itself.
+    fn add(&mut self, a: &Analysis, e: &str, open: &mut Vec<String>) -> bool {
+        let arrow = a.world.exts.get(e).and_then(|x| x.as_ref().ok());
+        if let Some(m) = EXT_MODELS
+            .iter()
+            .find(|m| m.name == e && Some(m.sig) == arrow.map(String::as_str))
+        {
+            if !self.models.iter().any(|x| x.name == m.name) {
+                self.models.push(m);
+            }
+            return true;
+        }
+        if self.selection.iter().any(|k| k == e) {
+            return true;
+        }
+        let Some(row) = a.rows.iter().find(|r| r.key == e) else {
+            return false;
+        };
+        if !emitted(row) || open.iter().any(|k| k == e) {
+            return false;
+        }
+        open.push(e.to_owned());
+        let ok = row.res.exts.iter().all(|x| x != e && self.add(a, x, open));
+        open.pop();
+        if ok {
+            self.selection.push(e.to_owned());
+        }
+        ok
+    }
+}
+
 /// Decides for every wanted function whether it can be checked: a target
 /// for each that can, and a result with the reason for each that cannot.
 fn plan_all<'a>(
@@ -928,17 +1006,23 @@ fn plan_all<'a>(
             continue;
         }
         let mut reasons = Vec::new();
-        let mut models = Vec::new();
+        let mut supply = Supply::default();
         for e in &row.res.exts {
-            let arrow = a.world.exts.get(e).and_then(|x| x.as_ref().ok());
-            match EXT_MODELS
-                .iter()
-                .find(|m| m.name == e && Some(m.sig) == arrow.map(String::as_str))
-            {
-                Some(m) => models.push(m),
-                None => reasons.push(format!("needs external {e}")),
+            if !supply.add(a, e, &mut Vec::new()) {
+                reasons.push(format!("needs external {e}"));
             }
         }
+        let Supply { models, selection } = supply;
+        let selection: Vec<(String, String)> = selection
+            .into_iter()
+            .filter_map(|k| {
+                let r = a.rows.iter().find(|r| r.key == k)?;
+                Some((
+                    k,
+                    format!("{}.{}.{}", opts.name, r.module, names::ident(&r.name)),
+                ))
+            })
+            .collect();
         let plan = match shapes.plan(&row.key) {
             Ok(p) => Some(p),
             Err(e) => {
@@ -960,6 +1044,7 @@ fn plan_all<'a>(
             module: module_name(index, &row.name),
             plan,
             models,
+            selection,
             def_file: PathBuf::from(&f.def_file),
             main_file: unit.path.clone(),
             regions: regions(a, row, &PathBuf::from(&f.def_file), &unit.path),

@@ -116,6 +116,22 @@ def buffer (talloc nul : Bool) : H (Ptr × Nat) := do
 
 def cstr : H Ptr := do pure (← buffer false true).1
 
+/-- A null-terminated array of strings: `N` for a null pointer, `L<k>`
+followed by `k` strings. The strings are inputs as `cstr` makes them; the
+array, which holds pointers, is an input whose bytes are not reported. -/
+def strList : H Ptr := do
+  let t ← tok
+  if t == "N" then return .null
+  match t.toList with
+  | 'L' :: k =>
+    let some n := (String.ofList k).toNat? | bad s!"`{t}` is not a string list"
+    let mut ps : Array Ptr := #[]
+    for _ in List.range n do
+      ps := ps.push (← cstr)
+    let bytes := (ps.push .null).foldl (init := #[]) fun acc p => acc ++ CVal.encode p
+    newInput .malloc bytes 16 false
+  | _ => bad s!"`{t}` is not a string list"
+
 /-- The index of a format in the check's table: `F<k>`. -/
 def fmtIndex : H Nat := do
   let t ← tok

@@ -103,3 +103,12 @@ unsigned format_sum(const char *fmt, ...)
     va_end(ap);
     return r;
 }
+
+/* A null-terminated array of strings, only read. */
+size_t list_chars(char **v)
+{
+    size_t n = 0;
+    for (int i = 0; v && v[i]; i++)
+        n += count_a(v[i]) + 1;
+    return n;
+}
