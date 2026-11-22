@@ -394,11 +394,13 @@ what the build sees.
     because no license has been chosen for Achates.
 
 Constructs Achates deliberately reports as `Unsupported`, with the reason it
-gives (none occur in `misc/`; a test checks each):
+gives (none occur in `misc/`; a test checks each). `va_arg` was one until the
+back end modelled variadic arguments; it is now the node `VaArg`, whose
+operand is the `va_list` as a pointer to its one element and whose type is
+the type read.
 
 | Construct | Reason |
 | --- | --- |
-| `va_arg` | reading a variadic argument |
 | `({ ... })` | GNU statement expression |
 | `a ?: b` | GNU binary conditional |
 | inline assembly | inline assembly |

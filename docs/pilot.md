@@ -38,15 +38,25 @@ show where a sequential translation stops.
    Aeneas gives bodies for 99. Details: [research/c2rust.md](research/c2rust.md),
    [research/aeneas.md](research/aeneas.md), and rmpv's
    `docs/pilot-misc-rust.md`.
-3. **135 of 141 functions are emitted**, plus 33 of 33 header helpers. The 6
-   refusals are 3 variadic functions and 3 with unsequenced operands. Run
-   against the compiled C on 770,000 generated inputs, no checkable function
-   gave a different value: 54 are checked and shown sensitive (647 of 797
-   planted bugs caught), 1 (`add_indent`) fails only because large indents
-   run out of fuel, and 80 cannot be checked yet, mostly threading, `void *`
-   parameters, unions and function pointers. The check found two runtime
-   bugs in Achates, both fixed, and none in mpv. Details:
-   [backend-report.md](backend-report.md), [check-report.md](check-report.md).
+3. **141 of 141 functions are emitted**, plus 33 of 33 header helpers, none
+   by approximation. The six refused at first are emitted by a model of
+   variadic arguments (`...`, `va_start`, `va_arg`, `va_copy`, `va_end`, a
+   `va_list` passed on; misuse is undefined behaviour) and by an
+   evaluation-order analysis precise enough to show that their unordered
+   operands cannot affect each other; `vsnprintf` and `vsscanf` stay
+   parameters. Run against the compiled C on 850,000 generated inputs, no
+   checkable function gave a different value: 61 are checked and shown
+   sensitive (719 of 892 planted bugs caught over all checked functions), 1
+   (`canonicalize`) agrees but no planted bug was caught, 1 (`add_indent`)
+   fails only because large indents run out of fuel, and 78 cannot be
+   checked yet, mostly threading, `void *` parameters, unions and function
+   pointers. Of the six newly emitted, four are checked and sensitive,
+   with models of `vsnprintf` and `vsscanf` in the check; `node_array_add`
+   and `node_map_badd` take a `struct mpv_node *`, a union the check cannot
+   build. The check found three runtime bugs in Achates, all fixed (the
+   last: a stored NaN had Lean's one NaN's bytes, not C's), and none in mpv.
+   Details: [backend-report.md](backend-report.md),
+   [check-report.md](check-report.md).
 4. **11 of 36 generated theorems are proved with no hand-written proof**,
    each depending only on Lean's standard axioms. 120 of 174 C functions were
    paired with a Rust function by name; 84 pairs got no theorem, 57 of them

@@ -214,6 +214,12 @@ Not generated, by reason:
 | The C side is not emitted (`mp_match_lang`, `node_array_add`, `node_map_badd`) | 3 |
 | **Paired, not generated** | **84** |
 
+These counts are of the run recorded in `equiv/results.json`. Since then
+the three functions are emitted, and `ta_xstrndup` and `ta_xstrdup` are
+runtime models instead of parameters (`docs/backend-report.md`); the
+theorems have not been generated again. `make equiv-build` still builds the
+committed proofs against the new `pilot/misc`.
+
 Of the 57 with externals, 25 need only one of six pure functions the port
 has its own version of: `strncasecmp` (9), `memrchr` (8, one with
 `strncasecmp` too), `mp_log2` (6), `strtoll`, `strcasecmp`,

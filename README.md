@@ -10,7 +10,9 @@ be compared inside one proof assistant.
 
 Status: pilot. The first target is the `misc/` folder of
 [mpv](https://mpv.io), for the [rmpv](https://github.com/PhillipChaffee/rmpv)
-port. See [docs/pilot.md](docs/pilot.md).
+port. Achates emits all 141 of its functions and the 33 header functions
+they reach; what it cannot translate faithfully it refuses, and there is
+nothing left to refuse in `misc/`. See [docs/pilot.md](docs/pilot.md).
 
 The front end, which reads C through clang into a typed intermediate
 representation, is described in

@@ -53,6 +53,9 @@ what "checked" does and does not mean.
 | talloc context | `void *` used only as a talloc parent (found by a fixed point over the call graph) | null or a fresh `ta_new_context` | where it points |
 | out slot | `T **` that the function only writes | null slot | where the written pointer points |
 | in/out object | pointer to a scalar or to a struct of scalars, fixed arrays, `bstr`s and such structs | null (1 in 12) or a heap object; a `bstr` inside one is talloc-allocated, as mpv's are | the object's bytes, member by member |
+| string list | `char **` the function only indexes and tests for null | null (1 in 12) or an array of 0 to 5 C strings and a null | the strings, as input buffers |
+| printf format and arguments | the `const char *` just before `...` or a `va_list` parameter, when they reach `vsnprintf` | one of 54 formats (`src/check/format.rs`: every flag, width, precision and `*` form, every length modifier the model covers, and the formats `misc/` passes), then a value of each type it asks for; a `va_list` is made by `va_start` in a variadic helper in C and by the runtime's `VaList` in Lean | the strings among the arguments, as input buffers |
+| scanf format and targets | the same, when they reach `vsscanf` | one of 37 formats (integer, `%c`, `%s` and `%n` conversions with widths, suppression, length modifiers, literal text, the shapes mpv passes such as `%u:%u%n`), and for each conversion that assigns a heap object of its type with random bytes; the string read is number text half the time | each object's bytes |
 
 Every input buffer that is not talloc-allocated is also reported after the
 call, byte by byte, so a write through any pointer into the inputs is
@@ -149,8 +152,18 @@ definition *and* the model together.
 | `strncasecmp`, `strcasecmp` | C locale; glibc's result, the difference of the lower-cased bytes |
 | `memrchr` | GNU `memrchr` |
 | `mp_log2`, `mp_round_next_power_of_2` | mpv's `common/common.c` |
-| `ta_xstrdup`, `ta_xstrndup` | talloc's `ta/ta_utils.c`; allocation does not fail |
 | `strtoll` | glibc's `__isoc23_strtoll`, which the compiled C calls (`0b` prefix accepted); `errno` not modelled; a base outside 0 and 2 to 36 is `unsupported` |
+| `vsnprintf` (`AchatesCheck/Printf.lean`) | C11 7.21.6.1 in the C locale: `d i u o x X` with `hh h l ll j z t`, `c`, `s`, `f F`, `%%`; flags, width, precision and `*`. `%f` prints the exact decimal value rounded to the precision, a tie to even, as glibc does; infinities as glibc spells them. Arguments are read through the runtime's `VaList`, so a wrong type is undefined as for `va_arg`. Undefined as C says: invalid specifications, flags or lengths on conversions they do not apply to, `%s` of null, a buffer too small, overlap. `unsupported`: `e g a p n`, wide characters, `long double`, a NaN (glibc prints its sign, which Lean's `Float` does not keep), widths above 2^20 |
+| `vsscanf` (`AchatesCheck/Scanf.lean`) | C11 7.21.6.2 in the C locale: white space, literal text, `%%`, `*`, widths, `d i u o x X` with every length modifier, `c`, `s`, `n`. Undefined as C says: a value the target cannot represent, a wrong target type, a target that overlaps the input, `%n` with `*` or a width. `unsupported`: the floating-point conversions and `[`, and every case where glibc does what C does not say: a lone `0x` (glibc reads 0), a negative number for an unsigned conversion (glibc negates it), `%Nc` cut short (glibc counts it), end of input after a suppressed conversion (glibc returns `EOF`), `%i` of `0b` (C23 binary, C17 zero) |
+
+`ta_xstrdup` and `ta_xstrndup`, check models before, are now in the runtime
+(`lean/Achates/Talloc.lean`), because the evaluation-order analysis needs
+to know they only allocate.
+
+A function of the selection that the emitted code takes as a parameter, as
+`bsearch` takes `lang_compare` (a header cannot import `language.c`), is
+supplied by its own emitted definition with the check's fuel, when
+everything it needs can be supplied in turn and it does not need itself.
 
 Any other external makes the function "not checkable: needs external X".
 
@@ -176,25 +189,31 @@ times in it, so two runs with the same seed and inputs give the same file.
 
 Run: `make check-misc`, seed 1, 10,000 inputs per function, at most 24
 mutants per function, 4 jobs on 4 cores, 15 GiB of memory. Wall time
-26 min 35 s (1,642 s in the check itself; building the Lean driver from
+27 min 3 s (1,623 s in the check itself; building the Lean driver from
 cold adds about 70 s). Result: `pilot/misc/check.json`, summary in
 `pilot/misc/check.txt`.
 
 ### Counts by status
 
-Of the **135** functions of `misc/` that Achates emits (141 selected, 6 not
-emitted):
+Of the **141** functions of `misc/`, all of which Achates emits:
 
-| Status | Functions |
-| --- | ---: |
-| checked and sensitive | 54 |
-| checked, agreement not shown to be sensitive | 0 |
-| disagrees | 1 (`add_indent`: out of fuel, see below) |
-| not checkable | 80 |
+| Status | Functions | Before variadics and the finer order analysis |
+| --- | ---: | ---: |
+| checked and sensitive | 61 | 54 |
+| checked, agreement not shown to be sensitive | 1 (`canonicalize`) | 0 |
+| disagrees | 1 (`add_indent`: out of fuel, see below) | 1 |
+| not checkable | 78 | 80 |
+| not emitted | 0 | 6 |
 
-and the 6 not emitted (`bstr_sscanf`, `bstr_xappend_asprintf`,
-`bstr_xappend_vasprintf`: variadic; `mp_match_lang`, `node_array_add`,
-`node_map_badd`: unsequenced operands that may interfere).
+Of the six newly emitted functions, four are checked and sensitive:
+`bstr_xappend_asprintf` (9,098 compared; 16 of 24 mutants caught),
+`bstr_xappend_vasprintf` (9,026; 15 of 24), `bstr_sscanf` (8,848; 1 of 3)
+and `mp_match_lang` (10,000; 22 of 24). `node_array_add` and
+`node_map_badd` are not checkable: their `struct mpv_node *` holds a union
+(`u`), which the check cannot build or report. Four more functions became
+checkable: `canonicalize` (its `lang_compare` is supplied by its emitted
+definition), `bstr_find_in_list0` (a string list), `eat_c` and `eat_ws` (a
+cursor).
 
 Of the **33** header functions they reach: 18 checked and sensitive, 4
 checked but not shown sensitive (`bstrdup0` and `bstrto0` have no mutation
@@ -202,33 +221,47 @@ point in their own text and call only modelled talloc functions;
 `bstr_eatstart0` and `bstr_find0` each have one mutant, a callee's, that
 survived), 0 disagree, 11 not checkable.
 
-**Inputs:** 770,000 run through the model for 77 functions; 713,517 compared
+**Inputs:** 850,000 run through the model for 85 functions; 788,398 compared
 with the compiled C and equal; 7,476 failed assertions or aborts in the
-model confirmed as `SIGABRT` in C; 39,484 undefined in the model (not run in
-C); 8,056 unsupported by the model (not run in C); 1,467 failed checks, all
+model confirmed as `SIGABRT` in C; 44,295 undefined in the model (not run in
+C); 8,364 unsupported by the model (not run in C); 1,467 failed checks, all
 `fuel` in `add_indent`.
+
+Why the newly emitted functions' inputs are out of contract or unsupported,
+from the model's reasons: for `bstr_xappend_asprintf` and
+`bstr_xappend_vasprintf`, a null `bstr *` (about 830 and 900 inputs), `%s`
+of a null string (about 40), `%f` of a NaN (21 to 29: glibc prints its
+sign, which Lean's `Float` does not keep) and a `*` width above 2^20; for
+`bstr_sscanf`, a null `bstr` (406 inputs: `bstrdup0` gives null, and
+`vsscanf` of null is undefined) and values that do not fit their target
+(about 360, undefined in C), and as unsupported a negative number for an
+unsigned conversion (148), `%i` of `0b` (47) and a lone `0x` (34).
 
 ### Why functions are not checkable
 
-A function can have several reasons. By number of functions (of the 91
+A function can have several reasons. By number of functions (of the 89
 not-checkable selected and header functions):
 
 | Functions | Reason |
 | ---: | --- |
 | 30 | needs external `pthread_mutex_lock` (and 30 `pthread_mutex_unlock`, 20 `pthread_cond_broadcast`, 19 `pthread_cond_destroy`, 18 `pthread_mutex_destroy`, 10 `pthread_cond_wait`, 9 `pthread_join`, ...) |
 | 26 | a `void *` parameter that is not only handed to talloc as a parent |
-| 18 | a pointer to `struct mpv_node`, whose member `u` is a union |
+| 20 | a pointer to `struct mpv_node`, whose member `u` is a union (now including `node_array_add` and `node_map_badd`) |
 | 13 | a pointer to `struct mp_dispatch_queue`, which has pointer members |
 | 12 | a function pointer parameter |
-| 12 | `char **` that the function reads or passes on |
+| 7 | `char **` that the function passes on (or writes through as more than a cursor) |
 | 9 | a pointer to `struct mp_cancel`, whose `lock` is a `pthread_mutex_t` (a union) |
 | 8 | needs `cancel_destroy` (a function of the selection that is not checkable itself) |
 | 8, 7, 7 | needs `close`, `write`, `__errno_location` (errno) |
 | 7 | needs `thread_pool_dtor` |
-| 6, 6 | needs `bstr_xappend_asprintf`, `node_map_badd` (not emitted) |
 | 5 each | needs `clock_gettime`, `pthread_create`, `pthread_self`, `stat`, ... |
 | 3 | needs `strtod` |
-| 1 or 2 | file system and process calls (`open`, `getcwd`, `getenv`, `mkdir`, `realpath`, `rename`, `unlink`, `fdopen`, `fwrite`, ...), libavutil hashing and random bytes, `mp_msg`, `strncpy`, pointers to bytes without an evident length (`write_json_str`, 2 functions), pointers used as arrays without an evident length (2) |
+| 1 or 2 | file system and process calls (`open`, `getcwd`, `getenv`, `mkdir`, `realpath`, `rename`, `unlink`, `fdopen`, `fwrite`, ...), libavutil hashing and random bytes, `mp_msg`, `strncpy`, pointers to bytes without an evident length (`write_json_str`, `mp_hash_to_bstr`), pointers used as arrays without an evident length (2) |
+
+Needing `vsnprintf` or `vsscanf` no longer makes a function not checkable:
+the check has models of both. The functions that call
+`bstr_xappend_asprintf` (`json.c`'s writers, `mp_hash_to_bstr`) are not
+checkable for their other parameters.
 
 The full list, with every reason, is in `pilot/misc/check.txt`. The
 threading half of `misc/` (`dispatch.c`, `thread_pool.c`, `thread_tools.c`,
@@ -261,6 +294,7 @@ Mutants: caught / compiled (generated, set aside as equivalent).
 | `bstr_eatstart` | misc/bstr.c:223 | sensitive | 10000 | 8746 | 0 | 1254 | 0 | 12.5% | 1 / 1 (1, 0) | 0 |
 | `bstr_eatend` | misc/bstr.c:231 | sensitive | 10000 | 8733 | 0 | 1267 | 0 | 12.7% | 2 / 2 (2, 0) | 0 |
 | `bstr_lower` | misc/bstr.c:239 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 4 / 4 (4, 0) | 0 |
+| `bstr_sscanf` | misc/bstr.c:245 | sensitive | 10000 | 8848 | 0 | 914 | 238 | 9.1% | 1 / 3 (3, 0) | 2 |
 | `bstr_parse_utf8_code_length` | misc/bstr.c:256 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 12 / 12 (12, 0) | 0 |
 | `bstr_decode_partial_utf8` | misc/bstr.c:264 | sensitive | 10000 | 9154 | 0 | 846 | 0 | 8.5% | 22 / 24 (24, 0) | 2 |
 | `bstr_decode_utf8` | misc/bstr.c:295 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 22 / 24 (24, 0) | 2 |
@@ -268,10 +302,13 @@ Mutants: caught / compiled (generated, set aside as equivalent).
 | `bstr_validate_utf8` | misc/bstr.c:314 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 20 / 24 (24, 0) | 4 |
 | `resize_append` | misc/bstr.c:361 | sensitive | 10000 | 5619 | 2111 | 835 | 1435 | 29.5% | 7 / 16 (16, 0) | 9 |
 | `bstr_xappend` | misc/bstr.c:374 | sensitive | 10000 | 9218 | 0 | 782 | 0 | 7.8% | 10 / 24 (24, 0) | 14 |
+| `bstr_xappend_asprintf` | misc/bstr.c:384 | sensitive | 10000 | 9098 | 0 | 866 | 36 | 8.7% | 16 / 24 (24, 0) | 8 |
+| `bstr_xappend_vasprintf` | misc/bstr.c:393 | sensitive | 10000 | 9026 | 0 | 940 | 34 | 9.4% | 15 / 24 (24, 0) | 9 |
 | `bstr_case_startswith` | misc/bstr.c:415 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 15 / 24 (24, 0) | 9 |
 | `bstr_case_endswith` | misc/bstr.c:421 | sensitive | 10000 | 9581 | 0 | 419 | 0 | 4.2% | 8 / 12 (12, 0) | 4 |
 | `h_to_i` | misc/bstr.c:427 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 17 / 17 (17, 0) | 0 |
 | `bstr_decode_hex` | misc/bstr.c:439 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 22 / 24 (24, 0) | 2 |
+| `bstr_find_in_list0` | misc/bstr.c:464 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 4 / 4 (4, 0) | 0 |
 | `bstr0` | misc/bstr.h:61 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 1 / 1 (1, 0) | 0 |
 | `bstr_cut` | misc/bstr.h:226 | sensitive | 10000 | 9587 | 0 | 413 | 0 | 4.1% | 9 / 12 (12, 0) | 3 |
 | `bstr_endswith` | misc/bstr.h:250 | sensitive | 10000 | 9525 | 0 | 475 | 0 | 4.8% | 3 / 3 (3, 0) | 0 |
@@ -295,11 +332,15 @@ Mutants: caught / compiled (generated, set aside as equivalent).
 | `term_disp_width` | misc/codepoint_width.c:680 | sensitive | 10000 | 9743 | 0 | 257 | 0 | 2.6% | 21 / 24 (24, 0) | 3 |
 | `bstr_eatstart0` | misc/bstr.h:290 | not shown sensitive | 10000 | 8951 | 0 | 1049 | 0 | 10.5% | 0 / 1 (1, 0) | 1 |
 | `ta_oom_s` | ta/ta.h:174 | sensitive | 10000 | 9778 | 222 | 0 | 0 | 2.2% | 1 / 1 (1, 0) | 0 |
+| `eat_c` | misc/json.c:59 | sensitive | 10000 | 8936 | 0 | 1064 | 0 | 10.6% | 4 / 4 (4, 0) | 0 |
+| `eat_ws` | misc/json.c:68 | sensitive | 10000 | 8973 | 0 | 1027 | 0 | 10.3% | 10 / 11 (11, 0) | 1 |
 | `add_indent` | misc/json.c:285 | **disagrees** | 10000 | 7875 | 0 | 658 | 0 | 6.6% | not run | - |
 | `mp_isalnum` | misc/ctype.h:14 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 5 / 5 (5, 0) | 0 |
 | `mp_isalpha` | misc/ctype.h:13 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 7 / 7 (7, 0) | 0 |
 | `mp_isdigit` | misc/ctype.h:12 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 3 / 3 (3, 0) | 0 |
 | `mp_islower` | misc/ctype.h:11 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 3 / 3 (3, 0) | 0 |
+| `canonicalize` | misc/language.c:247 | not shown sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 0 / 1 (1, 0) | 1 |
+| `mp_match_lang` | misc/language.c:254 | sensitive | 10000 | 10000 | 0 | 0 | 0 | 0.0% | 22 / 24 (24, 0) | 2 |
 | `mp_natural_sort_cmp` | misc/natural_sort.c:26 | sensitive | 10000 | 9583 | 0 | 417 | 0 | 4.2% | 20 / 21 (24, 0) | 1 |
 | `bstr_equals0` | misc/bstr.h:275 | sensitive | 10000 | 9704 | 0 | 0 | 296 | 0.0% | 6 / 6 (6, 0) | 0 |
 | `bstr_equals` | misc/bstr.h:267 | sensitive | 10000 | 9700 | 0 | 0 | 300 | 0.0% | 5 / 5 (5, 0) | 0 |
@@ -349,6 +390,9 @@ there, on `misc/` or on its fixtures, and is fixed or classified.
 | 5 | `mp_rand_in_range32` mutants | inputs with `min >= max` | `assert` | the forked child kept running after its parent was killed (two processes found at 100% CPU for 22 minutes by the coordinator) | **Harness**: a call expected to abort runs in a forked child; killing the harness at its time limit left the child running | Every run is in its own process group, killed as a whole at the end; `ulimit -t` and `ulimit -v` apply to every process it forks; `alarm` ends each call after 10 s, in parent and child |
 | 6 | all with talloc inputs | mutants | | | **Harness**: the equivalence test (below) compared preprocessed text, which contains the harness's own path through talloc's debugging macros, and then compared against a stale file from an earlier run | Path normalised; a function's run directory is cleared before it is checked |
 | 7 | fixture tests | | | `CLOCK_MONOTONIC undeclared` | **Harness**: with `-std=c11` the C library hides POSIX | The harness defines `_POSIX_C_SOURCE` before its first include unless the build defines `_GNU_SOURCE` |
+| 8 | `bstr_xappend_asprintf` | input 6350, `C P H3f41…5c55 F43 fffc0ff71b8ace32`: `%.17f` of a NaN whose sign bit is set | `ok ret=3`, the buffer ends in `nan` | `ok ret=4`, the buffer ends in `-nan` | **Achates runtime**: Lean's `Float` keeps a single NaN (`Float.ofBits` drops sign and payload), so the model could not know the sign glibc prints, and the bytes it gave any stored NaN were not the bytes C stores (`0.0 / 0.0` has its sign bit set on x86-64) | Storing a NaN is `unsupported` in the runtime; `%f` of a NaN is `unsupported` in the `vsnprintf` model. Fidelity case `t_nan_bytes` |
+| 9 | fixture `scan_into` | `%i` of `"\t 0B103003"` | `ok ret=1`, target 2 | `ok ret=1`, target 0 | **Check model**: `%i` of a `0b` prefix is binary in C23 and the number 0 in C17; the fixture is built with `-std=c11`, mpv under `_GNU_SOURCE`, so glibc gives the two different functions | `%i` of `0b` is `unsupported` in the `vsscanf` model, as the symbol called is not known |
+| 10 | `eat_c`, `eat_ws` | none: they agreed | | | **Harness**: a `char **` moved by `*s += 1` was taken for a list of strings the function only reads, so where `*s` pointed after the call was not compared | `+=`, `-=`, `++` and `--` through a dereference count as a write; such a parameter is a cursor, compared after the call |
 
 No disagreement was traced to a wrong external model or to real mpv
 misbehaviour.
@@ -359,22 +403,23 @@ misbehaviour.
 | --- | --- | --- |
 | `Mem.alloc` copied the whole block array on each allocation (quadratic run time for loops that call functions with locals) | `lean/Achates/Memory.lean`: read the block count before the push | `check::tests::many_calls_do_not_make_the_model_quadratic` (fixture `many_calls`, 90,000 calls): 45 s and a stalled driver with the old code, under 1 s with the fix |
 | The model tried to hold allocations up to 2^47 bytes, exhausting the machine's memory | `Mem.allocLimit = 2^26`, used by `Mem.alloc` and `ta_realloc_size`; the `alloc-succeeds` assumption text in every emitted definition says so (`pilot/misc` re-emitted) | `resize_append` on `misc/` in `make check-misc`; no small fixture, because the old failure is the machine running out of memory |
+| A stored NaN got the bytes of Lean's one NaN, not those C stores | `Mem.store` and `Mem.storeList` are `unsupported` for a NaN (`CVal.noBytes`) | `emit::tests::t_nan_bytes`; row 8 above |
 
-Neither changes an emitted definition's text other than its assumption
-comment; both change what the runtime does.
+None changes an emitted definition's text other than its assumption
+comment; all change what the runtime does.
 
 ## Sensitivity
 
 | | Mutants |
 | --- | ---: |
-| candidates (every change the operators can make in the checked functions and their same-file callees) | 1,043 |
-| generated (at most 24 per function) | 854 |
+| candidates (every change the operators can make in the checked functions and their same-file callees) | 1,159 |
+| generated (at most 24 per function) | 949 |
 | set aside as equivalent (preprocessed text unchanged) | 46 |
-| compiled | 797 |
+| compiled | 892 |
 | did not compile | 11 |
-| **caught** | **647** (81% of compiled) |
+| **caught** | **719** (81% of compiled) |
 | caught only by running past the time limit | 0 |
-| survived | 150 |
+| survived | 173 |
 
 The 46 equivalent mutants are all in `#if` branches this build does not
 compile: `HAVE_DOS_PATHS` in `mp_basename_bstr` (32, counted once per
@@ -383,15 +428,16 @@ function whose run planted them) and `mp_path_is_absolute` (7), and the
 preprocessor's output, with the copy's path read as the original's, equals
 the original's, so the compiler sees the same program.
 
-Of the 150 survivors, 104 are in a callee, planted while checking a caller:
+Of the 173 survivors, 113 are in a callee, planted while checking a caller:
 68 in `bstr_splice` (callers pass it only non-negative, in-range bounds, so
 its negative-index and clamping code is never reached from them; checked on
-its own, `bstr_splice` caught all 16 of its mutants), 12 in
-`resize_append`, 7 in `split_ext`, 6 in `bstrcasecmp`, 4 in `bstr0`, and
-11 more. They are not examined one by one and should be read as
-**unexplained** beyond that.
+its own, `bstr_splice` caught all 16 of its mutants), 14 in
+`resize_append`, 7 in `bstr_xappend_vasprintf` (from
+`bstr_xappend_asprintf`; the same seven survive in its own check, below),
+7 in `split_ext`, 6 in `bstrcasecmp`, 4 in `bstr0`, and 7 more. They are not
+examined one by one and should be read as **unexplained** beyond that.
 
-The 46 survivors in the checked function's own text, each examined:
+The 60 survivors in the checked function's own text, each examined:
 
 | Function | Line | Change | Why it survives |
 | --- | --- | --- | --- |
@@ -419,6 +465,17 @@ The 46 survivors in the checked function's own text, each examined:
 | `split_ext` | path_utils.c:105 (2) | `dot_pos < 0` → `<= 0` / `< 1` | Equivalent: leading dots were removed, so a dot is never at 0 |
 | `mp_strip_ext` | path_utils.c:115 | `{0}` → `{1}` | Equivalent: `root.start` is not used when `root.len` is 0 |
 | `mp_split_proto` | path_utils.c:314 | `&(bstr){0}` → `{1}` | Equivalent: a dummy target that is written and dropped |
+| `bstr_sscanf` | bstr.c:251 | `va_end(va);` dropped | Undefined in C (a list started and not ended), and no change on x86-64, where `va_end` does nothing. The model would report it; the check runs mutants in C only |
+| `bstr_sscanf` | bstr.c:252 | `talloc_free(ptr);` dropped | Equivalent in what can be observed: a leak |
+| `bstr_xappend_asprintf` | bstr.c:389 | `va_end(ap);` dropped | As for `bstr_sscanf` line 251 |
+| `bstr_xappend_vasprintf` | bstr.c:402 | `va_end(copy);` dropped | As for `bstr_sscanf` line 251 |
+| `bstr_xappend_vasprintf` | bstr.c:407 (4) | `avail < 1` → `<= 1` or `< 2`, `size + 1 > avail` → `size + 2 >` or `>=` | **Observation gap**: each only makes the function grow the buffer and print a second time where the first print already fit, so the text and length are the same and only the room differs |
+| `bstr_xappend_vasprintf` | bstr.c:408 | `size + 1` → `size + 2` (growth) | Observation gap: one more byte of room |
+| `bstr_xappend_vasprintf` | bstr.c:409 | `size + 1` → `size + 2` (the second print's limit) | Equivalent: the output is `size` bytes and a terminator either way |
+| `eat_ws` | json.c:70 | `while (1)` → `while (2)` | Equivalent |
+| `canonicalize` | language.c:250 | `sizeof(langmap[0])` → `sizeof(langmap[1])` | Equivalent: the same size |
+| `mp_match_lang` | language.c:275 | `int score = 0` → `1` | Equivalent: the start value survives only when the first part does not match, and then the score is negative and does not beat `best_score`, which starts at 0 |
+| `mp_match_lang` | language.c:299 | `talloc_free(ta_ctx);` dropped | Equivalent in what can be observed: a leak |
 
 Not one survivor was deleted or hidden; all are in `check.json` with file,
 line, column and text.
@@ -428,11 +485,13 @@ line, column and text.
 | Assumption | Exercised? | Outcome |
 | --- | --- | --- |
 | `cmp-byte-difference` (`memcmp`, `strcmp`, `strncmp` return the byte difference; C fixes only the sign) | yes: 24 checked functions carry it; `bstrcmp` and `bstrcmp0` return `memcmp`'s result directly, with results such as 135 and -160 on 10,000 inputs each | **confirmed** for glibc on x86-64 as compiled here. The model was kept exact for this platform rather than the comparison relaxed to signs, because the Rust side will be compared against this C, not against every C |
-| `talloc-model` | yes: `resize_append`, `bstr_xappend`, `bstr_decode_hex`, `add_indent` carry it; `bstrdup0` and `bstrto0` use the check's `ta_xstrndup` model | consistent on every compared input (allocation, reallocation, parent ownership; destructors were not reached) |
+| `talloc-model` | yes: `resize_append`, `bstr_xappend`, `bstr_decode_hex`, `add_indent`, `bstr_xappend_asprintf`, `bstr_xappend_vasprintf`, `bstr_sscanf`, `mp_match_lang`, `bstrdup0` and `bstrto0` carry it, the last ones through the runtime's `ta_xstrndup` | consistent on every compared input (allocation, reallocation, parent ownership; destructors were not reached) |
 | `alloc-succeeds` | yes | **refuted** for requests of terabytes (row 1 above); the model now covers only requests below 2^26 bytes and calls larger ones `unsupported` |
 | `signed-zeros` (`-fno-signed-zeros`) | yes: `mp_rand_next_double`, 9,158 compared | consistent; no zero results of either sign arose, so the relaxation was not needed |
 | `sequential-atomics` | no | the 11 functions are not checkable (mutexes, threads) |
 | `external-order` | no | the 3 functions are not checkable |
+| `external-reads` (`strncasecmp`, `strcasecmp`, `memrchr` write nothing) | yes: `mp_match_lang`, the one function that relies on it, 10,000 compared, with the check's models of the three | consistent; the models write nothing, and the compiled C agreed on every input |
+| `block-numbering` | no | no function of `misc/` relies on it |
 | glibc's C23 `strtoll` (`0b` accepted; `docs/research/c2rust.md`) | yes: 9 of `bstrtoll`'s inputs start with `0b` or `0B`, a binary digit, and base 0 or 2 | **confirmed**: the C23 model agrees on all; with the C17 model (`AchatesCheck.Models.strtollC17`) put in its place by hand, the check reports 9 disagreements, the first `"\t 0B0012..."` base 0, where C17 reads 0 and C23 reads 1 |
 
 ## Suspected mpv misbehaviour
@@ -463,7 +522,10 @@ It does **not** mean:
   after a `bstr`'s length, `errno`, timing, and output through anything
   other than parameters and the result;
 - that the external models are right beyond what the inputs reached;
-- anything about the 80 not-checkable functions, which include all of the
+- for a function that takes `printf` or `scanf` arguments, anything about
+  formats outside the check's two tables (54 and 37 formats), or about the
+  conversions its models call `unsupported` (`%e`, `%g`, `%p`, `%lf`, ...);
+- anything about the 78 not-checkable functions, which include all of the
   threading code.
 
 A survivor in the table above is a place where a bug could hide from this
@@ -484,5 +546,10 @@ check; an unexplained one is a place nobody has shown it cannot.
    can run further than 100,000 rounds; and a generator that bounds count
    parameters it can see are loop bounds, recorded per function, instead
    of a blanket limit.
-5. Make the 104 unexamined callee survivors and the unexplained own ones
+5. Make the 113 unexamined callee survivors and the unexplained own ones
    either caught (targeted inputs) or argued equivalent.
+6. Inputs for `struct mpv_node` trees (a union tagged by `format`), which
+   would bring `node_array_add`, `node_map_badd` and the JSON writers into
+   reach; and the floating-point conversions of `vsscanf` (`%lf`, as mpv's
+   own callers of `bstr_sscanf` use), which need a correctly rounded
+   decimal-to-binary conversion and glibc's handling of partial input.
