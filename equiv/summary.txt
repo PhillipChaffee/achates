@@ -1,5 +1,5 @@
 C functions (selection and header helpers): 174
-paired with a Rust function: 120
+paired with a Rust function: 122
 theorems generated: 36
     7  generated: C string and bstr arguments, scalar result
     1  generated: C string arguments, bstr view result
@@ -10,25 +10,22 @@ theorems generated: 36
     8  generated: bstr arguments, scalar result
     7  generated: scalar arguments, scalar result
     6  generated: scalar arguments, truth value result
-    3  no template yet: allocation: the C side takes a talloc parent or a logger
+    6  no template yet: allocation: the C side takes a talloc parent or a logger
     1  no template yet: argument `const ptr<unsigned long:u64>` ↔ `Std.U64`
     1  no template yet: argument `ptr<const struct mpv_node>` ↔ `node.MpvNode`
     1  no template yet: argument `ptr<const void>` ↔ `node.MpvNode`
     4  no template yet: argument `ptr<struct bstr>` ↔ `Slice Std.U8`
     1  no template yet: argument `ptr<struct bstr>` ↔ `alloc.vec.Vec Std.U8`
     1  no template yet: argument `ptr<struct mp_rand_state>` ↔ `random.MpRandState`
-    3  no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
+   11  no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
     2  no template yet: parameter lists differ: C has 1, Rust has 2
     1  no template yet: parameter lists differ: C has 2, Rust has 3
     2  no template yet: parameter lists differ: C has 3, Rust has 2
     1  no template yet: parameter lists differ: C has 4, Rust has 2
     1  no template yet: result `ptr<const char:i8>` ↔ `Option
     2  no template yet: result `void` ↔ `Slice Std.U8`
-    3  not generated: the C side is not emitted
-   57  not generated: the C side takes external functions as parameters
+   51  not generated: the C side takes external functions as parameters
     1  not matched: no `rmpv_misc.bstr.bstr_sscanf` in the Aeneas output
-    1  not matched: no `rmpv_misc.bstr.bstr_xappend_asprintf` in the Aeneas output
-    1  not matched: no `rmpv_misc.bstr.bstr_xappend_vasprintf` in the Aeneas output
     1  not matched: no `rmpv_misc.bstr.bstrtod` in the Aeneas output
     1  not matched: no `rmpv_misc.dispatch.mp_dispatch_adjust_timeout` in the Aeneas output
     1  not matched: no `rmpv_misc.dispatch.mp_dispatch_append` in the Aeneas output
@@ -118,8 +115,8 @@ bstr_validate_utf8 -> rmpv_misc.bstr.bstr_validate_utf8: not generated: the C si
 bstr_sanitize_utf8_latin1 -> rmpv_misc.bstr.bstr_sanitize_utf8_latin1: not generated: the C side takes external functions as parameters (mp_append_utf8_bstr, mp_log2)
 resize_append -> rmpv_misc.bstr.resize_append: no template yet: allocation: the C side takes a talloc parent or a logger
 bstr_xappend -> rmpv_misc.bstr.bstr_xappend: no template yet: allocation: the C side takes a talloc parent or a logger
-bstr_xappend_asprintf -> -: not matched: no `rmpv_misc.bstr.bstr_xappend_asprintf` in the Aeneas output
-bstr_xappend_vasprintf -> -: not matched: no `rmpv_misc.bstr.bstr_xappend_vasprintf` in the Aeneas output
+bstr_xappend_asprintf -> rmpv_misc.bstr.bstr_xappend_asprintf: not generated: the C side takes external functions as parameters (vsnprintf)
+bstr_xappend_vasprintf -> rmpv_misc.bstr.bstr_xappend_vasprintf: not generated: the C side takes external functions as parameters (vsnprintf)
 bstr_case_startswith -> rmpv_misc.bstr.bstr_case_startswith: not generated: the C side takes external functions as parameters (strncasecmp)
 bstr_case_endswith -> rmpv_misc.bstr.bstr_case_endswith: not generated: the C side takes external functions as parameters (strncasecmp)
 h_to_i -> rmpv_misc.bstr.h_to_i: generated, open: arithmetic or unfolding
@@ -133,7 +130,7 @@ bstr_endswith0 -> rmpv_misc.bstr.bstr_endswith0: generated, open: loop: a Rust r
 bstr_startswith -> rmpv_misc.bstr.bstr_startswith: generated, proved at tier 2: memory and memcmp lemmas
 bstrcasecmp0 -> rmpv_misc.bstr.bstrcasecmp0: not generated: the C side takes external functions as parameters (strncasecmp)
 bstrcmp0 -> rmpv_misc.bstr.bstrcmp0: generated, open: arithmetic or unfolding
-bstrdup0 -> rmpv_misc.bstr.bstrdup0: not generated: the C side takes external functions as parameters (ta_xstrndup)
+bstrdup0 -> rmpv_misc.bstr.bstrdup0: no template yet: allocation: the C side takes a talloc parent or a logger
 mp_isspace -> rmpv_misc.ctype.mp_isspace: generated, proved at tier 1
 mp_tolower -> rmpv_misc.ctype.mp_tolower: generated, proved at tier 1
 mp_isupper -> rmpv_misc.ctype.mp_isupper: generated, proved at tier 1
@@ -173,49 +170,49 @@ mp_cond_timedwait_until -> -: not matched: no `rmpv_misc.threads_posix.mp_cond_t
 mp_cond_timedwait -> -: not matched: no `rmpv_misc.threads_posix.mp_cond_timedwait` in the Aeneas output
 mp_cond_wait -> -: not matched: no `rmpv_misc.threads_posix.mp_cond_wait` in the Aeneas output
 mp_mutex_init -> -: not matched: no `rmpv_misc.threads_posix.mp_mutex_init` in the Aeneas output
-mp_hash_to_bstr -> rmpv_misc.hash.mp_hash_to_bstr: not generated: the C side takes external functions as parameters (av_hash_alloc, av_hash_final, av_hash_freep, av_hash_get_size, av_hash_init, av_hash_update, bstr_xappend_asprintf)
+mp_hash_to_bstr -> rmpv_misc.hash.mp_hash_to_bstr: not generated: the C side takes external functions as parameters (av_hash_alloc, av_hash_final, av_hash_freep, av_hash_get_size, av_hash_init, av_hash_update, vsnprintf)
 mp_mkostemps -> rmpv_misc.io_utils.mp_mkostemps: not generated: the C side takes external functions as parameters (__errno_location, av_random_bytes, mp_raw_time_ns, mp_tprintf_buf, open)
 mp_save_to_file -> rmpv_misc.io_utils.mp_save_to_file: not generated: the C side takes external functions as parameters (__errno_location, av_random_bytes, close, fclose, fdopen, fwrite, mp_raw_time_ns, mp_tprintf_buf, open, rename, ta_asprintf, unlink)
 ta_oom_s -> -: not matched: no `rmpv_misc.ta.ta_oom_s` in the Aeneas output
 eat_c -> rmpv_misc.json.eat_c: no template yet: parameter lists differ: C has 2, Rust has 3
 eat_ws -> rmpv_misc.json.eat_ws: no template yet: parameter lists differ: C has 1, Rust has 2
 json_skip_whitespace -> rmpv_misc.json.json_skip_whitespace: no template yet: parameter lists differ: C has 1, Rust has 2
-read_id -> rmpv_misc.json.read_id: not generated: the C side takes external functions as parameters (ta_xstrndup)
+read_id -> rmpv_misc.json.read_id: no template yet: allocation: the C side takes a talloc parent or a logger
 read_str -> rmpv_misc.json.read_str: not generated: the C side takes external functions as parameters (mp_append_escaped_string)
-read_sub -> rmpv_misc.json.read_sub: not generated: the C side takes external functions as parameters (__errno_location, mp_append_escaped_string, strtod, strtoll, ta_xstrndup)
-json_parse -> rmpv_misc.json.json_parse: not generated: the C side takes external functions as parameters (__errno_location, mp_append_escaped_string, strtod, strtoll, ta_xstrndup)
-write_json_str -> rmpv_misc.json.write_json_str: not generated: the C side takes external functions as parameters (bstr_xappend_asprintf)
+read_sub -> rmpv_misc.json.read_sub: not generated: the C side takes external functions as parameters (__errno_location, mp_append_escaped_string, strtod, strtoll)
+json_parse -> rmpv_misc.json.json_parse: not generated: the C side takes external functions as parameters (__errno_location, mp_append_escaped_string, strtod, strtoll)
+write_json_str -> rmpv_misc.json.write_json_str: not generated: the C side takes external functions as parameters (vsnprintf)
 add_indent -> rmpv_misc.json.add_indent: no template yet: argument `ptr<struct bstr>` ↔ `alloc.vec.Vec Std.U8`
-json_append -> rmpv_misc.json.json_append: not generated: the C side takes external functions as parameters (bstr_xappend_asprintf)
-json_append_str -> rmpv_misc.json.json_append_str: not generated: the C side takes external functions as parameters (bstr_xappend_asprintf)
-json_write -> rmpv_misc.json.json_write: not generated: the C side takes external functions as parameters (bstr_xappend_asprintf)
-json_write_pretty -> rmpv_misc.json.json_write_pretty: not generated: the C side takes external functions as parameters (bstr_xappend_asprintf)
+json_append -> rmpv_misc.json.json_append: not generated: the C side takes external functions as parameters (vsnprintf)
+json_append_str -> rmpv_misc.json.json_append_str: not generated: the C side takes external functions as parameters (vsnprintf)
+json_write -> rmpv_misc.json.json_write: not generated: the C side takes external functions as parameters (vsnprintf)
+json_write_pretty -> rmpv_misc.json.json_write_pretty: not generated: the C side takes external functions as parameters (vsnprintf)
 mp_isalnum -> rmpv_misc.ctype.mp_isalnum: generated, proved at tier 1
 mp_isalpha -> rmpv_misc.ctype.mp_isalpha: generated, proved at tier 1
 mp_isdigit -> rmpv_misc.ctype.mp_isdigit: generated, proved at tier 1
 mp_islower -> rmpv_misc.ctype.mp_islower: generated, proved at tier 1
 lang_compare -> rmpv_misc.language.lang_compare: not generated: the C side takes external functions as parameters (strncasecmp)
 canonicalize -> rmpv_misc.language.canonicalize: not generated: the C side takes external functions as parameters (Misc.Language_c.lang_compare)
-mp_match_lang -> rmpv_misc.language.mp_match_lang: not generated: the C side is not emitted
+mp_match_lang -> rmpv_misc.language.mp_match_lang: not generated: the C side takes external functions as parameters (Misc.Language_c.lang_compare, strncasecmp)
 mp_guess_lang_from_filename -> rmpv_misc.language.mp_guess_lang_from_filename: not generated: the C side takes external functions as parameters (memrchr, strncasecmp)
 bsearch -> -: not matched: no `rmpv_misc.stdlib_bsearch.bsearch` in the Aeneas output
 mp_natural_sort_cmp -> rmpv_misc.natural_sort.mp_natural_sort_cmp: generated, open: loop: a C loop needs a fuel bound and an invariant
 node_init -> rmpv_misc.node.node_init: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
-node_array_add -> rmpv_misc.node.node_array_add: not generated: the C side is not emitted
-node_map_add -> rmpv_misc.node.node_map_add: not generated: the C side takes external functions as parameters (node_map_badd)
-node_map_badd -> rmpv_misc.node.node_map_badd: not generated: the C side is not emitted
-node_map_add_string -> rmpv_misc.node.node_map_add_string: not generated: the C side takes external functions as parameters (node_map_badd, ta_xstrdup)
-node_map_add_bstr -> rmpv_misc.node.node_map_add_bstr: not generated: the C side takes external functions as parameters (node_map_badd, ta_xstrdup, ta_xstrndup)
-node_map_add_int64 -> rmpv_misc.node.node_map_add_int64: not generated: the C side takes external functions as parameters (node_map_badd)
-node_map_add_double -> rmpv_misc.node.node_map_add_double: not generated: the C side takes external functions as parameters (node_map_badd)
-node_map_add_flag -> rmpv_misc.node.node_map_add_flag: not generated: the C side takes external functions as parameters (node_map_badd)
+node_array_add -> rmpv_misc.node.node_array_add: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
+node_map_add -> rmpv_misc.node.node_map_add: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
+node_map_badd -> rmpv_misc.node.node_map_badd: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
+node_map_add_string -> rmpv_misc.node.node_map_add_string: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
+node_map_add_bstr -> rmpv_misc.node.node_map_add_bstr: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
+node_map_add_int64 -> rmpv_misc.node.node_map_add_int64: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
+node_map_add_double -> rmpv_misc.node.node_map_add_double: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
+node_map_add_flag -> rmpv_misc.node.node_map_add_flag: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
 node_map_get -> rmpv_misc.node.node_map_get: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
 node_map_bget -> rmpv_misc.node.node_map_bget: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
 equal_mpv_value -> rmpv_misc.node.equal_mpv_value: no template yet: argument `ptr<const void>` ↔ `node.MpvNode`
 equal_mpv_node -> rmpv_misc.node.equal_mpv_node: no template yet: argument `ptr<const struct mpv_node>` ↔ `node.MpvNode`
 bstr_equals0 -> rmpv_misc.bstr.bstr_equals0: generated, open: arithmetic or unfolding
 bstr_equals -> rmpv_misc.bstr.bstr_equals: generated, open: arithmetic or unfolding
-bstrto0 -> rmpv_misc.bstr.bstrto0: not generated: the C side takes external functions as parameters (ta_xstrdup, ta_xstrndup)
+bstrto0 -> rmpv_misc.bstr.bstrto0: no template yet: allocation: the C side takes a talloc parent or a logger
 mp_basename_bstr -> rmpv_misc.path_utils.mp_basename_bstr: not generated: the C side takes external functions as parameters (memrchr)
 mp_basename -> rmpv_misc.path_utils.mp_basename: not generated: the C side takes external functions as parameters (memrchr)
 mp_dirname -> rmpv_misc.path_utils.mp_dirname: not generated: the C side takes external functions as parameters (memrchr)
@@ -224,15 +221,15 @@ split_ext -> rmpv_misc.path_utils.split_ext: not generated: the C side takes ext
 mp_strip_ext -> rmpv_misc.path_utils.mp_strip_ext: not generated: the C side takes external functions as parameters (memrchr)
 mp_get_ext -> rmpv_misc.path_utils.mp_get_ext: not generated: the C side takes external functions as parameters (memrchr)
 mp_path_is_absolute -> rmpv_misc.path_utils.mp_path_is_absolute: generated, open: loop: a Rust recursion needs an induction
-mp_path_join_bstr -> rmpv_misc.path_utils.mp_path_join_bstr: not generated: the C side takes external functions as parameters (ta_asprintf, ta_xstrndup)
-mp_path_join -> rmpv_misc.path_utils.mp_path_join: not generated: the C side takes external functions as parameters (ta_asprintf, ta_xstrndup)
-mp_getcwd -> rmpv_misc.path_utils.mp_getcwd: not generated: the C side takes external functions as parameters (__errno_location, getcwd, getenv, stat, ta_xstrdup)
-mp_normalize_path -> rmpv_misc.path_utils.mp_normalize_path: not generated: the C side takes external functions as parameters (__errno_location, getcwd, getenv, realpath, stat, ta_asprintf, ta_talloc_strdup_append_buffer, ta_talloc_strndup_append_buffer, ta_xstrdup, ta_xstrndup)
+mp_path_join_bstr -> rmpv_misc.path_utils.mp_path_join_bstr: not generated: the C side takes external functions as parameters (ta_asprintf)
+mp_path_join -> rmpv_misc.path_utils.mp_path_join: not generated: the C side takes external functions as parameters (ta_asprintf)
+mp_getcwd -> rmpv_misc.path_utils.mp_getcwd: not generated: the C side takes external functions as parameters (__errno_location, getcwd, getenv, stat)
+mp_normalize_path -> rmpv_misc.path_utils.mp_normalize_path: not generated: the C side takes external functions as parameters (__errno_location, getcwd, getenv, realpath, stat, ta_asprintf, ta_talloc_strdup_append_buffer, ta_talloc_strndup_append_buffer)
 mp_path_exists -> rmpv_misc.path_utils.mp_path_exists: not generated: the C side takes external functions as parameters (stat)
 mp_path_isdir -> rmpv_misc.path_utils.mp_path_isdir: not generated: the C side takes external functions as parameters (stat)
 mp_is_url -> rmpv_misc.path_utils.mp_is_url: generated, open: loop: a C loop needs a fuel bound and an invariant
 mp_split_proto -> rmpv_misc.path_utils.mp_split_proto: no template yet: argument `ptr<struct bstr>` ↔ `Slice Std.U8`
-mp_mkdirp -> rmpv_misc.path_utils.mp_mkdirp: not generated: the C side takes external functions as parameters (mkdir, stat, ta_xstrdup)
+mp_mkdirp -> rmpv_misc.path_utils.mp_mkdirp: not generated: the C side takes external functions as parameters (mkdir, stat)
 bstr_find0 -> rmpv_misc.bstr.bstr_find0: generated, open: loop: a C loop needs a fuel bound and an invariant
 rotl_u64 -> rmpv_misc.random.rotl_u64: generated, open: arithmetic or unfolding
 splitmix64 -> rmpv_misc.random.splitmix64: no template yet: argument `const ptr<unsigned long:u64>` ↔ `Std.U64`
