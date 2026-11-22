@@ -1,0 +1,27 @@
+name = "equiv"
+defaultTargets = ["Equiv"]
+
+[[require]]
+name = "achates"
+path = "../lean"
+
+# The Aeneas release that produced the Rust side; its Lean library must match.
+[[require]]
+name = "aeneas"
+path = "/home/user/spike-aeneas/dist/backends/lean"
+
+# The two generated sides are built here as libraries of this package rather
+# than required as packages: both of their Lake packages are named `misc`.
+[[lean_lib]]
+name = "Misc"
+srcDir = "../pilot/misc"
+leanOptions = { autoImplicit = false, relaxedAutoImplicit = false }
+
+[[lean_lib]]
+name = "MiscRec"
+srcDir = "../../rmpv/pilot/misc-lean"
+leanOptions = { autoImplicit = false, relaxedAutoImplicit = false }
+
+[[lean_lib]]
+name = "Equiv"
+leanOptions = { autoImplicit = false, relaxedAutoImplicit = false }
