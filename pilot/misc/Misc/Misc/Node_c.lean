@@ -16,7 +16,7 @@ open Achates
 namespace Misc.Misc.Node_c
 
 /-- C function `node_init`, ../.mpv/misc/node.c:12.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def node_init (fuel : Nat) (dst : Ptr) (format : I32) (parent : Ptr) : M Unit := do

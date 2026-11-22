@@ -486,7 +486,7 @@ def bstr_validate_utf8 [Ext.mp_log2] (fuel : Nat) (s : Agg) : M I32 := do
   pure result
 
 /-- C function `resize_append`, ../.mpv/misc/bstr.c:361.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def resize_append (fuel : Nat) (talloc_ctx : Ptr) (s : Ptr) (append_min : U64) : M Unit := do
@@ -523,7 +523,7 @@ def resize_append (fuel : Nat) (talloc_ctx : Ptr) (s : Ptr) (append_min : U64) :
   pure ()
 
 /-- C function `bstr_xappend`, ../.mpv/misc/bstr.c:374.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def bstr_xappend (fuel : Nat) (talloc_ctx : Ptr) (s : Ptr) (append : Agg) : M Unit := do
@@ -565,7 +565,7 @@ def bstr_xappend (fuel : Nat) (talloc_ctx : Ptr) (s : Ptr) (append : Agg) : M Un
   pure result
 
 /-- C function `bstr_sanitize_utf8_latin1`, ../.mpv/misc/bstr.c:339.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def bstr_sanitize_utf8_latin1 [Ext.mp_append_utf8_bstr] [Ext.mp_log2] (fuel : Nat) (talloc_ctx : Ptr) (s : Agg) : M Agg := do

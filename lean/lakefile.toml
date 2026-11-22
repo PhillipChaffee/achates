@@ -1,7 +1,13 @@
 name = "achates"
-defaultTargets = ["Achates"]
+defaultTargets = ["Achates", "AchatesCheck"]
 
 [[lean_lib]]
 name = "Achates"
 # Without these, a misspelt type in a signature becomes an implicit variable instead of an error.
+leanOptions = { autoImplicit = false, relaxedAutoImplicit = false }
+
+# Support for `achates check`: models of external functions and the test
+# driver's helpers. Nothing in `Achates` or in emitted code imports it.
+[[lean_lib]]
+name = "AchatesCheck"
 leanOptions = { autoImplicit = false, relaxedAutoImplicit = false }

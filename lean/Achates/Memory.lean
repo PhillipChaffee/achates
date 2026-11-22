@@ -105,13 +105,19 @@ inductive VArg where
 
 namespace Mem
 
+/-- The largest allocation the model makes. Whether a real allocator grants
+a larger request depends on the machine's memory, which the model does not
+know, and the model holds every byte, so a request of this size or more is
+`unsupported` rather than assumed to succeed. -/
+def allocLimit : Nat := 2 ^ 26
+
 def alloc (kind : BlockKind) (size align : Nat) (fill : MByte) : M Ptr := do
-  -- No machine has this much memory; the real allocator would return null,
-  -- which the model does not produce.
-  if size ≥ 2 ^ 47 then unsupported s!"allocation of {size} bytes"
-  let m ← get
-  set { m with blocks := m.blocks.push { data := Array.replicate size fill, align, kind } }
-  pure (.obj m.blocks.size 0)
+  if size ≥ allocLimit then unsupported s!"allocation of {size} bytes"
+  -- The number is read before the push: reading it after would keep the
+  -- old array alive across the push, which then copies every block.
+  let n := (← get).blocks.size
+  modify fun m => { m with blocks := m.blocks.push { data := Array.replicate size fill, align, kind } }
+  pure (.obj n 0)
 
 /-- A local variable: uninitialised until stored to. -/
 def alloca (size align : Nat) : M Ptr := alloc .stack size align .undef

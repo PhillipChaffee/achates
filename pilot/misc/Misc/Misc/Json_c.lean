@@ -180,7 +180,7 @@ def read_str [Ext.mp_append_escaped_string] (fuel : Nat) (ta_parent : Ptr) (dst 
 mutual
 
 /-- C function `read_sub`, ../.mpv/misc/json.c:135.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
@@ -312,7 +312,7 @@ def read_sub [Ext.«__errno_location»] [Ext.mp_append_escaped_string] [Ext.strt
 termination_by structural fuel
 
 /-- C function `json_parse`, ../.mpv/misc/json.c:189.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
@@ -451,7 +451,7 @@ termination_by structural fuel
 end
 
 /-- C function `write_json_str`, ../.mpv/misc/json.c:258.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def write_json_str [Ext.bstr_xappend_asprintf] (fuel : Nat) (b : Ptr) (str : Ptr) : M Unit := do
@@ -553,7 +553,7 @@ def write_json_str [Ext.bstr_xappend_asprintf] (fuel : Nat) (b : Ptr) (str : Ptr
   pure result
 
 /-- C function `add_indent`, ../.mpv/misc/json.c:285.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def add_indent (fuel : Nat) (b : Ptr) (indent : I32) : M Unit := do
@@ -575,7 +575,7 @@ def add_indent (fuel : Nat) (b : Ptr) (indent : I32) : M Unit := do
   pure ()
 
 /-- C function `json_append`, ../.mpv/misc/json.c:294.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def json_append [Ext.bstr_xappend_asprintf] (fuel : Nat) (b : Ptr) (src : Ptr) (indent : I32) : M I32 :=
@@ -666,7 +666,7 @@ def json_append [Ext.bstr_xappend_asprintf] (fuel : Nat) (b : Ptr) (src : Ptr) (
 termination_by structural fuel
 
 /-- C function `json_append_str`, ../.mpv/misc/json.c:341.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def json_append_str [Ext.bstr_xappend_asprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) (indent : I32) : M I32 := do
@@ -688,7 +688,7 @@ def json_append_str [Ext.bstr_xappend_asprintf] (fuel : Nat) (dst : Ptr) (src : 
   pure result
 
 /-- C function `json_write`, ../.mpv/misc/json.c:354.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def json_write [Ext.bstr_xappend_asprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) : M I32 := do
@@ -698,7 +698,7 @@ def json_write [Ext.bstr_xappend_asprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) 
   return t1
 
 /-- C function `json_write_pretty`, ../.mpv/misc/json.c:360.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def json_write_pretty [Ext.bstr_xappend_asprintf] (fuel : Nat) (dst : Ptr) (src : Ptr) : M I32 := do

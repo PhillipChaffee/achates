@@ -20,7 +20,7 @@ pub(crate) struct Model {
     pub(crate) assumes: &'static [&'static str],
 }
 
-pub(crate) const ALLOC: &str = "alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported";
+pub(crate) const ALLOC: &str = "alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported";
 pub(crate) const CMP: &str = "cmp-byte-difference: memcmp, strcmp and strncmp return the difference of the first differing bytes, as glibc does on x86-64; C fixes only the sign";
 pub(crate) const TALLOC: &str = "talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported";
 pub(crate) const ATOMIC: &str =

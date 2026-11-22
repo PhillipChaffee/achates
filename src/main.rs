@@ -1,5 +1,6 @@
 //! Achates: reads C through clang into a typed intermediate representation.
 
+mod check;
 mod clang;
 mod compdb;
 mod convert;
@@ -12,6 +13,7 @@ mod probe;
 mod scan;
 mod survey;
 mod target;
+mod tools;
 mod types;
 
 #[cfg(test)]
@@ -20,7 +22,7 @@ mod tests;
 use std::path::PathBuf;
 use std::process::ExitCode;
 
-use anyhow::{Result, bail};
+use anyhow::{Context as _, Result, bail};
 use clap::{Parser, Subcommand};
 
 #[derive(Debug, Parser)]
@@ -84,6 +86,47 @@ enum Command {
         /// Lean processes to run at once.
         #[arg(long, default_value_t = 4)]
         jobs: usize,
+    },
+    /// Run emitted definitions against the compiled C they came from, on
+    /// generated inputs, and say for each function whether they agree.
+    Check {
+        #[arg(long)]
+        compile_commands: PathBuf,
+        #[arg(long)]
+        select: String,
+        /// Root namespace of the emitted Lean.
+        #[arg(long, default_value = "Emitted")]
+        name: String,
+        #[arg(long)]
+        runtime: Option<PathBuf>,
+        /// Directory for the emitted project, the drivers and their builds.
+        #[arg(long, default_value = "target/check")]
+        work: PathBuf,
+        /// Check only this function; may be given several times.
+        #[arg(long = "function")]
+        functions: Vec<String>,
+        /// Inputs generated per function.
+        #[arg(long, default_value_t = 10_000)]
+        count: usize,
+        #[arg(long, default_value_t = 1)]
+        seed: u64,
+        /// Most planted bugs tried per function; 0 skips them.
+        #[arg(long, default_value_t = 24)]
+        mutants: usize,
+        /// Functions checked at the same time; defaults to the number of cores.
+        #[arg(long)]
+        jobs: Option<usize>,
+        /// A file with the compiler arguments for the C harness, one per
+        /// line, in place of each function's own compile command.
+        #[arg(long)]
+        cflags_file: Option<PathBuf>,
+        /// A file with the linker arguments, one per line: the library
+        /// that holds the rest of the program.
+        #[arg(long)]
+        link_file: Option<PathBuf>,
+        /// Where to write the result as JSON.
+        #[arg(long)]
+        json: Option<PathBuf>,
     },
     /// Print one function's IR.
     Dump {
@@ -155,6 +198,50 @@ fn run(cli: Cli) -> Result<String> {
                     jobs,
                 },
             )
+        }
+        Command::Check {
+            compile_commands,
+            select,
+            name,
+            runtime,
+            work,
+            functions,
+            count,
+            seed,
+            mutants,
+            jobs,
+            cflags_file,
+            link_file,
+            json,
+        } => {
+            let entries = compdb::load(&compile_commands)?;
+            let picked = compdb::select(&entries, &select)?;
+            let opts = check::Options {
+                name,
+                runtime: runtime
+                    .unwrap_or_else(|| PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/lean"))),
+                work,
+                functions,
+                count,
+                seed,
+                mutants,
+                jobs: jobs.unwrap_or_else(|| {
+                    std::thread::available_parallelism().map_or(1, std::num::NonZero::get)
+                }),
+                cflags_file,
+                link_file,
+            };
+            let report = check::run(&picked, &opts, None)?;
+            if let Some(path) = json {
+                std::fs::write(&path, report.json()?)
+                    .with_context(|| format!("writing {}", path.display()))?;
+            }
+            let summary = report.summary();
+            if report.any_disagreement() {
+                print!("{summary}");
+                bail!("the emitted Lean and the compiled C disagree; see above");
+            }
+            Ok(summary)
         }
         Command::Dump {
             compile_commands,

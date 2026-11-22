@@ -27,3 +27,14 @@ achates emit --compile-commands PATH --select misc/ --out DIR --name Misc
 writes a Lake project to `DIR` and prints, for every function, whether it was
 emitted and why not. `lean/` holds the runtime; `pilot/misc/` holds the
 output for mpv's `misc/`; `make ci` builds both.
+
+```sh
+achates check --compile-commands PATH --select misc/ --name Misc \
+  --cflags-file harness.rsp --link-file harness-link.rsp --json check.json
+```
+
+runs every emitted definition against the compiled C it came from, on
+generated inputs, plants bugs in the C to show the comparison notices them,
+and says per function whether the two agree. How it works and what it found
+on `misc/` is in [docs/check-report.md](docs/check-report.md); `make
+check-misc` reruns it and writes `pilot/misc/check.json`.

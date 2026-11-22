@@ -129,7 +129,7 @@ def mp_charset_guess [Ext.mp_log2] [Ext.mp_msg] [Ext.strcasecmp] (fuel : Nat) (t
   pure result
 
 /-- C function `mp_iconv_to_utf8`, ../.mpv/misc/charset_conv.c:150.
-Assumes alloc-succeeds: allocation never returns null; a request of 2^47 bytes or more fails as unsupported.
+Assumes alloc-succeeds: allocation never returns null; a request of 2^26 bytes or more fails as unsupported.
 Assumes talloc-model: talloc is modelled as allocate and free with parent ownership; freeing an allocation that has a destructor fails as unsupported.
 -/
 def mp_iconv_to_utf8 [Ext.mp_append_utf8_bstr] [Ext.mp_log2] (fuel : Nat) (log : Ptr) (buf : Agg) (cp : Ptr) (flags : I32) : M Agg := do

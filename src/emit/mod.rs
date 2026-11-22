@@ -4,11 +4,11 @@
 mod expr;
 mod func;
 mod graph;
-mod layout;
-mod names;
-mod order;
-mod project;
-mod world;
+pub(crate) mod layout;
+pub(crate) mod names;
+pub(crate) mod order;
+pub(crate) mod project;
+pub(crate) mod world;
 
 #[cfg(test)]
 mod tests;
@@ -543,7 +543,42 @@ fn close(rows: &mut [Row]) {
     }
 }
 
-pub(crate) fn run(entries: &[&Entry], opts: &Options) -> Result<String> {
+/// Everything emission computes, before anything is written: the IR of
+/// the selection, what each name means, and the result per function.
+pub(crate) struct Analysis {
+    sel: Selection,
+    pub(crate) world: World,
+    pub(crate) rows: Vec<Row>,
+}
+
+impl Analysis {
+    /// The IR of a row's function, its translation unit with the layouts
+    /// clang gave for it, and the path of that unit's main file.
+    pub(crate) fn function(&self, key: &str) -> Option<(&Function, &TranslationUnit, &Layouts)> {
+        let o = self.sel.owned.iter().find(|o| o.key == key)?;
+        let l = self.sel.units.get(o.tu)?;
+        Some((l.tu.functions.get(o.index)?, &l.tu, &l.lay))
+    }
+
+    /// Index of the translation unit a function was read from, in the
+    /// order of the entries given to [`analyse`].
+    pub(crate) fn unit_of(&self, key: &str) -> Option<usize> {
+        self.sel.owned.iter().find(|o| o.key == key).map(|o| o.tu)
+    }
+
+    /// The key a function name has when used from the unit of `from`.
+    pub(crate) fn resolve(&self, from: &str, name: &str) -> Option<String> {
+        let ti = self.unit_of(from)?;
+        self.sel
+            .local_fns
+            .get(ti)?
+            .get(name)
+            .or_else(|| self.world.external_defs.get(name))
+            .cloned()
+    }
+}
+
+pub(crate) fn analyse(entries: &[&Entry]) -> Result<Analysis> {
     let units = entries
         .iter()
         .map(|e| load(e))
@@ -573,6 +608,15 @@ pub(crate) fn run(entries: &[&Entry], opts: &Options) -> Result<String> {
         }
     }
     close(&mut rows);
-    project::write(opts, &w, &rows)?;
-    Ok(project::summary(&w, &rows))
+    Ok(Analysis {
+        sel,
+        world: w,
+        rows,
+    })
+}
+
+pub(crate) fn run(entries: &[&Entry], opts: &Options) -> Result<String> {
+    let a = analyse(entries)?;
+    project::write(opts, &a.world, &a.rows)?;
+    Ok(project::summary(&a.world, &a.rows))
 }

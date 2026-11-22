@@ -15,17 +15,17 @@ use serde::de::{DeserializeSeed, IgnoredAny, MapAccess, SeqAccess, Visitor};
 use serde_json::{Map, Value};
 
 use crate::compdb::{ClangArgs, Entry, normalize};
-
-pub(crate) const CLANG: &str = "clang";
+use crate::tools;
 
 /// Runs clang in the entry's directory and returns its stdout, or an error
 /// naming the file with the tail of clang's diagnostics.
 pub(crate) fn run(entry: &Entry, args: &[String], what: &str) -> Result<Vec<u8>> {
-    let out = Command::new(CLANG)
+    let clang = tools::clang()?;
+    let out = Command::new(clang)
         .args(args)
         .current_dir(&entry.directory)
         .output()
-        .with_context(|| format!("starting {CLANG} for {}", entry.file))?;
+        .with_context(|| format!("starting {} for {}", clang.display(), entry.file))?;
     if !out.status.success() {
         let err = String::from_utf8_lossy(&out.stderr);
         let lines: Vec<&str> = err.lines().collect();
@@ -33,7 +33,8 @@ pub(crate) fn run(entry: &Entry, args: &[String], what: &str) -> Result<Vec<u8>>
             .get(lines.len().saturating_sub(20)..)
             .unwrap_or_default();
         bail!(
-            "{CLANG} failed ({what}) on {}: {}\n{}",
+            "{} failed ({what}) on {}: {}\n{}",
+            clang.display(),
             entry.file,
             out.status,
             tail.join("\n")

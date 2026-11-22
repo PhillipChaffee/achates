@@ -10,11 +10,11 @@ use crate::emit::world::{StaticBlock, World};
 use crate::emit::{Options, Row, graph, names};
 use crate::ir::Origin;
 
-fn ext_class(name: &str) -> String {
+pub(crate) fn ext_class(name: &str) -> String {
     format!("Ext.{}", names::ident(&name.replace('.', "_")))
 }
 
-fn emitted(r: &Row) -> bool {
+pub(crate) fn emitted(r: &Row) -> bool {
     r.res.reasons.is_empty()
 }
 
