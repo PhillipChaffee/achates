@@ -40,3 +40,16 @@ macro_rules
         | (fail_if_no_progress simp only [equiv_unfold, $xs,*]))
       all_goals try simp only [equiv_unfold, Equiv.unchanged_refl, and_true, true_and]
       all_goals try first | rfl | (simp_all; done) | bvk))
+
+open Lean Elab Command in
+/-- `equiv_budget n in cmd` elaborates `cmd` with `maxHeartbeats n` and then
+logs the heartbeats it used, as `heartbeats used: k` in the units of
+`maxHeartbeats`, for the runner's records. Elaboration is synchronous so
+that the proof's heartbeats are counted on this thread (as Mathlib's
+`#count_heartbeats` does); unlike that command, the limit stays. -/
+elab "equiv_budget " n:num " in" ppLine cmd:command : command => do
+  let start ← IO.getNumHeartbeats
+  try
+    elabCommand (← `(command| set_option Elab.async false in set_option maxHeartbeats $n in $cmd))
+  finally
+    logInfo m!"heartbeats used: {((← IO.getNumHeartbeats) - start) / 1000}"

@@ -3,7 +3,7 @@ import Equiv.Libc
 import Equiv.Port
 import Misc
 /-!
-Tier 2: general lemmas, each proved once, and the tactics that use them.
+Tier 2: general lemmas, each proved once, and the tactic that uses them.
 Also the one precondition that needs the emitted project: the static
 objects.
 -/
@@ -95,8 +95,8 @@ macro "leaf_close" : tactic => `(tactic| (
       all_goals try (simp_all; done)
       all_goals try bvk))
 
-/-- What both tier 2 entries do first: take the representation hypotheses
-apart, add the length bounds, take fuel 0 and unfold both sides. -/
+/-- What tier 2 does first: take the representation hypotheses apart, add
+the length bounds, take fuel 0 and unfold both sides. -/
 macro "tier2_intro" "[" xs:Lean.Parser.Tactic.simpLemma,* "]" : tactic => `(tactic| (
       unfold Equiv.IsBstr at *
       casesm* _ ∧ _, ∃ _, _
@@ -105,19 +105,12 @@ macro "tier2_intro" "[" xs:Lean.Parser.Tactic.simpLemma,* "]" : tactic => `(tact
       refine ⟨0, fun _ _ => ?_⟩
       simp only [StateT.run_bind, Equiv.except_bind_ok, Achates.Mem.storeAgg, $xs,*]))
 
-/-- Tier 2, memory lemmas only: the C side's locals and loads through the
-`Equiv.Mem` lemmas. Loop-free C only (fuel bound 0). -/
-syntax "equiv_tier2_mem" "[" Lean.Parser.Tactic.simpLemma,* "]" : tactic
+/-- Tier 2: symbolic execution of the C side's locals and loads through the
+`Equiv.Mem` lemmas, and of `memcmp` on both sides through the `memcmp`
+lemmas. Loop-free C only (fuel bound 0). -/
+syntax "equiv_tier2" "[" Lean.Parser.Tactic.simpLemma,* "]" : tactic
 macro_rules
-  | `(tactic| equiv_tier2_mem [$xs,*]) => `(tactic| (
-      tier2_intro [$xs,*]
-      repeat' sym_step_mem
-      leaf_close))
-
-/-- Tier 2 with the `memcmp` lemmas as well. -/
-syntax "equiv_tier2_memcmp" "[" Lean.Parser.Tactic.simpLemma,* "]" : tactic
-macro_rules
-  | `(tactic| equiv_tier2_memcmp [$xs,*]) => `(tactic| (
+  | `(tactic| equiv_tier2 [$xs,*]) => `(tactic| (
       tier2_intro [$xs,*]
       repeat' (first | sym_step_memcmp | sym_step_mem)
       leaf_close))

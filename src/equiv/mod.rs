@@ -39,22 +39,41 @@ pub(crate) struct Options {
     pub(crate) jobs: usize,
 }
 
-/// The tiers in the order they are tried. Tier 2 is one entry per general
-/// lemma, so that the report can say which lemma closed which theorem.
+/// The tiers in the order they are tried.
+///
+/// Each has its own heartbeat budget, the most a try at that tier is
+/// allowed, set from measurement (`docs/equiv-report.md`, "Budgets"), in
+/// the units of `maxHeartbeats` (about 12,000 to the second per Lean
+/// process on the machine measured, four at a time):
+///
+/// * tier 0, 400 thousand (about 30 s): its one proof needs 316, and a
+///   theorem it runs out on goes to tier 1, which splits;
+/// * tier 1, 8 million (about 11 min): the largest proof measured,
+///   `h_to_i`, needs 4.2 million;
+/// * tier 2, 4 million (about 5 min): its proofs need at most 262
+///   thousand, no theorem that ran out closed with several times more, and
+///   three of them grew past 5 GB before twice this, too much for four
+///   tries at once on 16 GB.
 fn tiers() -> Vec<Tier> {
-    let t = |label: &str, tactic: &str| Tier {
+    let t = |label: &str, tactic: &str, budget: u64| Tier {
         label: label.to_owned(),
         tactic: tactic.to_owned(),
+        budget,
     };
     vec![
-        t("tier 0", "equiv_tier0 [UNFOLD]"),
-        t("tier 1", "equiv_tier1 [UNFOLD]"),
-        t("tier 2: memory lemmas", "equiv_tier2_mem [UNFOLD]"),
-        t(
-            "tier 2: memory and memcmp lemmas",
-            "equiv_tier2_memcmp [UNFOLD]",
-        ),
+        t("tier 0", "equiv_tier0 [UNFOLD]", 400_000),
+        t("tier 1", "equiv_tier1 [UNFOLD]", 8_000_000),
+        t("tier 2", "equiv_tier2 [UNFOLD]", 4_000_000),
     ]
+}
+
+/// The budget line and the statement with `tier`'s script.
+fn with_budget(goal: &Goal, tier: &Tier) -> String {
+    format!(
+        "set_option maxHeartbeats {} in\n{}",
+        tier.budget,
+        prove::proof(goal, tier)
+    )
 }
 
 /// What became of one C function.
@@ -385,6 +404,7 @@ fn write_outputs(
     let last = tiers.last().cloned().unwrap_or_else(|| Tier {
         label: String::new(),
         tactic: "skip".to_owned(),
+        budget: 0,
     });
     for g in goals {
         let o = outcomes.get(&g.name);
@@ -393,7 +413,7 @@ fn write_outputs(
             .find(|r| r.c == g.name && r.status == "generated");
         if let Some(t) = o.and_then(|o| o.proved) {
             let tier = tiers.get(t).cloned().unwrap_or_else(|| last.clone());
-            let _ = writeln!(proved, "{}", prove::proof(g, &tier));
+            let _ = writeln!(proved, "{}", with_budget(g, &tier));
             if let Some(r) = row {
                 r.proved = Some(tier.label);
             }
@@ -423,7 +443,7 @@ fn write_outputs(
                 generic.label,
                 prove::summary(&err)
             );
-            let _ = writeln!(open, "{}", prove::proof(g, &generic));
+            let _ = writeln!(open, "{}", with_budget(g, &generic));
             if let Some(r) = row
                 && opts.prove
             {
