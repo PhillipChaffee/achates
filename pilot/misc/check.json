@@ -9,8 +9,8 @@
     "strcasecmp": "POSIX strcasecmp in the C locale, returning the difference of the lower-cased bytes as glibc does",
     "strncasecmp": "POSIX strncasecmp in the C locale, returning the difference of the lower-cased bytes as glibc does",
     "strtoll": "glibc's __isoc23_strtoll, which the compiled C calls for strtoll: C23 strtoll with the 0b prefix; errno is not modelled",
-    "ta_xstrdup": "talloc's ta_xstrdup (ta/ta_utils.c); allocation never fails",
-    "ta_xstrndup": "talloc's ta_xstrndup (ta/ta_utils.c); allocation never fails"
+    "vsnprintf": "C vsnprintf in the C locale for the conversions d i u o x X c s f F %, with glibc's spelling of infinities and NaNs; other conversions are unsupported",
+    "vsscanf": "C vsscanf in the C locale for the conversions d i u o x X c s n and %, with C23's %i; floating-point conversions and the cases where glibc and C differ are unsupported"
   },
   "functions": [
     {
@@ -1189,21 +1189,50 @@
       "file": "../.mpv/misc/bstr.c",
       "line": 245,
       "origin": "MainFile",
-      "lean": null,
-      "status": "not-emitted",
-      "reasons": [
-        "variadic function definition: reading `...` arguments is not modelled",
-        "variadic argument handling (va_start and friends) is not modelled"
-      ],
-      "inputs": 0,
-      "compared": 0,
+      "lean": "Misc.Misc.Bstr_c.bstr_sscanf",
+      "status": "checked-and-sensitive",
+      "reasons": [],
+      "inputs": 10000,
+      "compared": 8848,
       "aborts": 0,
-      "undefined": 0,
-      "unsupported": 0,
+      "undefined": 914,
+      "unsupported": 238,
       "disagreements": 0,
       "first": null,
-      "models": [],
-      "mutants": null
+      "models": [
+        "vsscanf"
+      ],
+      "mutants": {
+        "candidates": 3,
+        "generated": 3,
+        "compiled": 3,
+        "caught": 1,
+        "caught_by_timeout": 0,
+        "timeouts_not_counted": 0,
+        "survivors": [
+          {
+            "function": "bstr_sscanf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 251,
+            "column": 5,
+            "operator": "statement",
+            "before": "va_end(va);",
+            "after": ";",
+            "note": null
+          },
+          {
+            "function": "bstr_sscanf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 252,
+            "column": 5,
+            "operator": "statement",
+            "before": "talloc_free(ptr);",
+            "after": ";",
+            "note": null
+          }
+        ],
+        "equivalent": []
+      }
     },
     {
       "function": "bstr_parse_utf8_code_length",
@@ -1856,41 +1885,230 @@
       "file": "../.mpv/misc/bstr.c",
       "line": 384,
       "origin": "MainFile",
-      "lean": null,
-      "status": "not-emitted",
-      "reasons": [
-        "variadic function definition: reading `...` arguments is not modelled",
-        "variadic argument handling (va_start and friends) is not modelled"
-      ],
-      "inputs": 0,
-      "compared": 0,
+      "lean": "Misc.Misc.Bstr_c.bstr_xappend_asprintf",
+      "status": "checked-and-sensitive",
+      "reasons": [],
+      "inputs": 10000,
+      "compared": 9098,
       "aborts": 0,
-      "undefined": 0,
-      "unsupported": 0,
+      "undefined": 866,
+      "unsupported": 36,
       "disagreements": 0,
       "first": null,
-      "models": [],
-      "mutants": null
+      "models": [
+        "vsnprintf"
+      ],
+      "mutants": {
+        "candidates": 24,
+        "generated": 24,
+        "compiled": 24,
+        "caught": 16,
+        "caught_by_timeout": 0,
+        "timeouts_not_counted": 0,
+        "survivors": [
+          {
+            "function": "bstr_xappend_asprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 389,
+            "column": 5,
+            "operator": "statement",
+            "before": "va_end(ap);",
+            "after": ";",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 402,
+            "column": 5,
+            "operator": "statement",
+            "before": "va_end(copy);",
+            "after": ";",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 407,
+            "column": 15,
+            "operator": "comparison",
+            "before": "<",
+            "after": "<=",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 407,
+            "column": 17,
+            "operator": "constant",
+            "before": "1",
+            "after": "2",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 407,
+            "column": 29,
+            "operator": "constant",
+            "before": "1",
+            "after": "2",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 407,
+            "column": 31,
+            "operator": "comparison",
+            "before": ">",
+            "after": ">=",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 408,
+            "column": 45,
+            "operator": "constant",
+            "before": "1",
+            "after": "2",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 409,
+            "column": 45,
+            "operator": "constant",
+            "before": "1",
+            "after": "2",
+            "note": null
+          }
+        ],
+        "equivalent": []
+      }
     },
     {
       "function": "bstr_xappend_vasprintf",
       "file": "../.mpv/misc/bstr.c",
       "line": 393,
       "origin": "MainFile",
-      "lean": null,
-      "status": "not-emitted",
-      "reasons": [
-        "variadic argument handling (va_start and friends) is not modelled"
-      ],
-      "inputs": 0,
-      "compared": 0,
+      "lean": "Misc.Misc.Bstr_c.bstr_xappend_vasprintf",
+      "status": "checked-and-sensitive",
+      "reasons": [],
+      "inputs": 10000,
+      "compared": 9026,
       "aborts": 0,
-      "undefined": 0,
-      "unsupported": 0,
+      "undefined": 940,
+      "unsupported": 34,
       "disagreements": 0,
       "first": null,
-      "models": [],
-      "mutants": null
+      "models": [
+        "vsnprintf"
+      ],
+      "mutants": {
+        "candidates": 38,
+        "generated": 24,
+        "compiled": 24,
+        "caught": 15,
+        "caught_by_timeout": 0,
+        "timeouts_not_counted": 0,
+        "survivors": [
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 402,
+            "column": 5,
+            "operator": "statement",
+            "before": "va_end(copy);",
+            "after": ";",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 407,
+            "column": 15,
+            "operator": "comparison",
+            "before": "<",
+            "after": "<=",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 407,
+            "column": 17,
+            "operator": "constant",
+            "before": "1",
+            "after": "2",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 407,
+            "column": 29,
+            "operator": "constant",
+            "before": "1",
+            "after": "2",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 407,
+            "column": 31,
+            "operator": "comparison",
+            "before": ">",
+            "after": ">=",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 408,
+            "column": 45,
+            "operator": "constant",
+            "before": "1",
+            "after": "2",
+            "note": null
+          },
+          {
+            "function": "bstr_xappend_vasprintf",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 409,
+            "column": 45,
+            "operator": "constant",
+            "before": "1",
+            "after": "2",
+            "note": null
+          },
+          {
+            "function": "resize_append",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 368,
+            "column": 34,
+            "operator": "logical",
+            "before": "||",
+            "after": "&&",
+            "note": null
+          },
+          {
+            "function": "resize_append",
+            "file": "/home/user/rmpv/formal/.mpv/misc/bstr.c",
+            "line": 368,
+            "column": 48,
+            "operator": "comparison",
+            "before": ">=",
+            "after": ">",
+            "note": null
+          }
+        ],
+        "equivalent": []
+      }
     },
     {
       "function": "bstr_case_startswith",
@@ -2163,19 +2381,28 @@
       "line": 464,
       "origin": "MainFile",
       "lean": "Misc.Misc.Bstr_c.bstr_find_in_list0",
-      "status": "not-checkable",
-      "reasons": [
-        "parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on"
-      ],
-      "inputs": 0,
-      "compared": 0,
+      "status": "checked-and-sensitive",
+      "reasons": [],
+      "inputs": 10000,
+      "compared": 10000,
       "aborts": 0,
       "undefined": 0,
       "unsupported": 0,
       "disagreements": 0,
       "first": null,
-      "models": [],
-      "mutants": null
+      "models": [
+        "strncasecmp"
+      ],
+      "mutants": {
+        "candidates": 4,
+        "generated": 4,
+        "compiled": 4,
+        "caught": 4,
+        "caught_by_timeout": 0,
+        "timeouts_not_counted": 0,
+        "survivors": [],
+        "equivalent": []
+      }
     },
     {
       "function": "bstr_in_list0",
@@ -2487,9 +2714,7 @@
       "unsupported": 0,
       "disagreements": 0,
       "first": null,
-      "models": [
-        "ta_xstrndup"
-      ],
+      "models": [],
       "mutants": {
         "candidates": 0,
         "generated": 0,
@@ -3652,7 +3877,6 @@
         "needs external av_hash_get_size",
         "needs external av_hash_init",
         "needs external av_hash_update",
-        "needs external bstr_xappend_asprintf",
         "parameter type: ptr<const unsigned char:u8>: a pointer to bytes without an evident length"
       ],
       "inputs": 0,
@@ -3754,19 +3978,26 @@
       "line": 59,
       "origin": "MainFile",
       "lean": "Misc.Misc.Json_c.eat_c",
-      "status": "not-checkable",
-      "reasons": [
-        "parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on"
-      ],
-      "inputs": 0,
-      "compared": 0,
+      "status": "checked-and-sensitive",
+      "reasons": [],
+      "inputs": 10000,
+      "compared": 8936,
       "aborts": 0,
-      "undefined": 0,
+      "undefined": 1064,
       "unsupported": 0,
       "disagreements": 0,
       "first": null,
       "models": [],
-      "mutants": null
+      "mutants": {
+        "candidates": 4,
+        "generated": 4,
+        "compiled": 4,
+        "caught": 4,
+        "caught_by_timeout": 0,
+        "timeouts_not_counted": 0,
+        "survivors": [],
+        "equivalent": []
+      }
     },
     {
       "function": "eat_ws",
@@ -3774,19 +4005,37 @@
       "line": 68,
       "origin": "MainFile",
       "lean": "Misc.Misc.Json_c.eat_ws",
-      "status": "not-checkable",
-      "reasons": [
-        "parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on"
-      ],
-      "inputs": 0,
-      "compared": 0,
+      "status": "checked-and-sensitive",
+      "reasons": [],
+      "inputs": 10000,
+      "compared": 8973,
       "aborts": 0,
-      "undefined": 0,
+      "undefined": 1027,
       "unsupported": 0,
       "disagreements": 0,
       "first": null,
       "models": [],
-      "mutants": null
+      "mutants": {
+        "candidates": 11,
+        "generated": 11,
+        "compiled": 11,
+        "caught": 10,
+        "caught_by_timeout": 0,
+        "timeouts_not_counted": 0,
+        "survivors": [
+          {
+            "function": "eat_ws",
+            "file": "/home/user/rmpv/formal/.mpv/misc/json.c",
+            "line": 70,
+            "column": 12,
+            "operator": "constant",
+            "before": "1",
+            "after": "2",
+            "note": null
+          }
+        ],
+        "equivalent": []
+      }
     },
     {
       "function": "json_skip_whitespace",
@@ -3816,8 +4065,7 @@
       "lean": "Misc.Misc.Json_c.read_id",
       "status": "not-checkable",
       "reasons": [
-        "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union",
-        "parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on"
+        "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
       "compared": 0,
@@ -3910,7 +4158,6 @@
       "lean": "Misc.Misc.Json_c.write_json_str",
       "status": "not-checkable",
       "reasons": [
-        "needs external bstr_xappend_asprintf",
         "parameter type: ptr<unsigned char:u8>: a pointer to bytes without an evident length"
       ],
       "inputs": 0,
@@ -3954,7 +4201,6 @@
       "lean": "Misc.Misc.Json_c.json_append",
       "status": "not-checkable",
       "reasons": [
-        "needs external bstr_xappend_asprintf",
         "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
@@ -3975,9 +4221,7 @@
       "lean": "Misc.Misc.Json_c.json_append_str",
       "status": "not-checkable",
       "reasons": [
-        "needs external bstr_xappend_asprintf",
-        "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union",
-        "parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on"
+        "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
       "compared": 0,
@@ -3997,7 +4241,6 @@
       "lean": "Misc.Misc.Json_c.json_write",
       "status": "not-checkable",
       "reasons": [
-        "needs external bstr_xappend_asprintf",
         "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union",
         "parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on"
       ],
@@ -4019,7 +4262,6 @@
       "lean": "Misc.Misc.Json_c.json_write_pretty",
       "status": "not-checkable",
       "reasons": [
-        "needs external bstr_xappend_asprintf",
         "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union",
         "parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on"
       ],
@@ -4167,39 +4409,91 @@
       "line": 247,
       "origin": "MainFile",
       "lean": "Misc.Misc.Language_c.canonicalize",
-      "status": "not-checkable",
-      "reasons": [
-        "needs external Misc.Language_c.lang_compare"
-      ],
-      "inputs": 0,
-      "compared": 0,
+      "status": "checked-not-shown-sensitive",
+      "reasons": [],
+      "inputs": 10000,
+      "compared": 10000,
       "aborts": 0,
       "undefined": 0,
       "unsupported": 0,
       "disagreements": 0,
       "first": null,
-      "models": [],
-      "mutants": null
+      "models": [
+        "strncasecmp",
+        "Misc.Language_c.lang_compare (its emitted definition)"
+      ],
+      "mutants": {
+        "candidates": 1,
+        "generated": 1,
+        "compiled": 1,
+        "caught": 0,
+        "caught_by_timeout": 0,
+        "timeouts_not_counted": 0,
+        "survivors": [
+          {
+            "function": "canonicalize",
+            "file": "/home/user/rmpv/formal/.mpv/misc/language.c",
+            "line": 250,
+            "column": 51,
+            "operator": "constant",
+            "before": "0",
+            "after": "1",
+            "note": null
+          }
+        ],
+        "equivalent": []
+      }
     },
     {
       "function": "mp_match_lang",
       "file": "../.mpv/misc/language.c",
       "line": 254,
       "origin": "MainFile",
-      "lean": null,
-      "status": "not-emitted",
-      "reasons": [
-        "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order"
-      ],
-      "inputs": 0,
-      "compared": 0,
+      "lean": "Misc.Misc.Language_c.mp_match_lang",
+      "status": "checked-and-sensitive",
+      "reasons": [],
+      "inputs": 10000,
+      "compared": 10000,
       "aborts": 0,
       "undefined": 0,
       "unsupported": 0,
       "disagreements": 0,
       "first": null,
-      "models": [],
-      "mutants": null
+      "models": [
+        "strncasecmp",
+        "Misc.Language_c.lang_compare (its emitted definition)"
+      ],
+      "mutants": {
+        "candidates": 31,
+        "generated": 24,
+        "compiled": 24,
+        "caught": 22,
+        "caught_by_timeout": 0,
+        "timeouts_not_counted": 0,
+        "survivors": [
+          {
+            "function": "mp_match_lang",
+            "file": "/home/user/rmpv/formal/.mpv/misc/language.c",
+            "line": 275,
+            "column": 21,
+            "operator": "constant",
+            "before": "0",
+            "after": "1",
+            "note": null
+          },
+          {
+            "function": "mp_match_lang",
+            "file": "/home/user/rmpv/formal/.mpv/misc/language.c",
+            "line": 299,
+            "column": 5,
+            "operator": "statement",
+            "before": "talloc_free(ta_ctx);",
+            "after": ";",
+            "note": null
+          }
+        ],
+        "equivalent": []
+      }
     },
     {
       "function": "mp_guess_lang_from_filename",
@@ -4230,7 +4524,6 @@
       "lean": "Misc.Sys.Stdlib_bsearch_h.bsearch",
       "status": "not-checkable",
       "reasons": [
-        "needs external Misc.Language_c.lang_compare",
         "parameter type: a `void *` that is not only handed to talloc as a parent",
         "parameter type: a function pointer"
       ],
@@ -4307,10 +4600,10 @@
       "file": "../.mpv/misc/node.c",
       "line": 36,
       "origin": "MainFile",
-      "lean": null,
-      "status": "not-emitted",
+      "lean": "Misc.Misc.Node_c.node_array_add",
+      "status": "not-checkable",
       "reasons": [
-        "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order"
+        "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
       "compared": 0,
@@ -4330,7 +4623,6 @@
       "lean": "Misc.Misc.Node_c.node_map_add",
       "status": "not-checkable",
       "reasons": [
-        "needs external node_map_badd",
         "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
@@ -4348,10 +4640,10 @@
       "file": "../.mpv/misc/node.c",
       "line": 54,
       "origin": "MainFile",
-      "lean": null,
-      "status": "not-emitted",
+      "lean": "Misc.Misc.Node_c.node_map_badd",
+      "status": "not-checkable",
       "reasons": [
-        "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order"
+        "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
       "compared": 0,
@@ -4371,7 +4663,6 @@
       "lean": "Misc.Misc.Node_c.node_map_add_string",
       "status": "not-checkable",
       "reasons": [
-        "needs external node_map_badd",
         "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
@@ -4392,7 +4683,6 @@
       "lean": "Misc.Misc.Node_c.node_map_add_bstr",
       "status": "not-checkable",
       "reasons": [
-        "needs external node_map_badd",
         "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
@@ -4413,7 +4703,6 @@
       "lean": "Misc.Misc.Node_c.node_map_add_int64",
       "status": "not-checkable",
       "reasons": [
-        "needs external node_map_badd",
         "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
@@ -4434,7 +4723,6 @@
       "lean": "Misc.Misc.Node_c.node_map_add_double",
       "status": "not-checkable",
       "reasons": [
-        "needs external node_map_badd",
         "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
@@ -4455,7 +4743,6 @@
       "lean": "Misc.Misc.Node_c.node_map_add_flag",
       "status": "not-checkable",
       "reasons": [
-        "needs external node_map_badd",
         "parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union"
       ],
       "inputs": 0,
@@ -4617,10 +4904,7 @@
       "unsupported": 0,
       "disagreements": 0,
       "first": null,
-      "models": [
-        "ta_xstrdup",
-        "ta_xstrndup"
-      ],
+      "models": [],
       "mutants": {
         "candidates": 0,
         "generated": 0,
