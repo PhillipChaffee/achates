@@ -25,6 +25,7 @@ use crate::ir::{Function, Linkage, Origin, Storage, TranslationUnit};
 use func::{Emitted, FnEmitter};
 use layout::Layouts;
 use names::Sig;
+use order::Summary;
 use world::{FnMeta, Unit, World};
 
 #[derive(Debug)]
@@ -280,7 +281,8 @@ fn prepare(sel: &Selection) -> World {
             .cloned()
     };
     place(sel, &mut w, &resolve);
-    w.writes = writes(sel, &w);
+    w.addr_taken = addresses(sel, &w);
+    w.summaries = summaries(sel, &w);
     w
 }
 
@@ -390,33 +392,129 @@ fn place(sel: &Selection, w: &mut World, resolve: &dyn Fn(usize, &str) -> Option
     }
 }
 
-/// Least fixed point of "may write memory its caller can see".
-fn writes(sel: &Selection, w: &World) -> BTreeMap<String, bool> {
-    let mut out: BTreeMap<String, bool> =
-        sel.owned.iter().map(|o| (o.key.clone(), false)).collect();
+/// Every function whose address is taken anywhere in the selection, by
+/// the number of its parameters: a key for a function of the selection, a
+/// C name otherwise. A call through a pointer reaches one of these or is
+/// `unsupported` in the emitted code.
+fn addresses(sel: &Selection, w: &World) -> BTreeMap<usize, BTreeSet<String>> {
+    let mut out: BTreeMap<usize, BTreeSet<String>> = BTreeMap::new();
+    for (ti, unit) in sel.units.iter().enumerate() {
+        let mut found = BTreeSet::new();
+        for f in &unit.tu.functions {
+            order::for_each_expr(&f.body, &mut |e| {
+                if let crate::ir::ExprKind::Call {
+                    callee,
+                    direct: None,
+                    ..
+                } = &e.kind
+                {
+                    order::addresses_taken(callee, &mut found);
+                }
+            });
+            let mut top = Vec::new();
+            collect_full(&f.body, &mut top);
+            for e in top {
+                order::addresses_taken(e, &mut found);
+            }
+        }
+        for g in unit.tu.globals.values() {
+            if let Some(e) = &g.init {
+                order::addresses_taken(e, &mut found);
+            }
+        }
+        for (name, arity) in found {
+            let key = sel
+                .local_fns
+                .get(ti)
+                .and_then(|m| m.get(&name))
+                .or_else(|| w.external_defs.get(&name))
+                .cloned()
+                .unwrap_or(name);
+            out.entry(arity).or_default().insert(key);
+        }
+    }
+    out
+}
+
+/// The full expressions of a statement, outermost only.
+fn collect_full<'a>(s: &'a crate::ir::Stmt, out: &mut Vec<&'a crate::ir::Expr>) {
+    use crate::ir::{Decl, Stmt};
+    match s {
+        Stmt::Compound(v) => v.iter().for_each(|s| collect_full(s, out)),
+        Stmt::Decl(ds) => {
+            for d in ds {
+                if let Decl::Var(v) = d
+                    && let Some(e) = &v.init
+                {
+                    out.push(e);
+                }
+            }
+        }
+        Stmt::Expr(e) | Stmt::Return(Some(e)) => out.push(e),
+        Stmt::If { cond, then, els } => {
+            out.push(cond);
+            collect_full(then, out);
+            if let Some(e) = els {
+                collect_full(e, out);
+            }
+        }
+        Stmt::While { cond, body } | Stmt::DoWhile { body, cond } | Stmt::Switch { cond, body } => {
+            out.push(cond);
+            collect_full(body, out);
+        }
+        Stmt::For {
+            init,
+            cond,
+            inc,
+            body,
+        } => {
+            if let Some(i) = init {
+                collect_full(i, out);
+            }
+            out.extend([cond, inc].into_iter().flatten().map(|b| &**b));
+            collect_full(body, out);
+        }
+        Stmt::Case { expr, body, .. } => {
+            out.push(expr);
+            collect_full(body, out);
+        }
+        Stmt::Default { body } | Stmt::Label { body, .. } => collect_full(body, out),
+        _ => {}
+    }
+}
+
+/// Least fixed point of what each selection function may do to memory its
+/// caller can see.
+fn summaries(sel: &Selection, w: &World) -> BTreeMap<String, Summary> {
+    let mut out: BTreeMap<String, Summary> = sel
+        .owned
+        .iter()
+        .map(|o| (o.key.clone(), Summary::default()))
+        .collect();
     loop {
         let mut changed = false;
         for o in &sel.owned {
             let Some(f) = sel.function(o) else { continue };
             let names = sel.local_fns.get(o.tu);
-            let cw = |name: Option<&str>| {
-                name.is_none_or(|n| {
-                    names
-                        .and_then(|m| m.get(n))
-                        .or_else(|| w.external_defs.get(n))
-                        .map_or_else(
-                            || {
-                                world::MODELS
-                                    .iter()
-                                    .find(|m| m.name == n)
-                                    .is_none_or(|m| m.writes)
-                            },
-                            |k| out.get(k).copied().unwrap_or(true),
-                        )
-                })
+            let key_of = |n: &str| {
+                names
+                    .and_then(|m| m.get(n))
+                    .or_else(|| w.external_defs.get(n))
+                    .cloned()
             };
-            if !out.get(&o.key).copied().unwrap_or(true) && order::writes_memory(f, &cw) {
-                out.insert(o.key.clone(), true);
+            let cs = |e: &crate::ir::Expr| match world::call_effect(
+                e,
+                &key_of,
+                &|k| out.get(k).copied(),
+                &w.addr_taken,
+            ) {
+                order::CallEffect::Known(s) => s,
+                order::CallEffect::External => Summary::WRITES,
+            };
+            let s = order::summary(f, &cs);
+            let old = out.get(&o.key).copied().unwrap_or_default();
+            if old.join(s) != old {
+                out.insert(o.key.clone(), old.join(s));
                 changed = true;
             }
         }

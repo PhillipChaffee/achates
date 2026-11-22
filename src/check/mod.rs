@@ -98,18 +98,6 @@ const EXT_MODELS: &[ExtModel] = &[
         what: "mpv's mp_round_next_power_of_2 (common/common.c)",
     },
     ExtModel {
-        name: "ta_xstrndup",
-        lean: "AchatesCheck.Models.ta_xstrndup",
-        sig: "Ptr → Ptr → U64 → M Ptr",
-        what: "talloc's ta_xstrndup (ta/ta_utils.c); allocation never fails",
-    },
-    ExtModel {
-        name: "ta_xstrdup",
-        lean: "AchatesCheck.Models.ta_xstrdup",
-        sig: "Ptr → Ptr → M Ptr",
-        what: "talloc's ta_xstrdup (ta/ta_utils.c); allocation never fails",
-    },
-    ExtModel {
         name: "strtoll",
         lean: "AchatesCheck.Models.strtoll",
         sig: "Ptr → Ptr → I32 → M I64",

@@ -9,8 +9,8 @@ use std::collections::{BTreeMap, BTreeSet};
 use std::fmt::Write as _;
 
 use crate::emit::names::{self, Sig};
-use crate::emit::order::{CallEffect, Classes, OrderCx, VarKey, Verdict, classify};
-use crate::emit::world::{EXT_ORDER, MODELS, Unit, World};
+use crate::emit::order::{Assume, Classes, OrderCx, VarKey, Verdict, classify};
+use crate::emit::world::{BLOCK_ORDER, EXT_ORDER, EXT_READS, Unit, World, call_effect};
 use crate::ir::{Decl, Expr, Function, LocalVar, Stmt};
 use crate::types::{QualType, Type};
 
@@ -488,22 +488,30 @@ impl<'a> FnEmitter<'a> {
         let mut verdict = Verdict::default();
         {
             let (unit, world) = (self.u, &*self.w);
-            let effect = |name: Option<&str>| {
-                let Some(n) = name else {
-                    return CallEffect::Writes;
+            let key_of = |n: &str| unit.fn_key(world, n).cloned();
+            let summary = |k: &str| world.summaries.get(k).copied();
+            let effect = |call: &Expr| call_effect(call, &key_of, &summary, &world.addr_taken);
+            let member = |record: &QualType, field: &str| -> Option<(u64, u64)> {
+                let Type::Record { kind, name } = &record.ty else {
+                    return None;
                 };
-                match (unit.fn_key(world, n), MODELS.iter().find(|m| m.name == n)) {
-                    (Some(k), _) if world.writes.get(k).copied().unwrap_or(true) => {
-                        CallEffect::Writes
-                    }
-                    (None, Some(m)) if m.writes => CallEffect::Writes,
-                    (None, None) => CallEffect::External,
-                    _ => CallEffect::ReadsOnly,
+                let key = (*kind, name.clone());
+                let fields = unit.tu.records.get(&key)?.fields.as_ref()?;
+                let i = fields
+                    .iter()
+                    .position(|f| !f.name.is_empty() && f.name == field)?;
+                let f = fields.get(i)?;
+                if f.bit_width.is_some() {
+                    return None;
                 }
+                let off = unit.lay.records.get(&key)?.offsets.get(i)?.clone().ok()?;
+                let (size, _) = unit.lay.size_align(&f.ty).ok()?;
+                Some((off, size))
             };
             let cx = OrderCx {
                 temps: &self.temps,
                 call_effect: &effect,
+                member: &member,
             };
             cx.eval(e, &mut verdict);
         }
@@ -511,8 +519,15 @@ impl<'a> FnEmitter<'a> {
             self.refuse(
                 "an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order",
             );
-        } else if verdict.assumes_external_order {
-            self.res.assumptions.insert(EXT_ORDER.to_owned());
+        } else {
+            for a in verdict.assumes {
+                let text = match a {
+                    Assume::ExternalOrder => EXT_ORDER,
+                    Assume::BlockNumbering => BLOCK_ORDER,
+                    Assume::ExternalReads => EXT_READS,
+                };
+                self.res.assumptions.insert(text.to_owned());
+            }
         }
     }
 

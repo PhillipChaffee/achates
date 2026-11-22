@@ -117,6 +117,32 @@ def ta_realloc_size (parent p : Ptr) (size : U64) : M Ptr := do
 allocation never does. -/
 def ta_xrealloc_size (parent p : Ptr) (size : U64) : M Ptr := ta_realloc_size parent p size
 
+/-- The bytes at `s` up to a terminator or `n` bytes, whichever is first,
+as `strnlen` reads them. -/
+def strnBytes (s : Ptr) : Nat → Nat → List UInt8 → M (List UInt8)
+  | 0, _, acc => pure acc.reverse
+  | k + 1, i, acc => do
+    let c ← Mem.loadByte (← s.add 1 i)
+    if c = 0 then pure acc.reverse else strnBytes s k (i + 1) (c :: acc)
+
+/-- talloc's `ta_xstrndup` (`ta/ta_utils.c`, `ta_strndup` with `ta_oom_p`):
+null for a null string, else a new allocation under `parent` holding at
+most `n` bytes of the string and a terminator. Allocation does not fail in
+the model, so the abort on failure is never reached. -/
+def ta_xstrndup (parent s : Ptr) (n : U64) : M Ptr := do
+  if s == .null then return .null
+  let bs ← strnBytes s n.toNat 0 []
+  let p ← ta_alloc_size .null (UInt.ofNat 64 (bs.length + 1))
+  Mem.storeBytes p ((bs ++ [0]).toArray.map .byte)
+  ta_set_parent p parent
+  pure p
+
+/-- talloc's `ta_xstrdup`: `ta_xstrndup` with the string's own length. -/
+def ta_xstrdup (parent s : Ptr) : M Ptr := do
+  if s == .null then return .null
+  let bs ← Libc.cstr s
+  ta_xstrndup parent s (UInt.ofNat 64 bs.length)
+
 def ta_calc_array_size (elementSize count : U64) : M U64 := do
   if elementSize.toNat = 0 then ub "division by zero"
   if count.toNat > (2 ^ 64 - 1) / elementSize.toNat then pure (UInt.ofNat 64 (2 ^ 64 - 1))

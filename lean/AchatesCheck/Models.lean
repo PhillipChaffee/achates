@@ -63,31 +63,6 @@ def mp_round_next_power_of_2 (v : U32) : M U32 :=
   else if 2 ^ n.log2 = n then pure v
   else pure (UInt.ofNat 32 (2 ^ (n.log2 + 1)))
 
-/-- The bytes at `s` up to a terminator or `n` bytes, whichever is first,
-as `strnlen` reads them. -/
-def strnBytes (s : Ptr) : Nat → Nat → List UInt8 → M (List UInt8)
-  | 0, _, acc => pure acc.reverse
-  | k + 1, i, acc => do
-    let c ← Mem.loadByte (← s.add 1 i)
-    if c = 0 then pure acc.reverse else strnBytes s k (i + 1) (c :: acc)
-
-/-- talloc's `ta_xstrndup` (`ta/ta_utils.c`): null for a null string, else a
-new allocation under `parent` holding at most `n` bytes of the string and a
-terminator. Allocation does not fail in the model. -/
-def ta_xstrndup (parent s : Ptr) (n : U64) : M Ptr := do
-  if s == .null then return .null
-  let bs ← strnBytes s n.toNat 0 []
-  let p ← Talloc.ta_alloc_size .null (UInt.ofNat 64 (bs.length + 1))
-  Mem.storeBytes p ((bs ++ [0]).toArray.map .byte)
-  Talloc.ta_set_parent p parent
-  pure p
-
-/-- talloc's `ta_xstrdup`: `ta_xstrndup` with the string's own length. -/
-def ta_xstrdup (parent s : Ptr) : M Ptr := do
-  if s == .null then return .null
-  let bs ← Libc.cstr s
-  ta_xstrndup parent s (UInt.ofNat 64 bs.length)
-
 /-- The value of a digit character in bases up to 36. -/
 def digit (b : UInt8) : Option Nat :=
   let n := b.toNat

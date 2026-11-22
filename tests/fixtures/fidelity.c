@@ -532,3 +532,42 @@ static ll va_end_twice(int n, ...) {
 ll t_va_end_twice(void) { return va_end_twice(0); }
 /* C11 makes this undefined and C23 defines it; the model does not choose. */
 ll t_va_qualified_pointer(void) { return va_mixed("c", "x"); }
+
+/* Operands C leaves unordered whose effects cannot meet: different members
+ * reached from one pointer, an allocation beside reads, two allocations,
+ * calls through a pointer whose possible targets only read. */
+struct order_list { int *values; int num; void **keys; };
+static int *order_push(struct order_list *l) { return &l->values[l->num++]; }
+ll t_order_disjoint_members(void) {
+    int v[4] = {0};
+    struct order_list l = {v, 1, 0};
+    int *p = order_push(&l);
+    *p = 7;
+    return l.num * 100 + v[1] * 10 + (p - v);
+}
+static int order_add_key(struct order_list *l) {
+    l->keys[l->num] = malloc(8);
+    int ok = l->keys[l->num] != 0;
+    free(l->keys[l->num]);
+    return ok;
+}
+ll t_order_allocation_beside_reads(void) {
+    void *keys[2] = {0, 0};
+    struct order_list l = {0, 1, keys};
+    int r = order_add_key(&l);
+    return r * 10 + (keys[0] == 0);
+}
+static int order_pair(char *a, char *b) {
+    int r = a != b;
+    free(a);
+    free(b);
+    return r;
+}
+ll t_order_two_allocations(void) { return order_pair(malloc(1), malloc(2)); }
+static int order_inc(const int *x, int y, int z) { return *x + y + z; }
+static int order_dbl(const int *x, int y, int z) { return *x * y - z; }
+static int (*const order_fns[2])(const int *, int, int) = {order_inc, order_dbl};
+ll t_order_indirect_readers(void) {
+    int x = 5;
+    return order_fns[0](&x, 1, 2) * 100 + order_fns[1](&x, 3, 4);
+}

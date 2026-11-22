@@ -293,6 +293,10 @@ cases! {
     t_va_used_after_passing => Ub("passed to a function that read from it"),
     t_va_start_twice => Ub("va_start into a va_list that was not ended"),
     t_va_end_twice => Ub("va_end on an object that holds no va_list"),
+    t_order_disjoint_members => SameAsC,
+    t_order_allocation_beside_reads => SameAsC,
+    t_order_two_allocations => SameAsC,
+    t_order_indirect_readers => SameAsC,
     t_va_qualified_pointer => Stops("unsupported va_arg of type const char * for an argument of type char *"),
 }
 
@@ -323,6 +327,77 @@ fn refuses_operands_whose_order_matters() {
     assert!(f.contains("not emitted") && f.contains("sequence"), "{f}");
     let h = refusal_of("order2", src, "h");
     assert!(h.contains("not emitted") && h.contains("sequence"), "{h}");
+}
+
+#[test]
+fn orders_only_operands_whose_effects_cannot_meet() {
+    let src = "#include <stdlib.h>\n#include <strings.h>\n\
+        struct l { int *v; int n; void **k; };\n\
+        union u { int a; int b; };\n\
+        static int sink(int a, void *p) { free(p); return a; }\n\
+        int *members(struct l *l) { return &l->v[l->n++]; }\n\
+        int same_member(struct l *l) { return l->n + l->n++; }\n\
+        int union_members(union u *p) { return p->a + p->b++; }\n\
+        int two_pointers(struct l *l, struct l *m) { return l->n + m->n++; }\n\
+        void alloc_beside_read(struct l *l) { l->k[l->n] = malloc(4); }\n\
+        int alloc_beside_write(struct l *l) { return sink(l->n++, malloc(4)); }\n\
+        static int pair(void *a, void *b) { free(a); free(b); return 0; }\n\
+        int two_allocs(void) { return pair(malloc(1), malloc(2)); }\n\
+        static int rd(int *x, int y, int z) { return *x + y + z; }\n\
+        static int wr(int *x, int y, int z) { return ++*x + y + z; }\n\
+        static int (*const fns[2])(int *, int, int) = {rd, wr};\n\
+        int writer_behind_pointer(int *x) { return fns[0](x, 0, 0) + fns[1](x, 0, 0); }\n\
+        int spec_reads(const char *a, const char *b) { return strcasecmp(a, b) + strcasecmp(b, a); }\n";
+    let (dir, summary) = emit_fixture("order3", src).expect("emission runs");
+    let status = std::fs::read_to_string(dir.join("lean/status.json")).expect("status written");
+    let _ = std::fs::remove_dir_all(dir);
+    let line = |f: &str| {
+        summary
+            .lines()
+            .find(|l| l.contains(&format!(" {f}: ")))
+            .unwrap_or("")
+            .to_owned()
+    };
+    for f in ["members", "alloc_beside_read", "two_allocs", "spec_reads"] {
+        assert!(line(f).contains(": emitted"), "{f}: {}", line(f));
+    }
+    for f in [
+        "same_member",
+        "union_members",
+        "two_pointers",
+        "alloc_beside_write",
+        "writer_behind_pointer",
+    ] {
+        assert!(
+            line(f).contains("not emitted") && line(f).contains("sequence"),
+            "{f}: {}",
+            line(f)
+        );
+    }
+    let rows: serde_json::Value = serde_json::from_str(&status).expect("status is JSON");
+    let tags = |f: &str| -> Vec<String> {
+        rows.as_array()
+            .into_iter()
+            .flatten()
+            .find(|r| r["function"] == f)
+            .and_then(|r| r["assumptions"].as_array())
+            .into_iter()
+            .flatten()
+            .filter_map(|a| a.as_str()?.split(':').next().map(str::to_owned))
+            .collect()
+    };
+    assert!(
+        tags("two_allocs").contains(&"block-numbering".to_owned()),
+        "{:?}",
+        tags("two_allocs")
+    );
+    assert!(!tags("alloc_beside_read").contains(&"block-numbering".to_owned()));
+    assert!(
+        tags("spec_reads").contains(&"external-reads".to_owned()),
+        "{:?}",
+        tags("spec_reads")
+    );
+    assert!(!tags("members").contains(&"external-reads".to_owned()));
 }
 
 #[test]
