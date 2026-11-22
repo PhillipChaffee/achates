@@ -75,6 +75,12 @@ const EXT_MODELS: &[ExtModel] = &[
         what: "C vsnprintf in the C locale for the conversions d i u o x X c s f F %, with glibc's spelling of infinities and NaNs; other conversions are unsupported",
     },
     ExtModel {
+        name: "vsscanf",
+        lean: "AchatesCheck.Scanf.vsscanf",
+        sig: "Ptr → Ptr → Ptr → M I32",
+        what: "C vsscanf in the C locale for the conversions d i u o x X c s n and %, with C23's %i; floating-point conversions and the cases where glibc and C differ are unsupported",
+    },
+    ExtModel {
         name: "strncasecmp",
         lean: "AchatesCheck.Models.strncasecmp",
         sig: "Ptr → Ptr → U64 → M I32",

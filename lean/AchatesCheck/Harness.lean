@@ -24,6 +24,8 @@ structure St where
   tallocBufs : Array Nat := #[]
   /-- The variadic arguments the input's format asks for. -/
   vargs : List VArg := []
+  /-- Objects a scanf-like call stores into, reported after the call. -/
+  slots : Array (Ptr × Nat) := #[]
 
 abbrev H := StateT St M
 
@@ -152,6 +154,18 @@ def fmtString (bytes : List Nat) : H Ptr := do
   pure p
 
 def setVargs (vs : List VArg) : H Unit := modify fun s => { s with vargs := vs }
+
+/-- An object a scanf-like call stores into, holding the bytes of the next
+token first; passed as a pointer to `pointee`. -/
+def slot (pointee : String) (size : Nat) : H VArg := do
+  let t ← tok
+  let some bs := (match t.toList with
+    | 'H' :: hex => hexBytes hex []
+    | _ => none) | bad s!"`{t}` is not a target"
+  if bs.length != size then bad s!"target of {bs.length} bytes, expected {size}"
+  let p ← newInput .malloc (bs.toArray.map .byte) 16 false
+  modify fun s => { s with slots := s.slots.push (p, size) }
+  pure (VArg.ptr pointee p)
 
 /-- A `va_list` holding the arguments the input's format asked for, as the C
 side's `ck_vcall` makes one with `va_start`. -/
@@ -300,6 +314,16 @@ def obsInputs : H String := do
         else pure "freed"
       | none => pure "freed"
     out := out ++ s!" in{k}={r}"
+  pure out
+
+/-- The bytes of each object a scanf-like call stored into. -/
+def obsSlots : H String := do
+  let mut out := ""
+  for (p, n) in (← get).slots do
+    let r ← observe do
+      let bs ← (Mem.loadBytes p n : M (Array MByte))
+      (liftExcept (hexOf bs) : M String)
+    out := out ++ s!" s={r}"
   pure out
 
 /-- Runs the function under test and keeps how it ended, so that a failure

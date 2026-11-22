@@ -112,3 +112,13 @@ size_t list_chars(char **v)
         n += count_a(v[i]) + 1;
     return n;
 }
+
+/* scanf arguments through `...`. */
+int scan_into(const char *text, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    int r = vsscanf(text, fmt, ap);
+    va_end(ap);
+    return r;
+}

@@ -72,6 +72,7 @@ fn honest() -> &'static Report {
         "format_sum",
         "vformat_sum",
         "list_chars",
+        "scan_into",
     ];
     match RUN.get_or_init(|| run("honest", &all, 400, None)) {
         Ok(r) => r,
@@ -119,6 +120,20 @@ fn printf_arguments_and_string_lists_are_checked() {
         assert_eq!(f.disagreements, 0);
         assert!(f.compared > f.inputs / 2, "{name}: {f:?}");
     }
+}
+
+#[test]
+fn scanf_arguments_are_checked() {
+    let f = result(honest(), "scan_into");
+    assert!(
+        matches!(
+            f.status,
+            Status::CheckedSensitive | Status::CheckedNotShownSensitive
+        ),
+        "{f:?}"
+    );
+    assert_eq!(f.disagreements, 0);
+    assert!(f.compared > f.inputs / 2, "{f:?}");
 }
 
 #[test]

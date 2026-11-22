@@ -100,6 +100,8 @@ pub(crate) struct Gen<'d> {
     /// Buffers made earlier for this call, so that a later one can be equal
     /// to one, or a part of one, or differ from one in a single byte.
     made: Vec<Vec<u8>>,
+    /// Buffers are mostly number text.
+    numeric: bool,
 }
 
 fn hex(bytes: &[u8]) -> String {
@@ -116,6 +118,7 @@ impl<'d> Gen<'d> {
             rng: Rng::new(seed, name),
             dict,
             made: Vec::new(),
+            numeric: false,
         }
     }
 
@@ -160,7 +163,7 @@ impl<'d> Gen<'d> {
     }
 
     fn fresh_bytes(&mut self) -> Vec<u8> {
-        if self.rng.chance(1, 12) {
+        if self.rng.chance(1, if self.numeric { 2 } else { 12 }) {
             return self.number();
         }
         let n = self.length();
@@ -395,15 +398,31 @@ impl<'d> Gen<'d> {
                     self.shape(pointee, out);
                 }
             }
-            Shape::Format => {
-                let k = self.rng.below(format::PRINTF.len() as u64);
+            Shape::Format(kind) => {
+                let formats = kind.formats();
+                let k = self.rng.below(formats.len() as u64);
                 out.push(format!("F{k}"));
-                let fmt = format::PRINTF
+                let fmt = formats
                     .get(usize::try_from(k).unwrap_or(0))
                     .copied()
                     .unwrap_or("");
-                for a in format::printf_args(fmt) {
-                    self.format_arg(a, out);
+                match kind {
+                    format::Kind::Printf => {
+                        for a in format::printf_args(fmt) {
+                            self.format_arg(a, out);
+                        }
+                    }
+                    // What each target holds before the call, so that one
+                    // the call leaves alone reads the same on both sides.
+                    format::Kind::Scanf => {
+                        for t in format::scanf_targets(fmt) {
+                            let mut b = Vec::new();
+                            for _ in 0..t.size {
+                                b.push(self.rng.next().to_le_bytes().first().copied().unwrap_or(0));
+                            }
+                            out.push(hex(&b));
+                        }
+                    }
                 }
             }
         }
@@ -430,6 +449,10 @@ impl<'d> Gen<'d> {
     /// The tokens of one call.
     pub(crate) fn case(&mut self, params: &[(String, Shape)]) -> String {
         self.made.clear();
+        // The text a scanf-like function reads is a number half the time.
+        self.numeric = params
+            .iter()
+            .any(|p| p.1 == Shape::Format(format::Kind::Scanf));
         let mut out = Vec::new();
         for (_, s) in params {
             self.shape(s, &mut out);

@@ -6,6 +6,7 @@
 
 use std::collections::{BTreeMap, BTreeSet, HashSet};
 
+use crate::check::format;
 use crate::emit::Analysis;
 use crate::emit::layout::Layouts;
 use crate::emit::order::for_each_expr;
@@ -60,9 +61,9 @@ pub(crate) enum Shape {
         align: u64,
     },
     /// The format of a function whose `...` or `va_list` reaches
-    /// `vsnprintf`: one of `format::PRINTF`, followed by the arguments it
-    /// asks for.
-    Format,
+    /// `vsnprintf` or `vsscanf`: one of that kind's formats, followed by
+    /// the arguments it asks for.
+    Format(format::Kind),
     /// A `va_list` holding the arguments the preceding format asks for.
     VaList,
     /// A null-terminated array of C strings that the function only reads
@@ -89,7 +90,7 @@ impl Shape {
             // Only a struct member is an array, and members are assigned one by one.
             Self::Array { elem, .. } => elem.c_type(),
             Self::Ptr { pointee, .. } => format!("{} *", pointee.c_type()),
-            Self::Format => "const char *".into(),
+            Self::Format(_) => "const char *".into(),
             Self::VaList => "va_list".into(),
         }
     }
@@ -551,14 +552,18 @@ impl<'a> Shapes<'a> {
             .iter()
             .find(|r| r.key == key)
             .map(|r| &r.res.exts);
-        let printf = exts.is_some_and(|e| e.contains("vsnprintf") && !e.contains("vsscanf"));
-        match fmt.and_then(|i| params.get_mut(i)) {
-            Some((_, s)) if *s == Shape::CStr && printf => {
-                *s = Shape::Format;
+        let kind = match exts.map(|e| (e.contains("vsnprintf"), e.contains("vsscanf"))) {
+            Some((true, false)) => Some(format::Kind::Printf),
+            Some((false, true)) => Some(format::Kind::Scanf),
+            _ => None,
+        };
+        match (fmt.and_then(|i| params.get_mut(i)), kind) {
+            (Some((_, s)), Some(k)) if *s == Shape::CStr => {
+                *s = Shape::Format(k);
                 Ok(())
             }
             _ => Err(
-                "variadic arguments: the check makes them only for a format just before `...` or a `va_list` that reaches vsnprintf".into(),
+                "variadic arguments: the check makes them only for a format just before `...` or a `va_list` that reaches vsnprintf or vsscanf".into(),
             ),
         }
     }
