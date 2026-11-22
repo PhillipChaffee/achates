@@ -1,7 +1,7 @@
 //! `achates emit`: Lean definitions for the selected C functions, as a
 //! Lake project, with the status of every function.
 
-mod expr;
+pub(crate) mod expr;
 mod func;
 mod graph;
 pub(crate) mod layout;

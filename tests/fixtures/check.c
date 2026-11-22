@@ -1,6 +1,8 @@
 /* Fixtures for `achates check`: see src/check/tests.rs. */
 #include <assert.h>
+#include <stdarg.h>
 #include <stddef.h>
+#include <stdio.h>
 
 struct pair {
     int lo;
@@ -80,4 +82,24 @@ int many_calls(void)
     for (int i = 0; i < 90000; i++)
         k = bump(k);
     return k;
+}
+
+/* printf arguments, through a va_list and through `...`. */
+unsigned vformat_sum(const char *fmt, va_list ap)
+{
+    char buf[48];
+    int n = vsnprintf(buf, sizeof buf, fmt, ap);
+    unsigned s = 0;
+    for (int i = 0; i < n && i < 47; i++)
+        s = s * 31 + (unsigned char)buf[i];
+    return s ^ (unsigned)n;
+}
+
+unsigned format_sum(const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    unsigned r = vformat_sum(fmt, ap);
+    va_end(ap);
+    return r;
 }

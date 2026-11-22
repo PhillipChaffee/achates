@@ -69,6 +69,8 @@ fn honest() -> &'static Report {
         "same",
         "via_union",
         "half",
+        "format_sum",
+        "vformat_sum",
     ];
     match RUN.get_or_init(|| run("honest", &all, 400, None)) {
         Ok(r) => r,
@@ -99,6 +101,22 @@ fn a_correct_function_agrees_and_catches_its_mutants() {
         let m = f.mutants.as_ref().expect("mutants were run");
         assert!(m.caught > 0 && m.caught <= m.compiled && m.compiled <= m.generated);
         assert_eq!(m.survivors.len(), m.compiled - m.caught);
+    }
+}
+
+#[test]
+fn printf_arguments_through_dots_and_a_va_list_are_checked() {
+    let r = honest();
+    for name in ["format_sum", "vformat_sum"] {
+        let f = result(r, name);
+        assert_eq!(
+            f.status,
+            Status::CheckedSensitive,
+            "{name}:\n{}",
+            r.summary()
+        );
+        assert_eq!(f.disagreements, 0);
+        assert!(f.compared > f.inputs / 2, "{name}: {f:?}");
     }
 }
 

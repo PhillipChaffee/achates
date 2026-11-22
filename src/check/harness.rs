@@ -6,6 +6,7 @@
 
 use std::fmt::Write as _;
 
+use crate::check::format;
 use crate::check::shape::{Plan, Shape};
 use crate::emit::names::int_ty;
 use crate::types::FloatKind;
@@ -27,7 +28,32 @@ fn lean_ty(s: &Shape) -> String {
         Shape::Float(FloatKind::Float) => "F32".into(),
         Shape::Float(FloatKind::Double) => "F64".into(),
         Shape::Bstr | Shape::Struct { .. } | Shape::Array { .. } => "Agg".into(),
-        Shape::CStr | Shape::TallocCtx | Shape::Slot { .. } | Shape::Ptr { .. } => "Ptr".into(),
+        Shape::CStr
+        | Shape::TallocCtx
+        | Shape::Slot { .. }
+        | Shape::Ptr { .. }
+        | Shape::Format
+        | Shape::VaList => "Ptr".into(),
+    }
+}
+
+/// The Lean term that reads one format argument and the `VArg` it is.
+fn lean_format_arg(a: format::Arg, x: &str) -> (String, String) {
+    match a {
+        format::Arg::Double => ("f64".into(), format!("VArg.f64 {x}")),
+        format::Arg::Str => ("cstr".into(), format!("VArg.ptr \"char\" {x}")),
+        _ => {
+            let (bits, signed) = a.int().unwrap_or((32, true));
+            let (rd, con) = if signed {
+                ("sint", "sint")
+            } else {
+                ("uint", "uint")
+            };
+            (
+                format!("{rd} {bits}"),
+                format!("VArg.{con} \"{}\" {x}", a.rank()),
+            )
+        }
     }
 }
 
@@ -64,6 +90,27 @@ impl Lean {
             Shape::CStr => "  cstr".to_owned(),
             Shape::TallocCtx => "  tallocCtx".to_owned(),
             Shape::Slot { .. } => "  pure Ptr.null".to_owned(),
+            Shape::VaList => "  vaList".to_owned(),
+            Shape::Format => {
+                let mut b = String::from("  match ← fmtIndex with\n");
+                for (k, f) in format::PRINTF.iter().enumerate() {
+                    let bytes: Vec<String> = f.bytes().map(|x| x.to_string()).collect();
+                    let _ = writeln!(
+                        b,
+                        "  | {k} => do\n    let p ← fmtString [{}]",
+                        bytes.join(", ")
+                    );
+                    let mut vargs = Vec::new();
+                    for (i, a) in format::printf_args(f).into_iter().enumerate() {
+                        let (rd, v) = lean_format_arg(a, &format!("x{i}"));
+                        let _ = writeln!(b, "    let x{i} ← {rd}");
+                        vargs.push(format!("({v})"));
+                    }
+                    let _ = writeln!(b, "    setVargs [{}]\n    pure p", vargs.join(", "));
+                }
+                b.push_str("  | _ => bad \"format index\"");
+                b
+            }
             Shape::Struct { size, fields, .. } => {
                 let mut b = format!("  let mut a := Agg'.zero {size}\n");
                 for f in fields {
@@ -111,7 +158,9 @@ impl Lean {
             Shape::Float(FloatKind::Double) => "  pure (obsFloat v)".to_owned(),
             Shape::Bstr => "  obsBstr v".to_owned(),
             Shape::CStr => "  obsCStr v".to_owned(),
-            Shape::TallocCtx | Shape::Slot { .. } => "  obsPtr v".to_owned(),
+            Shape::TallocCtx | Shape::Slot { .. } | Shape::Format | Shape::VaList => {
+                "  obsPtr v".to_owned()
+            }
             Shape::Struct { fields, .. } => {
                 let mut b = String::from("  observe do\n    let mut out := \"{\"\n");
                 for (i, f) in fields.iter().enumerate() {
@@ -181,6 +230,10 @@ pub(crate) fn lean_module(
             let _ = writeln!(after, "    out := out ++ \" a{i}=\" ++ (← {o} a{i})");
         }
     }
+    if plan.variadic {
+        run.push_str("  let va := (← get).vargs\n");
+        args.push_str(" va");
+    }
     let ret = plan.ret.as_ref().map(|s| g.observer(s));
     let _ = writeln!(
         run,
@@ -225,6 +278,7 @@ pub(crate) fn lean_main(root: &str, modules: &[String]) -> String {
 const C_RUNTIME: &str = r#"
 #include <inttypes.h>
 #include <signal.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -239,6 +293,8 @@ static struct ck_in ck_ins[256];
 static int ck_ninputs;
 static char *ck_pos;
 static long long ck_max_ms;
+/* The format the input chose, for a function that takes printf arguments. */
+static int ck_fmt;
 
 static void ck_die(const char *msg)
 {
@@ -522,7 +578,17 @@ impl C {
             Shape::Bstr => format!("    return ck_bstr({});", u8::from(owned)),
             Shape::CStr => "    return ck_cstr();".to_owned(),
             Shape::TallocCtx => "    return ck_ctx();".to_owned(),
-            Shape::Slot { .. } => "    return NULL;".to_owned(),
+            Shape::Slot { .. } | Shape::VaList => "    return NULL;".to_owned(),
+            Shape::Format => {
+                let mut b = String::from(
+                    "    const char *t = ck_tok();\n    ck_fmt = (int)strtol(t + 1, NULL, 10);\n    switch (ck_fmt) {\n",
+                );
+                for (k, f) in format::PRINTF.iter().enumerate() {
+                    let _ = writeln!(b, "    case {k}: return {};", format::c_literal(f));
+                }
+                b.push_str("    }\n    ck_die(\"bad format index\");\n    return NULL;");
+                b
+            }
             Shape::Struct { fields, .. } => {
                 let mut b = format!("    {ty} v;\n    memset(&v, 0, sizeof v);\n");
                 for f in fields {
@@ -571,7 +637,9 @@ impl C {
             Shape::Float(FloatKind::Double) => "    ck_obs_f64(v);".to_owned(),
             Shape::Bstr => "    ck_obs_bstr(v);".to_owned(),
             Shape::CStr => "    ck_obs_cstr(v);".to_owned(),
-            Shape::TallocCtx | Shape::Slot { .. } => "    ck_obs_ptr(v);".to_owned(),
+            Shape::TallocCtx | Shape::Slot { .. } | Shape::Format | Shape::VaList => {
+                "    ck_obs_ptr(v);".to_owned()
+            }
             Shape::Struct { fields, .. } => {
                 let mut b = String::from("    putchar('{');\n");
                 for (i, f) in fields.iter().enumerate() {
@@ -614,16 +682,26 @@ pub(crate) fn c_harness(includes: &[String], function: &str, plan: &Plan) -> Str
     let mut read = String::new();
     let mut args = Vec::new();
     let mut after = String::new();
+    let mut decls = Vec::new();
     for (i, (_, s)) in plan.params.iter().enumerate() {
+        if *s == Shape::VaList {
+            continue;
+        }
         let r = g.reader(s, false);
         let _ = writeln!(read, "    {} a{i} = {r}();", s.c_type());
         args.push(format!("a{i}"));
+        decls.push(format!("{} a{i}", s.c_type()));
         if matches!(s, Shape::Ptr { .. }) {
             let o = g.observer(s);
             let _ = writeln!(after, "    fputs(\" a{i}=\", stdout);\n    {o}(a{i});");
         }
     }
-    let call = format!("{function}({})", args.join(", "));
+    let formatted = plan.params.iter().any(|p| p.1 == Shape::Format);
+    let call = if formatted {
+        format!("ck_call({})", args.join(", "))
+    } else {
+        format!("{function}({})", args.join(", "))
+    };
     let ret = plan.ret.as_ref().map(|s| (s.c_type(), g.observer(s)));
     // The harness uses POSIX (fork, alarm, clock_gettime), and the first
     // header anything includes fixes what the C library declares.
@@ -643,6 +721,9 @@ pub(crate) fn c_harness(includes: &[String], function: &str, plan: &Plan) -> Str
     s.push_str(C_RUNTIME);
     s.push('\n');
     s.push_str(&g.defs);
+    if formatted {
+        s.push_str(&c_format_call(function, plan, &args, &decls));
+    }
     let _ = write!(
         s,
         "static void ck_case(int expect_abort)\n{{\n{read}    if (expect_abort) {{\n        fflush(stdout);\n        pid_t pid = fork();\n        if (pid < 0)\n            ck_die(\"fork failed\");\n        if (pid == 0) {{\n            alarm(CK_SECONDS - 1);\n            if (!freopen(\"/dev/null\", \"w\", stderr))\n                _exit(4);\n            (void){call};\n            _exit(0);\n        }}\n        int st = 0;\n        waitpid(pid, &st, 0);\n        if (WIFSIGNALED(st) && WTERMSIG(st) == SIGABRT)\n            fputs(\"aborted\", stdout);\n        else if (WIFSIGNALED(st) && WTERMSIG(st) == SIGALRM)\n            fputs(\"timeout\", stdout);\n        else if (WIFSIGNALED(st))\n            printf(\"signal %d\", WTERMSIG(st));\n        else\n            fputs(\"returned\", stdout);\n        return;\n    }}\n"
@@ -666,5 +747,66 @@ pub(crate) fn c_harness(includes: &[String], function: &str, plan: &Plan) -> Str
     }
     s.push_str(&after);
     s.push_str("    ck_obs_inputs();\n}\n");
+    s
+}
+
+/// `ck_call`: reads the arguments the chosen format asks for and calls
+/// the function with them, through `...` or through a `va_list` made by
+/// `ck_vcall`.
+fn c_format_call(function: &str, plan: &Plan, args: &[String], decls: &[String]) -> String {
+    let ret = plan
+        .ret
+        .as_ref()
+        .map_or_else(|| "void".to_owned(), Shape::c_type);
+    let ret_kw = if ret == "void" { "" } else { "return " };
+    let mut s = String::new();
+    let target = if plan.variadic {
+        function.to_owned()
+    } else {
+        let last = args.last().cloned().unwrap_or_default();
+        let _ = write!(
+            s,
+            "static {ret} ck_vcall({}, ...)\n{{\n    va_list ap;\n    va_start(ap, {last});\n    {}{function}({}, ap);\n    va_end(ap);\n{}}}\n\n",
+            decls.join(", "),
+            if ret == "void" {
+                String::new()
+            } else {
+                format!("{ret} r = ")
+            },
+            args.join(", "),
+            if ret == "void" { "" } else { "    return r;\n" },
+        );
+        "ck_vcall".to_owned()
+    };
+    let _ = write!(
+        s,
+        "static {ret} ck_call({})\n{{\n    switch (ck_fmt) {{\n",
+        decls.join(", ")
+    );
+    for (k, f) in format::PRINTF.iter().enumerate() {
+        let _ = writeln!(s, "    case {k}: {{");
+        let mut extra = Vec::new();
+        for (i, a) in format::printf_args(f).into_iter().enumerate() {
+            let read = match a {
+                format::Arg::Double => "ck_f64()".to_owned(),
+                format::Arg::Str => "ck_cstr()".to_owned(),
+                _ if a.int().is_some_and(|x| x.1) => format!("({})ck_sint()", a.c_type()),
+                _ => format!("({})ck_uint()", a.c_type()),
+            };
+            let _ = writeln!(s, "        {} x{i} = {read};", a.c_type());
+            extra.push(format!("x{i}"));
+        }
+        let all: Vec<String> = args.iter().cloned().chain(extra).collect();
+        let _ = writeln!(s, "        {ret_kw}{target}({});", all.join(", "));
+        if ret == "void" {
+            s.push_str("        return;\n");
+        }
+        s.push_str("    }\n");
+    }
+    s.push_str("    }\n    ck_die(\"bad format index\");\n");
+    if ret != "void" {
+        let _ = writeln!(s, "    return ({ret}){{0}};");
+    }
+    s.push_str("}\n\n");
     s
 }

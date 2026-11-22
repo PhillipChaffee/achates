@@ -10,6 +10,7 @@
 
 use std::fmt::Write as _;
 
+use crate::check::format;
 use crate::check::shape::Shape;
 use crate::types::FloatKind;
 
@@ -362,7 +363,9 @@ impl<'d> Gen<'d> {
                 }
             }
             Shape::TallocCtx => out.push(if self.rng.chance(1, 4) { "N" } else { "C" }.into()),
-            Shape::Slot { .. } => {}
+            // Neither takes a token: a slot starts null, and a `va_list`
+            // holds the arguments its format read.
+            Shape::Slot { .. } | Shape::VaList => {}
             Shape::Struct { fields, .. } => {
                 for f in fields {
                     self.shape(&f.shape, out);
@@ -380,6 +383,35 @@ impl<'d> Gen<'d> {
                     out.push("P".into());
                     self.shape(pointee, out);
                 }
+            }
+            Shape::Format => {
+                let k = self.rng.below(format::PRINTF.len() as u64);
+                out.push(format!("F{k}"));
+                let fmt = format::PRINTF
+                    .get(usize::try_from(k).unwrap_or(0))
+                    .copied()
+                    .unwrap_or("");
+                for a in format::printf_args(fmt) {
+                    self.format_arg(a, out);
+                }
+            }
+        }
+    }
+
+    fn format_arg(&mut self, a: format::Arg, out: &mut Vec<String>) {
+        match a {
+            // Mostly field widths and precisions a terminal would show;
+            // sometimes negative, sometimes too large for the model.
+            format::Arg::Star => out.push(if self.rng.chance(1, 16) {
+                self.int(32, true)
+            } else {
+                (i64::try_from(self.rng.below(41)).unwrap_or(0) - 10).to_string()
+            }),
+            format::Arg::Double => out.push(self.float(FloatKind::Double)),
+            format::Arg::Str => self.shape(&Shape::CStr, out),
+            _ => {
+                let (bits, signed) = a.int().unwrap_or((32, true));
+                out.push(self.int(bits, signed));
             }
         }
     }

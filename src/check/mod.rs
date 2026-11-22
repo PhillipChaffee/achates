@@ -3,6 +3,7 @@
 //! the comparison notices planted bugs.
 
 mod compare;
+mod format;
 mod harness;
 mod input;
 mod mutate;
@@ -67,6 +68,12 @@ struct ExtModel {
 }
 
 const EXT_MODELS: &[ExtModel] = &[
+    ExtModel {
+        name: "vsnprintf",
+        lean: "AchatesCheck.Printf.vsnprintf",
+        sig: "Ptr → U64 → Ptr → Ptr → M I32",
+        what: "C vsnprintf in the C locale for the conversions d i u o x X c s f F %, with glibc's spelling of infinities and NaNs; other conversions are unsupported",
+    },
     ExtModel {
         name: "strncasecmp",
         lean: "AchatesCheck.Models.strncasecmp",

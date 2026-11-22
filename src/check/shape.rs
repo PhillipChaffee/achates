@@ -59,6 +59,12 @@ pub(crate) enum Shape {
         size: u64,
         align: u64,
     },
+    /// The format of a function whose `...` or `va_list` reaches
+    /// `vsnprintf`: one of `format::PRINTF`, followed by the arguments it
+    /// asks for.
+    Format,
+    /// A `va_list` holding the arguments the preceding format asks for.
+    VaList,
 }
 
 impl Shape {
@@ -77,6 +83,8 @@ impl Shape {
             // Only a struct member is an array, and members are assigned one by one.
             Self::Array { elem, .. } => elem.c_type(),
             Self::Ptr { pointee, .. } => format!("{} *", pointee.c_type()),
+            Self::Format => "const char *".into(),
+            Self::VaList => "va_list".into(),
         }
     }
 
@@ -97,6 +105,9 @@ pub(crate) struct Plan {
     pub(crate) params: Vec<(String, Shape)>,
     /// `None` for `void`.
     pub(crate) ret: Option<Shape>,
+    /// The function is variadic: its `...` gets the arguments its format
+    /// (the last parameter, a `Shape::Format`) asks for.
+    pub(crate) variadic: bool,
 }
 
 impl Plan {
@@ -417,6 +428,9 @@ impl<'a> Shapes<'a> {
         let Type::Pointer(p) = &t.ty else {
             return Self::value(tu, lay, t);
         };
+        if crate::emit::expr::is_va_tag(p) {
+            return Ok(Shape::VaList);
+        }
         let u = uses(f, index);
         match &p.ty {
             Type::Int(IntType {
@@ -484,6 +498,45 @@ impl<'a> Shapes<'a> {
         }
     }
 
+    /// Gives the format parameter of a function with `...` or a `va_list`
+    /// parameter its shape: the `const char *` just before them, when what
+    /// the arguments reach is `vsnprintf`.
+    fn formats(
+        &self,
+        key: &str,
+        f: &Function,
+        params: &mut [(String, Shape)],
+    ) -> Result<(), String> {
+        let lists: Vec<usize> = params
+            .iter()
+            .enumerate()
+            .filter(|(_, (_, s))| *s == Shape::VaList)
+            .map(|(i, _)| i)
+            .collect();
+        let fmt = match (f.variadic, lists.as_slice()) {
+            (false, []) => return Ok(()),
+            (true, []) => params.len().checked_sub(1),
+            (false, [i]) if *i + 1 == params.len() => i.checked_sub(1),
+            _ => None,
+        };
+        let exts = self
+            .a
+            .rows
+            .iter()
+            .find(|r| r.key == key)
+            .map(|r| &r.res.exts);
+        let printf = exts.is_some_and(|e| e.contains("vsnprintf") && !e.contains("vsscanf"));
+        match fmt.and_then(|i| params.get_mut(i)) {
+            Some((_, s)) if *s == Shape::CStr && printf => {
+                *s = Shape::Format;
+                Ok(())
+            }
+            _ => Err(
+                "variadic arguments: the check makes them only for a format just before `...` or a `va_list` that reaches vsnprintf".into(),
+            ),
+        }
+    }
+
     /// The plan for one function, or why it has none.
     pub(crate) fn plan(&self, key: &str) -> Result<Plan, Vec<String>> {
         let Some((f, _, _)) = self.a.function(key) else {
@@ -504,8 +557,15 @@ impl<'a> Shapes<'a> {
                 None
             }
         };
+        if let Err(e) = self.formats(key, f, &mut params) {
+            reasons.push(e);
+        }
         if reasons.is_empty() {
-            Ok(Plan { params, ret })
+            Ok(Plan {
+                params,
+                ret,
+                variadic: f.variadic,
+            })
         } else {
             reasons.sort();
             reasons.dedup();

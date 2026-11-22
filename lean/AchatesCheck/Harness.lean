@@ -22,6 +22,8 @@ structure St where
   dumped : Array Nat := #[]
   /-- Which of them are buffers the C side allocates with talloc. -/
   tallocBufs : Array Nat := #[]
+  /-- The variadic arguments the input's format asks for. -/
+  vargs : List VArg := []
 
 abbrev H := StateT St M
 
@@ -113,6 +115,36 @@ def buffer (talloc nul : Bool) : H (Ptr × Nat) := do
   | _ => bad s!"`{t}` is not a buffer"
 
 def cstr : H Ptr := do pure (← buffer false true).1
+
+/-- The index of a format in the check's table: `F<k>`. -/
+def fmtIndex : H Nat := do
+  let t ← tok
+  match t.toList with
+  | 'F' :: k =>
+    match (String.ofList k).toNat? with
+    | some n => pure n
+    | none => bad s!"`{t}` is not a format"
+  | _ => bad s!"`{t}` is not a format"
+
+/-- A format string, read-only as a string literal is, and not an input:
+the C side passes a literal. -/
+def fmtString (bytes : List Nat) : H Ptr := do
+  let p ← (Mem.alloc .static (bytes.length + 1) 1 (.byte 0) : M Ptr)
+  (Mem.storeRaw p bytes : M Unit)
+  let .obj b _ := p | bad "allocation did not return an object"
+  (Mem.setReadonly b : M Unit)
+  pure p
+
+def setVargs (vs : List VArg) : H Unit := modify fun s => { s with vargs := vs }
+
+/-- A `va_list` holding the arguments the input's format asked for, as the C
+side's `ck_vcall` makes one with `va_start`. -/
+def vaList : H Ptr := do
+  let n ← (VaList.enter (← get).vargs : M Nat)
+  let c ← (VaList.call : M Nat)
+  let p ← (Mem.alloca VaList.size VaList.align : M Ptr)
+  (VaList.start p n c : M Unit)
+  pure p
 
 namespace Agg'
 
