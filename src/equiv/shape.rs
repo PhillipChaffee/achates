@@ -265,6 +265,7 @@ mod tests {
             ret: ret.to_owned(),
             body: String::new(),
             axiom: false,
+            text: String::new(),
         }
     }
 

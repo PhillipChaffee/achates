@@ -17,6 +17,9 @@ pub(crate) struct Def {
     pub(crate) ret: String,
     pub(crate) body: String,
     pub(crate) axiom: bool,
+    /// The definition as written, header and body: what the cache key
+    /// hashes.
+    pub(crate) text: String,
 }
 
 impl Def {
@@ -166,12 +169,14 @@ pub(crate) fn parse(text: &str) -> Vec<Def> {
             full.push('.');
         }
         full.push_str(short);
+        let source = lines.get(i..j).unwrap_or_default().join("\n");
         defs.push(Def {
             name: full,
             params,
             ret,
             body,
             axiom,
+            text: source,
         });
         i = j;
     }

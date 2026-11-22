@@ -1,8 +1,8 @@
 //! `achates equiv`: for each C function of the selection that has a Rust
 //! counterpart in the Aeneas output, the Lean theorem that the two are
 //! equal, and the search for its proof by fixed tactic tiers: each
-//! theorem starts at the tier its shape predicts and gets at most two
-//! tries.
+//! theorem starts at the tier its shape predicts, gets at most two tries,
+//! and the outcome is cached under a key of everything it depends on.
 //!
 //! The pairing is by name only: mpv's `misc/x.c` (or `x.h`) becomes the
 //! port's module `x`, and the C function's name in snake case its name
@@ -13,6 +13,7 @@ mod cache;
 mod lean;
 mod prove;
 mod search;
+mod sha256;
 mod shape;
 
 use std::collections::{BTreeMap, BTreeSet};
@@ -43,6 +44,8 @@ pub(crate) struct Options {
     /// Search for the proofs; otherwise only write the statements.
     pub(crate) prove: bool,
     pub(crate) jobs: usize,
+    /// Do not read `tiers.json`: search every theorem.
+    pub(crate) no_cache: bool,
 }
 
 /// What became of one C function.
@@ -64,6 +67,8 @@ struct Row {
     first_error: Option<String>,
     /// The tries behind the outcome, in order.
     tries: Vec<TryRecord>,
+    /// The outcome is the cache's: nothing was run for it this time.
+    cached: bool,
 }
 
 fn snake(name: &str) -> String {
@@ -152,6 +157,8 @@ struct Reached {
     c: BTreeSet<String>,
     r: BTreeSet<String>,
     reach: Reach,
+    /// The digest of every definition reached, for the cache key.
+    sources: String,
 }
 
 /// Both sides, loaded once.
@@ -216,10 +223,26 @@ impl Sides {
             branches: c_bodies().chain(r_bodies()).any(Def::branches),
             args: Args::Scalars,
         };
+        // What the result depends on, of the two generated sides: every
+        // definition either side reaches and, for a theorem that assumes
+        // `StaticsReady`, what `Statics.init` builds.
+        let mut c_deps = c_reach.clone();
+        if reach.reads_statics {
+            c_deps.extend(lean::reach(&self.c_defs, STATICS_INIT, &[]));
+        }
+        let sources = sha256::hex(
+            format!(
+                "{}\n{}",
+                cache::defs_digest(&self.c_defs, &c_deps),
+                cache::defs_digest(&self.r_defs, &r_reach)
+            )
+            .as_bytes(),
+        );
         Reached {
             c: c_reach,
             r: r_reach,
             reach,
+            sources,
         }
     }
 
@@ -244,6 +267,7 @@ impl Sides {
             open_reason: None,
             first_error: None,
             tries: vec![],
+            cached: false,
         };
         if let Some(why) = self.unmatched(&rust, &c_name) {
             row.status = why;
@@ -276,6 +300,7 @@ impl Sides {
             c: c_reach,
             r: r_reach,
             mut reach,
+            sources,
         } = self.reached(&lean_name, &rust);
         row.rust_axioms.clone_from(&reach.axioms);
         let thm = lean_name
@@ -314,12 +339,17 @@ impl Sides {
                     name: thm,
                     text: st.text,
                     unfold: unfold.into_iter().collect(),
+                    sources,
                 };
                 (row, Some((goal, reach)))
             }
         }
     }
 }
+
+/// The definition that builds the static objects, which `StaticsReady`
+/// names.
+const STATICS_INIT: &str = "Misc.Statics.init";
 
 pub(crate) fn run(entries: &[&Entry], opts: &Options) -> Result<String> {
     let status: Vec<Value> = serde_json::from_str(
@@ -352,9 +382,20 @@ pub(crate) fn run(entries: &[&Entry], opts: &Options) -> Result<String> {
 #[derive(Debug, Clone)]
 struct Outcome {
     entry: cache::Entry,
+    cached: bool,
 }
 
-/// The record of one try.
+/// `lean --version`, as `lake env` finds it in `lake_dir`.
+fn toolchain(lake_dir: &Path) -> Result<String> {
+    let out = std::process::Command::new("lake")
+        .args(["env", "lean", "--version"])
+        .current_dir(lake_dir)
+        .output()
+        .context("running lake env lean --version (is Lean on PATH?)")?;
+    Ok(String::from_utf8_lossy(&out.stdout).trim().to_owned())
+}
+
+/// The cache's record of one try.
 fn record(t: &Try) -> TryRecord {
     let result = match &t.failure {
         None => "proved".to_owned(),
@@ -404,19 +445,49 @@ fn open_reason(tries: &[Try], r: &Reach, tiers: &[Tier]) -> String {
     }
 }
 
-/// The search: every theorem starts at its predicted tier.
+/// The search: theorems whose cache entry holds for their key now are
+/// not run; the rest start at their predicted tier, the longest expected
+/// first.
 fn search_all(
     opts: &Options,
     goals: &[Goal],
     reach: &[Reach],
     tiers: &[Tier],
 ) -> Result<Vec<Outcome>> {
-    let first: Vec<Job> = (0..goals.len())
-        .map(|i| Job {
-            goal: i,
-            tier: reach.get(i).map_or(0, search::predict),
-        })
-        .collect();
+    prove::build_imports(&opts.lake_dir)?;
+    let cache_path = opts.lake_dir.join("tiers.json");
+    let old = if opts.no_cache {
+        cache::Cache::default()
+    } else {
+        cache::load(&cache_path)
+    };
+    let global = cache::global_key(&opts.lake_dir, tiers, &toolchain(&opts.lake_dir)?)?;
+    let keys: Vec<String> = goals.iter().map(|g| cache::key(&global, g)).collect();
+    let mut out: Vec<Option<Outcome>> = vec![None; goals.len()];
+    let mut first = Vec::new();
+    for (i, (g, k)) in goals.iter().zip(&keys).enumerate() {
+        let entry = old.theorems.get(&g.name);
+        if let (Some(e), Some(slot)) = (entry.filter(|e| &e.key == k), out.get_mut(i)) {
+            *slot = Some(Outcome {
+                entry: e.clone(),
+                cached: true,
+            });
+            continue;
+        }
+        let tier = reach.get(i).map_or(0, search::predict);
+        // A stale entry's time still estimates the cost; a theorem with
+        // none goes first, as possibly the longest.
+        let cost = entry.map_or(f64::INFINITY, cache::Entry::seconds);
+        first.push((cost, Job { goal: i, tier }));
+    }
+    first.sort_by(|a, b| b.0.total_cmp(&a.0));
+    let first: Vec<Job> = first.into_iter().map(|(_, j)| j).collect();
+    eprintln!(
+        "achates equiv: {} theorems, {} from the cache, {} to search",
+        goals.len(),
+        goals.len() - first.len(),
+        first.len()
+    );
     let work = opts.lake_dir.join("attempts");
     if let Ok(dir) = std::fs::read_dir(&work) {
         for e in dir.flatten() {
@@ -435,21 +506,40 @@ fn search_all(
         &work,
         opts.jobs,
     )?;
-    Ok((0..goals.len())
-        .map(|i| {
+    let mut new_cache = cache::Cache::default();
+    for (i, g) in goals.iter().enumerate() {
+        let (Some(slot), Some(k)) = (out.get_mut(i), keys.get(i)) else {
+            continue;
+        };
+        if slot.is_none() {
             let ts = tries.get(i).map(Vec::as_slice).unwrap_or_default();
             let proved = ts.last().filter(|t| t.failure.is_none());
             let r = reach.get(i).cloned().unwrap_or_default();
-            Outcome {
+            *slot = Some(Outcome {
                 entry: cache::Entry {
+                    key: k.clone(),
                     proved: proved.map(|t| t.tier),
                     reason: proved.is_none().then(|| open_reason(ts, &r, tiers)),
                     tries: ts.iter().map(record).collect(),
                     axioms: proved.and_then(|t| t.axioms.clone()),
                 },
-            }
-        })
-        .collect())
+                cached: false,
+            });
+        }
+        // A Lean run that stopped says nothing about the theorem: it is
+        // not kept, so the next run searches it again.
+        let stopped = tries
+            .get(i)
+            .and_then(|ts| ts.last())
+            .is_some_and(|t| matches!(t.failure, Some(Failure::Stopped(_))));
+        if let Some(o) = slot
+            && !stopped
+        {
+            new_cache.theorems.insert(g.name.clone(), o.entry.clone());
+        }
+    }
+    cache::save(&cache_path, &new_cache)?;
+    Ok(out.into_iter().flatten().collect())
 }
 
 /// The budget line and the statement with `tier`'s script.
@@ -469,6 +559,7 @@ fn write_outputs(
     rows: &mut [Row],
 ) -> Result<()> {
     let mut proved = String::from(prove::HEADER);
+    let mut checks = String::new();
     let mut open = String::from(
         "/-! The generated theorems no tier proved, each with the script of its\n\
          last try and that try's first error. This file is not built. -/\n\n",
@@ -487,9 +578,22 @@ fn write_outputs(
         if let Some((t, o)) = o.and_then(|o| Some((o.entry.proved?, o))) {
             let tier = tiers.get(t).unwrap_or(&fallback);
             let _ = writeln!(proved, "{}", with_budget(g, tier));
+            // The build checks the axioms too: the message must be the one
+            // the run accepted, which named only Lean's own. The checks go
+            // after every theorem: `#print axioms` waits for the proof, and
+            // in between it would stop the theorems from being checked in
+            // parallel.
+            if let Some(ax) = &o.entry.axioms {
+                let _ = writeln!(
+                    checks,
+                    "/-- info: {ax} -/\n#guard_msgs (whitespace := lax) in\n#print axioms Equiv.Gen.{}\n",
+                    g.name
+                );
+            }
             if let Some(r) = row {
                 r.proved = Some(tier.label.clone());
                 r.tries.clone_from(&o.entry.tries);
+                r.cached = o.cached;
             }
         } else {
             let last = o.and_then(|o| o.entry.tries.last());
@@ -504,6 +608,7 @@ fn write_outputs(
                 r.open_reason.clone_from(&o.entry.reason);
                 r.first_error = Some(err);
                 r.tries.clone_from(&o.entry.tries);
+                r.cached = o.cached;
             }
         }
     }
@@ -512,6 +617,7 @@ fn write_outputs(
             t.first_error = None;
         }
     }
+    proved.push_str(&checks);
     proved.push_str("end Equiv.Gen\n");
     open.push_str("end Equiv.Gen\n");
     if opts.prove {
@@ -526,14 +632,16 @@ fn write_outputs(
     Ok(())
 }
 
-/// How a row's outcome was reached, for the summary: the tiers tried.
+/// How a row's outcome was reached, for the summary: the tiers tried and
+/// whether the cache supplied it.
 fn tried(r: &Row) -> String {
     let tiers: Vec<String> = r.tries.iter().map(|t| t.tier.to_string()).collect();
     let n = r.tries.len();
     format!(
-        "{n} {} (tier {})",
+        "{n} {} (tier {}){}",
         if n == 1 { "try" } else { "tries" },
-        tiers.join(", then ")
+        tiers.join(", then "),
+        if r.cached { ", cached" } else { "" }
     )
 }
 
@@ -578,7 +686,12 @@ fn summary(rows: &[Row], tiers: &[Tier]) -> String {
             count(&|r| r.proved.as_deref() == Some(t.label.as_str()))
         );
     }
-    let fresh = || rows.iter();
+    let fresh = || rows.iter().filter(|r| !r.cached);
+    let _ = writeln!(
+        s,
+        "outcomes from the cache, not run again: {}",
+        count(&|r| r.cached)
+    );
     let _ = writeln!(
         s,
         "tries this run: {} ({} theorems with one, {} with two)",

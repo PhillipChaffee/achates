@@ -145,6 +145,10 @@ struct EquivArgs {
     /// Lean processes to run at once.
     #[arg(long, default_value_t = 4)]
     jobs: usize,
+    /// Search every theorem as if `tiers.json` were empty (it is still
+    /// written afterwards).
+    #[arg(long)]
+    no_cache: bool,
 }
 
 #[derive(Debug, clap::Args)]
@@ -269,6 +273,7 @@ fn run_equiv(a: EquivArgs) -> Result<String> {
             lake_dir: a.lake_dir,
             prove: a.prove,
             jobs: a.jobs,
+            no_cache: a.no_cache,
         },
     )
 }
