@@ -78,31 +78,34 @@ theorems generated: 36
     1  not matched: no `rmpv_misc.threads_posix.mp_mutex_init` in the Aeneas output
     1  not matched: no `rmpv_misc.threads_posix.mp_thread_set_name` in the Aeneas output
 proved at tier 0: 1
-proved at tier 1: 8
-proved at tier 2: memory lemmas: 0
-proved at tier 2: memory and memcmp lemmas: 2
-open:   8  arithmetic or unfolding
+proved at tier 1: 9
+proved at tier 2: 2
+outcomes from the cache, not run again: 0
+tries this run: 36 (36 theorems with one, 0 with two)
+open:   1  arithmetic or unfolding
+open:   5  budget: out of heartbeats at the top tier for its shape
 open:   8  loop: a C loop needs a fuel bound and an invariant
-open:   5  loop: a Rust recursion needs an induction
-open:   1  memory correspondence
+open:   2  loop: a Rust recursion needs an induction
+open:   2  memory correspondence
+open:   3  memory: a C string argument (no script takes `IsCStr` apart; `strlen` has no lemma)
 open:   3  memory: static tables against Aeneas constants
 
-bstrcmp -> rmpv_misc.bstr.bstrcmp: generated, proved at tier 2: memory and memcmp lemmas
+bstrcmp -> rmpv_misc.bstr.bstrcmp: generated, proved at tier 2, 1 try (tier 2)
 bstrcasecmp -> rmpv_misc.bstr.bstrcasecmp: not generated: the C side takes external functions as parameters (strncasecmp)
-bstrchr -> rmpv_misc.bstr.bstrchr: generated, open: loop: a Rust recursion needs an induction
+bstrchr -> rmpv_misc.bstr.bstrchr: generated, open after 1 try (tier 2): loop: a Rust recursion needs an induction
 bstrrchr -> rmpv_misc.bstr.bstrrchr: not generated: the C side takes external functions as parameters (memrchr)
-bstrcspn -> rmpv_misc.bstr.bstrcspn: generated, open: loop: a C loop needs a fuel bound and an invariant
-bstrspn -> rmpv_misc.bstr.bstrspn: generated, open: loop: a C loop needs a fuel bound and an invariant
-bstr_find -> rmpv_misc.bstr.bstr_find: generated, open: loop: a C loop needs a fuel bound and an invariant
-bstr_lstrip -> rmpv_misc.bstr.bstr_lstrip: generated, open: loop: a C loop needs a fuel bound and an invariant
-bstr_strip -> rmpv_misc.bstr.bstr_strip: generated, open: loop: a C loop needs a fuel bound and an invariant
+bstrcspn -> rmpv_misc.bstr.bstrcspn: generated, open after 1 try (tier 2): loop: a C loop needs a fuel bound and an invariant
+bstrspn -> rmpv_misc.bstr.bstrspn: generated, open after 1 try (tier 2): loop: a C loop needs a fuel bound and an invariant
+bstr_find -> rmpv_misc.bstr.bstr_find: generated, open after 1 try (tier 2): loop: a C loop needs a fuel bound and an invariant
+bstr_lstrip -> rmpv_misc.bstr.bstr_lstrip: generated, open after 1 try (tier 2): loop: a C loop needs a fuel bound and an invariant
+bstr_strip -> rmpv_misc.bstr.bstr_strip: generated, open after 1 try (tier 2): loop: a C loop needs a fuel bound and an invariant
 bstr_split -> rmpv_misc.bstr.bstr_split: no template yet: parameter lists differ: C has 3, Rust has 2
 bstr_split_tok -> rmpv_misc.bstr.bstr_split_tok: no template yet: parameter lists differ: C has 4, Rust has 2
-bstr_splice -> rmpv_misc.bstr.bstr_splice: generated, open: arithmetic or unfolding
+bstr_splice -> rmpv_misc.bstr.bstr_splice: generated, open after 1 try (tier 2): budget: out of heartbeats at the top tier for its shape
 bstrtoll -> rmpv_misc.bstr.bstrtoll: not generated: the C side takes external functions as parameters (strtoll)
 bstrtod -> -: not matched: no `rmpv_misc.bstr.bstrtod` in the Aeneas output
 bstr_splitchar -> rmpv_misc.bstr.bstr_splitchar: no template yet: parameter lists differ: C has 3, Rust has 2
-bstr_strip_linebreaks -> rmpv_misc.bstr.bstr_strip_linebreaks: generated, open: memory: static tables against Aeneas constants
+bstr_strip_linebreaks -> rmpv_misc.bstr.bstr_strip_linebreaks: generated, open after 1 try (tier 2): memory: static tables against Aeneas constants
 bstr_eatstart -> rmpv_misc.bstr.bstr_eatstart: no template yet: argument `ptr<struct bstr>` ↔ `Slice Std.U8`
 bstr_eatend -> rmpv_misc.bstr.bstr_eatend: no template yet: argument `ptr<struct bstr>` ↔ `Slice Std.U8`
 bstr_lower -> rmpv_misc.bstr.bstr_lower: no template yet: result `void` ↔ `Slice Std.U8`
@@ -119,33 +122,33 @@ bstr_xappend_asprintf -> rmpv_misc.bstr.bstr_xappend_asprintf: not generated: th
 bstr_xappend_vasprintf -> rmpv_misc.bstr.bstr_xappend_vasprintf: not generated: the C side takes external functions as parameters (vsnprintf)
 bstr_case_startswith -> rmpv_misc.bstr.bstr_case_startswith: not generated: the C side takes external functions as parameters (strncasecmp)
 bstr_case_endswith -> rmpv_misc.bstr.bstr_case_endswith: not generated: the C side takes external functions as parameters (strncasecmp)
-h_to_i -> rmpv_misc.bstr.h_to_i: generated, open: arithmetic or unfolding
+h_to_i -> rmpv_misc.bstr.h_to_i: generated, proved at tier 1, 1 try (tier 1)
 bstr_decode_hex -> rmpv_misc.bstr.bstr_decode_hex: no template yet: allocation: the C side takes a talloc parent or a logger
 bstr_find_in_list0 -> rmpv_misc.bstr.bstr_find_in_list0: not generated: the C side takes external functions as parameters (strncasecmp)
 bstr_in_list0 -> rmpv_misc.bstr.bstr_in_list0: not generated: the C side takes external functions as parameters (strncasecmp)
-bstr0 -> rmpv_misc.bstr.bstr0: generated, open: arithmetic or unfolding
-bstr_cut -> rmpv_misc.bstr.bstr_cut: generated, open: memory correspondence
-bstr_endswith -> rmpv_misc.bstr.bstr_endswith: generated, open: loop: a Rust recursion needs an induction
-bstr_endswith0 -> rmpv_misc.bstr.bstr_endswith0: generated, open: loop: a Rust recursion needs an induction
-bstr_startswith -> rmpv_misc.bstr.bstr_startswith: generated, proved at tier 2: memory and memcmp lemmas
+bstr0 -> rmpv_misc.bstr.bstr0: generated, open after 1 try (tier 1): memory: a C string argument (no script takes `IsCStr` apart; `strlen` has no lemma)
+bstr_cut -> rmpv_misc.bstr.bstr_cut: generated, open after 1 try (tier 2): memory correspondence
+bstr_endswith -> rmpv_misc.bstr.bstr_endswith: generated, open after 1 try (tier 2): memory correspondence
+bstr_endswith0 -> rmpv_misc.bstr.bstr_endswith0: generated, open after 1 try (tier 2): memory: a C string argument (no script takes `IsCStr` apart; `strlen` has no lemma)
+bstr_startswith -> rmpv_misc.bstr.bstr_startswith: generated, proved at tier 2, 1 try (tier 2)
 bstrcasecmp0 -> rmpv_misc.bstr.bstrcasecmp0: not generated: the C side takes external functions as parameters (strncasecmp)
-bstrcmp0 -> rmpv_misc.bstr.bstrcmp0: generated, open: arithmetic or unfolding
+bstrcmp0 -> rmpv_misc.bstr.bstrcmp0: generated, open after 1 try (tier 2): budget: out of heartbeats at the top tier for its shape
 bstrdup0 -> rmpv_misc.bstr.bstrdup0: no template yet: allocation: the C side takes a talloc parent or a logger
-mp_isspace -> rmpv_misc.ctype.mp_isspace: generated, proved at tier 1
-mp_tolower -> rmpv_misc.ctype.mp_tolower: generated, proved at tier 1
-mp_isupper -> rmpv_misc.ctype.mp_isupper: generated, proved at tier 1
+mp_isspace -> rmpv_misc.ctype.mp_isspace: generated, proved at tier 1, 1 try (tier 1)
+mp_tolower -> rmpv_misc.ctype.mp_tolower: generated, proved at tier 1, 1 try (tier 1)
+mp_isupper -> rmpv_misc.ctype.mp_isupper: generated, proved at tier 1, 1 try (tier 1)
 ta_oom_p -> -: not matched: no `rmpv_misc.ta.ta_oom_p` in the Aeneas output
 mp_charset_is_utf8 -> rmpv_misc.charset_conv.mp_charset_is_utf8: not generated: the C side takes external functions as parameters (strcasecmp)
 mp_charset_is_utf16 -> rmpv_misc.charset_conv.mp_charset_is_utf16: not generated: the C side takes external functions as parameters (strncasecmp)
 ms_bom_guess -> rmpv_misc.charset_conv.ms_bom_guess: no template yet: result `ptr<const char:i8>` ↔ `Option (Slice Std.U8)`
 mp_charset_guess -> rmpv_misc.charset_conv.mp_charset_guess: not generated: the C side takes external functions as parameters (mp_log2, mp_msg, strcasecmp)
 mp_iconv_to_utf8 -> rmpv_misc.charset_conv.mp_iconv_to_utf8: not generated: the C side takes external functions as parameters (mp_append_utf8_bstr, mp_log2)
-bstr_startswith0 -> rmpv_misc.bstr.bstr_startswith0: generated, open: loop: a Rust recursion needs an induction
-ucdLookup -> rmpv_misc.codepoint_width.ucd_lookup: generated, open: memory: static tables against Aeneas constants
-ucdGraphemeJoins -> rmpv_misc.codepoint_width.ucd_grapheme_joins: generated, open: memory: static tables against Aeneas constants
-ucdGraphemeDone -> rmpv_misc.codepoint_width.ucd_grapheme_done: generated, proved at tier 0
-ucdToCharacterWidth -> rmpv_misc.codepoint_width.ucd_to_character_width: generated, proved at tier 1
-is_valid_partial_sequence -> rmpv_misc.codepoint_width.is_valid_partial_sequence: generated, open: arithmetic or unfolding
+bstr_startswith0 -> rmpv_misc.bstr.bstr_startswith0: generated, open after 1 try (tier 2): memory: a C string argument (no script takes `IsCStr` apart; `strlen` has no lemma)
+ucdLookup -> rmpv_misc.codepoint_width.ucd_lookup: generated, open after 1 try (tier 1): memory: static tables against Aeneas constants
+ucdGraphemeJoins -> rmpv_misc.codepoint_width.ucd_grapheme_joins: generated, open after 1 try (tier 1): memory: static tables against Aeneas constants
+ucdGraphemeDone -> rmpv_misc.codepoint_width.ucd_grapheme_done: generated, proved at tier 0, 1 try (tier 0)
+ucdToCharacterWidth -> rmpv_misc.codepoint_width.ucd_to_character_width: generated, proved at tier 1, 1 try (tier 1)
+is_valid_partial_sequence -> rmpv_misc.codepoint_width.is_valid_partial_sequence: generated, open after 1 try (tier 2): budget: out of heartbeats at the top tier for its shape
 term_disp_width -> rmpv_misc.codepoint_width.term_disp_width: not generated: the C side takes external functions as parameters (mp_log2)
 bstr_eatstart0 -> rmpv_misc.bstr.bstr_eatstart0: no template yet: argument `ptr<struct bstr>` ↔ `Slice Std.U8`
 queue_dtor -> -: not matched: no `rmpv_misc.dispatch.queue_dtor` in the Aeneas output
@@ -187,16 +190,16 @@ json_append -> rmpv_misc.json.json_append: not generated: the C side takes exter
 json_append_str -> rmpv_misc.json.json_append_str: not generated: the C side takes external functions as parameters (vsnprintf)
 json_write -> rmpv_misc.json.json_write: not generated: the C side takes external functions as parameters (vsnprintf)
 json_write_pretty -> rmpv_misc.json.json_write_pretty: not generated: the C side takes external functions as parameters (vsnprintf)
-mp_isalnum -> rmpv_misc.ctype.mp_isalnum: generated, proved at tier 1
-mp_isalpha -> rmpv_misc.ctype.mp_isalpha: generated, proved at tier 1
-mp_isdigit -> rmpv_misc.ctype.mp_isdigit: generated, proved at tier 1
-mp_islower -> rmpv_misc.ctype.mp_islower: generated, proved at tier 1
+mp_isalnum -> rmpv_misc.ctype.mp_isalnum: generated, proved at tier 1, 1 try (tier 1)
+mp_isalpha -> rmpv_misc.ctype.mp_isalpha: generated, proved at tier 1, 1 try (tier 1)
+mp_isdigit -> rmpv_misc.ctype.mp_isdigit: generated, proved at tier 1, 1 try (tier 1)
+mp_islower -> rmpv_misc.ctype.mp_islower: generated, proved at tier 1, 1 try (tier 1)
 lang_compare -> rmpv_misc.language.lang_compare: not generated: the C side takes external functions as parameters (strncasecmp)
 canonicalize -> rmpv_misc.language.canonicalize: not generated: the C side takes external functions as parameters (Misc.Language_c.lang_compare)
 mp_match_lang -> rmpv_misc.language.mp_match_lang: not generated: the C side takes external functions as parameters (Misc.Language_c.lang_compare, strncasecmp)
 mp_guess_lang_from_filename -> rmpv_misc.language.mp_guess_lang_from_filename: not generated: the C side takes external functions as parameters (memrchr, strncasecmp)
 bsearch -> -: not matched: no `rmpv_misc.stdlib_bsearch.bsearch` in the Aeneas output
-mp_natural_sort_cmp -> rmpv_misc.natural_sort.mp_natural_sort_cmp: generated, open: loop: a C loop needs a fuel bound and an invariant
+mp_natural_sort_cmp -> rmpv_misc.natural_sort.mp_natural_sort_cmp: generated, open after 1 try (tier 1): loop: a C loop needs a fuel bound and an invariant
 node_init -> rmpv_misc.node.node_init: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
 node_array_add -> rmpv_misc.node.node_array_add: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
 node_map_add -> rmpv_misc.node.node_map_add: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
@@ -210,8 +213,8 @@ node_map_get -> rmpv_misc.node.node_map_get: no template yet: argument `ptr<stru
 node_map_bget -> rmpv_misc.node.node_map_bget: no template yet: argument `ptr<struct mpv_node>` ↔ `node.MpvNode`
 equal_mpv_value -> rmpv_misc.node.equal_mpv_value: no template yet: argument `ptr<const void>` ↔ `node.MpvNode`
 equal_mpv_node -> rmpv_misc.node.equal_mpv_node: no template yet: argument `ptr<const struct mpv_node>` ↔ `node.MpvNode`
-bstr_equals0 -> rmpv_misc.bstr.bstr_equals0: generated, open: arithmetic or unfolding
-bstr_equals -> rmpv_misc.bstr.bstr_equals: generated, open: arithmetic or unfolding
+bstr_equals0 -> rmpv_misc.bstr.bstr_equals0: generated, open after 1 try (tier 2): budget: out of heartbeats at the top tier for its shape
+bstr_equals -> rmpv_misc.bstr.bstr_equals: generated, open after 1 try (tier 2): budget: out of heartbeats at the top tier for its shape
 bstrto0 -> rmpv_misc.bstr.bstrto0: no template yet: allocation: the C side takes a talloc parent or a logger
 mp_basename_bstr -> rmpv_misc.path_utils.mp_basename_bstr: not generated: the C side takes external functions as parameters (memrchr)
 mp_basename -> rmpv_misc.path_utils.mp_basename: not generated: the C side takes external functions as parameters (memrchr)
@@ -220,18 +223,18 @@ mp_path_strip_trailing_separator -> rmpv_misc.path_utils.mp_path_strip_trailing_
 split_ext -> rmpv_misc.path_utils.split_ext: not generated: the C side takes external functions as parameters (memrchr)
 mp_strip_ext -> rmpv_misc.path_utils.mp_strip_ext: not generated: the C side takes external functions as parameters (memrchr)
 mp_get_ext -> rmpv_misc.path_utils.mp_get_ext: not generated: the C side takes external functions as parameters (memrchr)
-mp_path_is_absolute -> rmpv_misc.path_utils.mp_path_is_absolute: generated, open: loop: a Rust recursion needs an induction
+mp_path_is_absolute -> rmpv_misc.path_utils.mp_path_is_absolute: generated, open after 1 try (tier 2): loop: a Rust recursion needs an induction
 mp_path_join_bstr -> rmpv_misc.path_utils.mp_path_join_bstr: not generated: the C side takes external functions as parameters (ta_asprintf)
 mp_path_join -> rmpv_misc.path_utils.mp_path_join: not generated: the C side takes external functions as parameters (ta_asprintf)
 mp_getcwd -> rmpv_misc.path_utils.mp_getcwd: not generated: the C side takes external functions as parameters (__errno_location, getcwd, getenv, stat)
 mp_normalize_path -> rmpv_misc.path_utils.mp_normalize_path: not generated: the C side takes external functions as parameters (__errno_location, getcwd, getenv, realpath, stat, ta_asprintf, ta_talloc_strdup_append_buffer, ta_talloc_strndup_append_buffer)
 mp_path_exists -> rmpv_misc.path_utils.mp_path_exists: not generated: the C side takes external functions as parameters (stat)
 mp_path_isdir -> rmpv_misc.path_utils.mp_path_isdir: not generated: the C side takes external functions as parameters (stat)
-mp_is_url -> rmpv_misc.path_utils.mp_is_url: generated, open: loop: a C loop needs a fuel bound and an invariant
+mp_is_url -> rmpv_misc.path_utils.mp_is_url: generated, open after 1 try (tier 2): loop: a C loop needs a fuel bound and an invariant
 mp_split_proto -> rmpv_misc.path_utils.mp_split_proto: no template yet: argument `ptr<struct bstr>` ↔ `Slice Std.U8`
 mp_mkdirp -> rmpv_misc.path_utils.mp_mkdirp: not generated: the C side takes external functions as parameters (mkdir, stat)
-bstr_find0 -> rmpv_misc.bstr.bstr_find0: generated, open: loop: a C loop needs a fuel bound and an invariant
-rotl_u64 -> rmpv_misc.random.rotl_u64: generated, open: arithmetic or unfolding
+bstr_find0 -> rmpv_misc.bstr.bstr_find0: generated, open after 1 try (tier 2): loop: a C loop needs a fuel bound and an invariant
+rotl_u64 -> rmpv_misc.random.rotl_u64: generated, open after 1 try (tier 1): arithmetic or unfolding
 splitmix64 -> rmpv_misc.random.splitmix64: no template yet: argument `const ptr<unsigned long:u64>` ↔ `Std.U64`
 mp_rand_seed -> rmpv_misc.random.mp_rand_seed: not generated: the C side takes external functions as parameters (av_random_bytes, mp_raw_time_ns)
 mp_rand_next -> rmpv_misc.random.mp_rand_next: no template yet: argument `ptr<struct mp_rand_state>` ↔ `random.MpRandState`

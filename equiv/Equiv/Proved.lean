@@ -20,6 +20,14 @@ theorem bstrcmp (m : Achates.Mem) (str1 : Achates.Agg) (s_str1 : Aeneas.Std.Slic
       (rmpv_misc.bstr.bstrcmp s_str1 s_str2) := by
   equiv_tier2 [Misc.Misc.Bstr_c.bstrcmp, rmpv_misc.bstr.bstrcmp, rmpv_misc.clib.memcmp]
 
+set_option maxHeartbeats 8000000 in
+/-- `Misc.Misc.Bstr_c.h_to_i` and `rmpv_misc.bstr.h_to_i`. Shape: scalar arguments, scalar result. -/
+theorem h_to_i (m : Achates.Mem) (c : Achates.U8) :
+    Equiv.Equal (fun r m' y => Equiv.Unchanged m m' ∧ y = (Equiv.i32 r))
+      (fun fuel => Misc.Misc.Bstr_c.h_to_i fuel c) m
+      (rmpv_misc.bstr.h_to_i (Equiv.u8 c)) := by
+  equiv_tier1 [Misc.Misc.Bstr_c.h_to_i, rmpv_misc.bstr.h_to_i]
+
 set_option maxHeartbeats 4000000 in
 /-- `Misc.Misc.Bstr_h.bstr_startswith` and `rmpv_misc.bstr.bstr_startswith`. Shape: bstr arguments, scalar result. -/
 theorem bstr_startswith (m : Achates.Mem) (str : Achates.Agg) (s_str : Aeneas.Std.Slice Aeneas.Std.U8) (h_str : Equiv.IsBstr m str s_str) (v_prefix : Achates.Agg) (s_v_prefix : Aeneas.Std.Slice Aeneas.Std.U8) (h_v_prefix : Equiv.IsBstr m v_prefix s_v_prefix) :
@@ -99,5 +107,53 @@ theorem mp_islower (m : Achates.Mem) (c : Achates.I8) :
       (fun fuel => Misc.Misc.Ctype_h.mp_islower fuel c) m
       (rmpv_misc.ctype.mp_islower (Equiv.charU8 c)) := by
   equiv_tier1 [Misc.Misc.Ctype_h.mp_islower, rmpv_misc.ctype.mp_islower]
+
+/-- info: 'Equiv.Gen.bstrcmp' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.bstrcmp
+
+/-- info: 'Equiv.Gen.h_to_i' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.h_to_i
+
+/-- info: 'Equiv.Gen.bstr_startswith' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.bstr_startswith
+
+/-- info: 'Equiv.Gen.mp_isspace' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.mp_isspace
+
+/-- info: 'Equiv.Gen.mp_tolower' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.mp_tolower
+
+/-- info: 'Equiv.Gen.mp_isupper' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.mp_isupper
+
+/-- info: 'Equiv.Gen.ucdGraphemeDone' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.ucdGraphemeDone
+
+/-- info: 'Equiv.Gen.ucdToCharacterWidth' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.ucdToCharacterWidth
+
+/-- info: 'Equiv.Gen.mp_isalnum' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.mp_isalnum
+
+/-- info: 'Equiv.Gen.mp_isalpha' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.mp_isalpha
+
+/-- info: 'Equiv.Gen.mp_isdigit' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.mp_isdigit
+
+/-- info: 'Equiv.Gen.mp_islower' depends on axioms: [propext, Classical.choice, Quot.sound] -/
+#guard_msgs (whitespace := lax) in
+#print axioms Equiv.Gen.mp_islower
 
 end Equiv.Gen

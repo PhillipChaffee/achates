@@ -1,0 +1,533 @@
+{
+  "about": "Written by `achates equiv --prove`: per theorem, the outcome of its last search and the key it holds for. See docs/equiv-report.md, \"The cache\".",
+  "theorems": {
+    "bstr0": {
+      "key": "8a253df843487b044e9e576a9b121c105cbdd66a6603b8411e353b77da97fa75",
+      "proved": null,
+      "reason": "memory: a C string argument (no script takes `IsCStr` apart; `strlen` has no lemma)",
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 3898,
+          "seconds": 2.8,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\ns : Achates.Ptr\ns_s : Aeneas.Std.Slice Aeneas.Std.U8\nh_s : IsCStr m s s_s\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\nh✝ : ¬s = Achates.Ptr.null\n⊢ Agree (fun r m' y => Unchanged m m' ∧ IsBstr m' r y)\n    (do\n      let p ← StateT.run (Achates.Mem.alloca 16 8) m\n"
+        }
+      ]
+    },
+    "bstr_cut": {
+      "key": "fcb523f048ca25917f1ccbf4f8181b553177a75a1f91ac5b63d9a970cd127d17",
+      "proved": null,
+      "reason": "memory correspondence",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 267809,
+          "seconds": 29.9,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isTrue.isTrue.isTrue.isTrue.isTrue.isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nn : Achates.I32\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\n"
+        }
+      ]
+    },
+    "bstr_endswith": {
+      "key": "594c1695ff2250ee985c182c17c989934944ea8286c93a2a05f5423190525d7f",
+      "proved": null,
+      "reason": "memory correspondence",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 28581,
+          "seconds": 5.4,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isFalse.isFalse\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nsuffix : Achates.Agg\ns_suffix : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝⁵ : str.bytes.size = 16\nleft✝⁴ : suffix.bytes.size = 16\nw✝¹ w✝ : Achates.Ptr\nleft✝³ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝¹\nleft✝² : Achates.Agg.get Achates.Ptr suffix 0 = Except.ok w✝\n"
+        }
+      ]
+    },
+    "bstr_endswith0": {
+      "key": "14bdb81b8f1d2c229bae9e4a6d7c41abd374a5eace00d7f122afe7d493dba58c",
+      "proved": null,
+      "reason": "memory: a C string argument (no script takes `IsCStr` apart; `strlen` has no lemma)",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 180008,
+          "seconds": 22.3,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nsuffix : Achates.Ptr\ns_suffix : Aeneas.Std.Slice Aeneas.Std.U8\nh_suffix : IsCStr m suffix s_suffix\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\n"
+        }
+      ]
+    },
+    "bstr_equals": {
+      "key": "8ab5d071aa5f95529108caf4e9769f7de5156d53f0d64994d6281b172c1351f8",
+      "proved": null,
+      "reason": "budget: out of heartbeats at the top tier for its shape",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 4000092,
+          "seconds": 358.5,
+          "result": "out of heartbeats at `whnf`",
+          "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+        }
+      ]
+    },
+    "bstr_equals0": {
+      "key": "d04a97ef26572b8ddb35a658451a20f5702715218bdfed11cb906844f514d3b1",
+      "proved": null,
+      "reason": "budget: out of heartbeats at the top tier for its shape",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 4000025,
+          "seconds": 364.8,
+          "result": "out of heartbeats at `whnf`",
+          "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+        }
+      ]
+    },
+    "bstr_find": {
+      "key": "64945e25c6e9e9a20ab0447ac2125ad1207847c8370a8501ded0524ca51cf52f",
+      "proved": null,
+      "reason": "loop: a C loop needs a fuel bound and an invariant",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 220133,
+          "seconds": 19.2,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\nm : Achates.Mem\nhaystack : Achates.Agg\ns_haystack : Aeneas.Std.Slice Aeneas.Std.U8\nneedle : Achates.Agg\ns_needle : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝⁵ : haystack.bytes.size = 16\nleft✝⁴ : needle.bytes.size = 16\nw✝¹ w✝ : Achates.Ptr\nleft✝³ : Achates.Agg.get Achates.Ptr haystack 0 = Except.ok w✝¹\nleft✝² : Achates.Agg.get Achates.Ptr needle 0 = Except.ok w✝\nleft✝¹ : Achates.Agg.get Achates.U64 haystack 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_haystack).length)\n"
+        }
+      ]
+    },
+    "bstr_find0": {
+      "key": "1141bde9b26b4c5a207ce0b56a211d66da57582622309e986df9f20c06f255fb",
+      "proved": null,
+      "reason": "loop: a C loop needs a fuel bound and an invariant",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 277409,
+          "seconds": 23.4,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\nm : Achates.Mem\nhaystack : Achates.Agg\ns_haystack : Aeneas.Std.Slice Aeneas.Std.U8\nneedle : Achates.Ptr\ns_needle : Aeneas.Std.Slice Aeneas.Std.U8\nh_needle : IsCStr m needle s_needle\nleft✝² : haystack.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr haystack 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 haystack 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_haystack).length)\nright✝ : Region m w✝ ↑s_haystack\n"
+        }
+      ]
+    },
+    "bstr_lstrip": {
+      "key": "49bfc6f5add1050bb8b59996edb8ee00bbc3b29d76487e326a5ae7ba0ba961ad",
+      "proved": null,
+      "reason": "loop: a C loop needs a fuel bound and an invariant",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 9707,
+          "seconds": 3.4,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n"
+        }
+      ]
+    },
+    "bstr_splice": {
+      "key": "c740d95c15dac98d1e1b2d7ec1969e0ed22f18693770f61e613f25bf8adf7b18",
+      "proved": null,
+      "reason": "budget: out of heartbeats at the top tier for its shape",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 4025794,
+          "seconds": 351.6,
+          "result": "out of heartbeats at `whnf`",
+          "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+        }
+      ]
+    },
+    "bstr_startswith": {
+      "key": "e92e18ffc02e2ada4cfc701117742f47159baa68358446978fc056c945787a91",
+      "proved": 2,
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 36312,
+          "seconds": 6.5,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.bstr_startswith' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "bstr_startswith0": {
+      "key": "9268039d8b995d62e50b45beb3164de0a769937c49121fe682a0d7871aab292c",
+      "proved": null,
+      "reason": "memory: a C string argument (no script takes `IsCStr` apart; `strlen` has no lemma)",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 148937,
+          "seconds": 18.5,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nv_prefix : Achates.Ptr\ns_v_prefix : Aeneas.Std.Slice Aeneas.Std.U8\nh_v_prefix : IsCStr m v_prefix s_v_prefix\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\n"
+        }
+      ]
+    },
+    "bstr_strip": {
+      "key": "3e2119cd5b7346b83482143ed381886ef2e3daebaeb4fa2ac71a630196c96f4a",
+      "proved": null,
+      "reason": "loop: a C loop needs a fuel bound and an invariant",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 51694,
+          "seconds": 7.8,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n"
+        }
+      ]
+    },
+    "bstr_strip_linebreaks": {
+      "key": "c665873c24faa5f3e79c2f7b96d274f742d6710e5cd205e1ee993361e9e62211",
+      "proved": null,
+      "reason": "memory: static tables against Aeneas constants",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 324068,
+          "seconds": 31.1,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\nm : Achates.Mem\nh_statics : StaticsReady m\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n"
+        }
+      ]
+    },
+    "bstrchr": {
+      "key": "db668e045e019cd8f117dd962add82ad9a56ab2ccdebd5b4911eac0ea4094873",
+      "proved": null,
+      "reason": "loop: a Rust recursion needs an induction",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 11837,
+          "seconds": 3.9,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isFalse.isFalse\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nc : Achates.I32\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\n"
+        }
+      ]
+    },
+    "bstrcmp": {
+      "key": "055e540f9b20980644695187e883437282387eb59bcf2d94d336f84275630c2f",
+      "proved": 2,
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 263294,
+          "seconds": 27.3,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.bstrcmp' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "bstrcmp0": {
+      "key": "01948099853b566dd82fe02957eee952d6d1df1dcc759e2c3126104a3ec152ef",
+      "proved": null,
+      "reason": "budget: out of heartbeats at the top tier for its shape",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 4000033,
+          "seconds": 351.7,
+          "result": "out of heartbeats at `whnf`",
+          "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+        }
+      ]
+    },
+    "bstrcspn": {
+      "key": "68b713090bbcaff72166ac5ec81f34f1a960032181995a7f49996c322078df94",
+      "proved": null,
+      "reason": "loop: a C loop needs a fuel bound and an invariant",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 32256,
+          "seconds": 5.6,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nreject : Achates.Ptr\ns_reject : Aeneas.Std.Slice Aeneas.Std.U8\nh_reject : IsCStr m reject s_reject\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\n"
+        }
+      ]
+    },
+    "bstrspn": {
+      "key": "d92ba6a20695a43a1a056b6dc640bcdd3826c89ba080833488738c53472f80a8",
+      "proved": null,
+      "reason": "loop: a C loop needs a fuel bound and an invariant",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 31778,
+          "seconds": 5.7,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\naccept : Achates.Ptr\ns_accept : Aeneas.Std.Slice Aeneas.Std.U8\nh_accept : IsCStr m accept s_accept\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\n"
+        }
+      ]
+    },
+    "h_to_i": {
+      "key": "00fed60d7e54d317abfe7d3221d1ac9219831ae3c8f34fc49a30f7b5ba010bed",
+      "proved": 1,
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 4185098,
+          "seconds": 346.6,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.h_to_i' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "is_valid_partial_sequence": {
+      "key": "fcebb9d2ef0dd4ad7c7b4000df3768f1e9b3def9b1729a4f6b1a08270fd3402d",
+      "proved": null,
+      "reason": "budget: out of heartbeats at the top tier for its shape",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 4000121,
+          "seconds": 278.0,
+          "result": "out of heartbeats at `whnf`",
+          "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+        }
+      ]
+    },
+    "mp_is_url": {
+      "key": "0ecb031de4335e7919448538e59a5f1124ed324351e55801538f13950f4b1f9b",
+      "proved": null,
+      "reason": "loop: a C loop needs a fuel bound and an invariant",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 301962,
+          "seconds": 25.2,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\nm : Achates.Mem\nh_statics : StaticsReady m\npath : Achates.Agg\ns_path : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : path.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr path 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 path 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_path).length)\nright✝ : Region m w✝ ↑s_path\nh_len : (↑s_path).length < 18446744073709551616\nx✝¹ : ℕ\n"
+        }
+      ]
+    },
+    "mp_isalnum": {
+      "key": "dea0817c1ece887b1a688f756cff49d2b7772db99d2e19284a381b4ba7373d2b",
+      "proved": 1,
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 3069481,
+          "seconds": 252.7,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.mp_isalnum' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "mp_isalpha": {
+      "key": "2418f3d0acf8f431ef9b13dd9ca4a7ef01f0dafb5c4fa6f0b8554cfead298f8f",
+      "proved": 1,
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 409243,
+          "seconds": 37.5,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.mp_isalpha' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "mp_isdigit": {
+      "key": "17bca3d2aaf6e287b30adcbc4e2939bc430846ada839b7b87ffdc97ad67e9fea",
+      "proved": 1,
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 29957,
+          "seconds": 5.8,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.mp_isdigit' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "mp_islower": {
+      "key": "04ebe76ade92bb4af2661d9e69ddacd9e22cd71650348ca6f696a21e4a0ee4c2",
+      "proved": 1,
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 29965,
+          "seconds": 4.9,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.mp_islower' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "mp_isspace": {
+      "key": "8ee958d4be32181c22c70f8dfa335e14bbcc308eb77d7728ad6e9fa650f563ca",
+      "proved": 1,
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 24525,
+          "seconds": 5.0,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.mp_isspace' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "mp_isupper": {
+      "key": "35af90bcf599262b5d778ad839aa0631be831a8129524079d4e53a9e7489f4e0",
+      "proved": 1,
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 29971,
+          "seconds": 5.4,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.mp_isupper' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "mp_natural_sort_cmp": {
+      "key": "9eb037f32d27552db5dfea40f9f2e87c1eb8932ac4cae871788f9bb435cb997f",
+      "proved": null,
+      "reason": "loop: a C loop needs a fuel bound and an invariant",
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 238198,
+          "seconds": 21.6,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\nm : Achates.Mem\nname1 : Achates.Ptr\ns_name1 : Aeneas.Std.Slice Aeneas.Std.U8\nh_name1 : IsCStr m name1 s_name1\nname2 : Achates.Ptr\ns_name2 : Aeneas.Std.Slice Aeneas.Std.U8\nh_name2 : IsCStr m name2 s_name2\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\n⊢ Agree (fun r m' y => Unchanged m m' ∧ y.bv = r.bv)\n    (do\n"
+        }
+      ]
+    },
+    "mp_path_is_absolute": {
+      "key": "6789f85406ee4cba83f8d74be6294c4b03efec4207e969e9f4fed6a60910976b",
+      "proved": null,
+      "reason": "loop: a Rust recursion needs an induction",
+      "tries": [
+        {
+          "tier": 2,
+          "budget": 4000000,
+          "heartbeats": 10179,
+          "seconds": 3.8,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isTrue.isFalse\nm : Achates.Mem\nh_statics : StaticsReady m\npath : Achates.Agg\ns_path : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : path.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr path 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 path 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_path).length)\nright✝ : Region m w✝ ↑s_path\nh_len : (↑s_path).length < 18446744073709551616\n"
+        }
+      ]
+    },
+    "mp_tolower": {
+      "key": "e44e04799ffebd12ec20b40b784797ef205ec8bebc363625740824108977e475",
+      "proved": 1,
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 263558,
+          "seconds": 25.5,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.mp_tolower' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "rotl_u64": {
+      "key": "21924cd6ec0c4d909d2e17d99d0897681a0798f409e313b5ee92f6ea258720f8",
+      "proved": null,
+      "reason": "arithmetic or unfolding",
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 129666,
+          "seconds": 11.3,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\nm : Achates.Mem\nx : Achates.U64\nk : Achates.I32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\n⊢ Agree (fun r m' y => Unchanged m m' ∧ y.bv = r.bv)\n    (do\n      let p ←\n        do\n          let a ←\n            if k.bv.toInt < 0 ∨ k.bv.toInt ≥ ↑64 then\n"
+        }
+      ]
+    },
+    "ucdGraphemeDone": {
+      "key": "30dc21879d9f8e61e5eb8219bd9c2951e8e6b5381a1283438b8cc008e19e5b67",
+      "proved": 0,
+      "tries": [
+        {
+          "tier": 0,
+          "budget": 400000,
+          "heartbeats": 363,
+          "seconds": 2.6,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.ucdGraphemeDone' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    },
+    "ucdGraphemeJoins": {
+      "key": "e069e5dcbd99e06f50f9f5ca01f6578b2f48bb2896a797b557f13ba53daa865d",
+      "proved": null,
+      "reason": "memory: static tables against Aeneas constants",
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 78556,
+          "seconds": 8.3,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nh_statics : StaticsReady m\nstate lead trail : Achates.I32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\nh✝ : (trail.bv &&& 15#32).smulOverflow 2#32 = true\n⊢ Agree (fun r m' y => Unchanged m m' ∧ y.bv = r.bv)\n    (do\n      let p ← StateT.run ((Achates.Ptr.obj 8 0).add 64 state.bv.toInt) m\n      let p ← StateT.run (p.1.add 4 (lead.bv &&& 15#32).toInt) p.2\n"
+        }
+      ]
+    },
+    "ucdLookup": {
+      "key": "8816126094ef9e1d9ac86bd31ee53d5f4a6888acf2df98017ea4cc008a6ac9bf",
+      "proved": null,
+      "reason": "memory: static tables against Aeneas constants",
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 266829,
+          "seconds": 20.6,
+          "result": "unsolved goals",
+          "first_error": "unsolved goals\ncase isFalse.isFalse.isFalse.isFalse.isTrue.isTrue.isTrue.isTrue.isTrue.isTrue\nm : Achates.Mem\nh_statics : StaticsReady m\ncp : Achates.U32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\nh✝⁹ : ¬((11#32).toInt < 0 ∨ (11#32).toInt ≥ ↑32)\nh✝⁸ : ¬((6#32).toInt < 0 ∨ (6#32).toInt ≥ ↑32)\nh✝⁷ : ¬((3#32).toInt < 0 ∨ (3#32).toInt ≥ ↑32)\nh✝⁶ : ¬((0#32).toInt < 0 ∨ (0#32).toInt ≥ ↑32)\nh✝⁵ : (11#32).toInt ≥ 0\n"
+        }
+      ]
+    },
+    "ucdToCharacterWidth": {
+      "key": "d93f08f6b22760035ef597ff6aa97bbe690dd2e2c9dc854ce627c555eeaced5f",
+      "proved": 1,
+      "tries": [
+        {
+          "tier": 1,
+          "budget": 8000000,
+          "heartbeats": 1627,
+          "seconds": 2.4,
+          "result": "proved"
+        }
+      ],
+      "axioms": "'Equiv.Gen.ucdToCharacterWidth' depends on axioms: [propext, Classical.choice, Quot.sound]"
+    }
+  }
+}

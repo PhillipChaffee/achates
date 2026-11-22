@@ -13,9 +13,19 @@
       "cmp-byte-difference"
     ],
     "rust_axioms": [],
-    "proved": "tier 2: memory and memcmp lemmas",
+    "proved": "tier 2",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 263294,
+        "seconds": 27.3,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstrcasecmp",
@@ -28,7 +38,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstrchr",
@@ -43,7 +55,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "loop: a Rust recursion needs an induction",
-    "first_error": "unsolved goals\ncase isFalse.isFalse\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nc : Achates.I32\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\n"
+    "first_error": "unsolved goals\ncase isFalse.isFalse\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nc : Achates.I32\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 11837,
+        "seconds": 3.9,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstrrchr",
@@ -56,7 +78,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstrcspn",
@@ -72,7 +96,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "loop: a C loop needs a fuel bound and an invariant",
-    "first_error": "unsolved goals\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nreject : Achates.Ptr\ns_reject : Aeneas.Std.Slice Aeneas.Std.U8\nh_reject : IsCStr m reject s_reject\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\n"
+    "first_error": "unsolved goals\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nreject : Achates.Ptr\ns_reject : Aeneas.Std.Slice Aeneas.Std.U8\nh_reject : IsCStr m reject s_reject\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 32256,
+        "seconds": 5.6,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstrspn",
@@ -88,7 +122,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "loop: a C loop needs a fuel bound and an invariant",
-    "first_error": "unsolved goals\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\naccept : Achates.Ptr\ns_accept : Aeneas.Std.Slice Aeneas.Std.U8\nh_accept : IsCStr m accept s_accept\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\n"
+    "first_error": "unsolved goals\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\naccept : Achates.Ptr\ns_accept : Aeneas.Std.Slice Aeneas.Std.U8\nh_accept : IsCStr m accept s_accept\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 31778,
+        "seconds": 5.7,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_find",
@@ -106,7 +150,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "loop: a C loop needs a fuel bound and an invariant",
-    "first_error": "unsolved goals\nm : Achates.Mem\nhaystack : Achates.Agg\ns_haystack : Aeneas.Std.Slice Aeneas.Std.U8\nneedle : Achates.Agg\ns_needle : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝⁵ : haystack.bytes.size = 16\nleft✝⁴ : needle.bytes.size = 16\nw✝¹ w✝ : Achates.Ptr\nleft✝³ : Achates.Agg.get Achates.Ptr haystack 0 = Except.ok w✝¹\nleft✝² : Achates.Agg.get Achates.Ptr needle 0 = Except.ok w✝\nleft✝¹ : Achates.Agg.get Achates.U64 haystack 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_haystack).length)\n"
+    "first_error": "unsolved goals\nm : Achates.Mem\nhaystack : Achates.Agg\ns_haystack : Aeneas.Std.Slice Aeneas.Std.U8\nneedle : Achates.Agg\ns_needle : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝⁵ : haystack.bytes.size = 16\nleft✝⁴ : needle.bytes.size = 16\nw✝¹ w✝ : Achates.Ptr\nleft✝³ : Achates.Agg.get Achates.Ptr haystack 0 = Except.ok w✝¹\nleft✝² : Achates.Agg.get Achates.Ptr needle 0 = Except.ok w✝\nleft✝¹ : Achates.Agg.get Achates.U64 haystack 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_haystack).length)\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 220133,
+        "seconds": 19.2,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_lstrip",
@@ -121,7 +175,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "loop: a C loop needs a fuel bound and an invariant",
-    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n"
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 9707,
+        "seconds": 3.4,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_strip",
@@ -136,7 +200,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "loop: a C loop needs a fuel bound and an invariant",
-    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n"
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 51694,
+        "seconds": 7.8,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_split",
@@ -149,7 +223,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_split_tok",
@@ -164,7 +240,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_splice",
@@ -178,8 +256,18 @@
     "assumptions": [],
     "rust_axioms": [],
     "proved": null,
-    "open_reason": "arithmetic or unfolding",
-    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+    "open_reason": "budget: out of heartbeats at the top tier for its shape",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 4025794,
+        "seconds": 351.6,
+        "result": "out of heartbeats at `whnf`"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstrtoll",
@@ -192,7 +280,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstrtod",
@@ -205,7 +295,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_splitchar",
@@ -218,7 +310,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_strip_linebreaks",
@@ -236,7 +330,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "memory: static tables against Aeneas constants",
-    "first_error": "unsolved goals\nm : Achates.Mem\nh_statics : StaticsReady m\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n"
+    "first_error": "unsolved goals\nm : Achates.Mem\nh_statics : StaticsReady m\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\nx✝¹ : ℕ\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 324068,
+        "seconds": 31.1,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_eatstart",
@@ -251,7 +355,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_eatend",
@@ -266,7 +372,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_lower",
@@ -279,7 +387,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_sscanf",
@@ -295,7 +405,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_parse_utf8_code_length",
@@ -308,7 +420,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_decode_partial_utf8",
@@ -321,7 +435,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_decode_utf8",
@@ -334,7 +450,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_split_utf8",
@@ -347,7 +465,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_validate_utf8",
@@ -360,7 +480,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_sanitize_utf8_latin1",
@@ -376,7 +498,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "resize_append",
@@ -395,7 +519,9 @@
     ],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_xappend",
@@ -414,7 +540,9 @@
     ],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_xappend_asprintf",
@@ -430,7 +558,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_xappend_vasprintf",
@@ -446,7 +576,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_case_startswith",
@@ -459,7 +591,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_case_endswith",
@@ -472,7 +606,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "h_to_i",
@@ -483,9 +619,19 @@
     "preconditions": [],
     "assumptions": [],
     "rust_axioms": [],
-    "proved": null,
-    "open_reason": "arithmetic or unfolding",
-    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+    "proved": "tier 1",
+    "open_reason": null,
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 4185098,
+        "seconds": 346.6,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_decode_hex",
@@ -501,7 +647,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_find_in_list0",
@@ -516,7 +664,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_in_list0",
@@ -531,7 +681,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr0",
@@ -545,8 +697,18 @@
     "assumptions": [],
     "rust_axioms": [],
     "proved": null,
-    "open_reason": "arithmetic or unfolding",
-    "first_error": "no match\n"
+    "open_reason": "memory: a C string argument (no script takes `IsCStr` apart; `strlen` has no lemma)",
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\ns : Achates.Ptr\ns_s : Aeneas.Std.Slice Aeneas.Std.U8\nh_s : IsCStr m s s_s\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\nh✝ : ¬s = Achates.Ptr.null\n⊢ Agree (fun r m' y => Unchanged m m' ∧ IsBstr m' r y)\n    (do\n      let p ← StateT.run (Achates.Mem.alloca 16 8) m\n",
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 3898,
+        "seconds": 2.8,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_cut",
@@ -561,7 +723,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "memory correspondence",
-    "first_error": "unsolved goals\ncase isTrue.isTrue.isTrue.isTrue.isTrue.isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nn : Achates.I32\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\n"
+    "first_error": "unsolved goals\ncase isTrue.isTrue.isTrue.isTrue.isTrue.isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nn : Achates.I32\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\nright✝ : Region m w✝ ↑s_str\nh_len : (↑s_str).length < 18446744073709551616\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 267809,
+        "seconds": 29.9,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_endswith",
@@ -578,8 +750,18 @@
     ],
     "rust_axioms": [],
     "proved": null,
-    "open_reason": "loop: a Rust recursion needs an induction",
-    "first_error": "unsolved goals\ncase isFalse.isFalse\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nsuffix : Achates.Agg\ns_suffix : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝⁵ : str.bytes.size = 16\nleft✝⁴ : suffix.bytes.size = 16\nw✝¹ w✝ : Achates.Ptr\nleft✝³ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝¹\nleft✝² : Achates.Agg.get Achates.Ptr suffix 0 = Except.ok w✝\n"
+    "open_reason": "memory correspondence",
+    "first_error": "unsolved goals\ncase isFalse.isFalse\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nsuffix : Achates.Agg\ns_suffix : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝⁵ : str.bytes.size = 16\nleft✝⁴ : suffix.bytes.size = 16\nw✝¹ w✝ : Achates.Ptr\nleft✝³ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝¹\nleft✝² : Achates.Agg.get Achates.Ptr suffix 0 = Except.ok w✝\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 28581,
+        "seconds": 5.4,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_endswith0",
@@ -596,8 +778,18 @@
     ],
     "rust_axioms": [],
     "proved": null,
-    "open_reason": "loop: a Rust recursion needs an induction",
-    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nsuffix : Achates.Ptr\ns_suffix : Aeneas.Std.Slice Aeneas.Std.U8\nh_suffix : IsCStr m suffix s_suffix\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\n"
+    "open_reason": "memory: a C string argument (no script takes `IsCStr` apart; `strlen` has no lemma)",
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nsuffix : Achates.Ptr\ns_suffix : Aeneas.Std.Slice Aeneas.Std.U8\nh_suffix : IsCStr m suffix s_suffix\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 180008,
+        "seconds": 22.3,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_startswith",
@@ -613,9 +805,19 @@
       "cmp-byte-difference"
     ],
     "rust_axioms": [],
-    "proved": "tier 2: memory and memcmp lemmas",
+    "proved": "tier 2",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 36312,
+        "seconds": 6.5,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstrcasecmp0",
@@ -628,7 +830,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstrcmp0",
@@ -645,8 +849,18 @@
     ],
     "rust_axioms": [],
     "proved": null,
-    "open_reason": "arithmetic or unfolding",
-    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+    "open_reason": "budget: out of heartbeats at the top tier for its shape",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 4000033,
+        "seconds": 351.7,
+        "result": "out of heartbeats at `whnf`"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstrdup0",
@@ -662,7 +876,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_isspace",
@@ -675,7 +891,17 @@
     "rust_axioms": [],
     "proved": "tier 1",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 24525,
+        "seconds": 5.0,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "mp_tolower",
@@ -688,7 +914,17 @@
     "rust_axioms": [],
     "proved": "tier 1",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 263558,
+        "seconds": 25.5,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "mp_isupper",
@@ -701,7 +937,17 @@
     "rust_axioms": [],
     "proved": "tier 1",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 29971,
+        "seconds": 5.4,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "ta_oom_p",
@@ -714,7 +960,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_charset_is_utf8",
@@ -727,7 +975,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_charset_is_utf16",
@@ -740,7 +990,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "ms_bom_guess",
@@ -755,7 +1007,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_charset_guess",
@@ -770,7 +1024,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_iconv_to_utf8",
@@ -786,7 +1042,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_startswith0",
@@ -803,8 +1061,18 @@
     ],
     "rust_axioms": [],
     "proved": null,
-    "open_reason": "loop: a Rust recursion needs an induction",
-    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nv_prefix : Achates.Ptr\ns_v_prefix : Aeneas.Std.Slice Aeneas.Std.U8\nh_v_prefix : IsCStr m v_prefix s_v_prefix\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\n"
+    "open_reason": "memory: a C string argument (no script takes `IsCStr` apart; `strlen` has no lemma)",
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nstr : Achates.Agg\ns_str : Aeneas.Std.Slice Aeneas.Std.U8\nv_prefix : Achates.Ptr\ns_v_prefix : Aeneas.Std.Slice Aeneas.Std.U8\nh_v_prefix : IsCStr m v_prefix s_v_prefix\nleft✝² : str.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr str 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 str 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_str).length)\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 148937,
+        "seconds": 18.5,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "ucdLookup",
@@ -819,7 +1087,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "memory: static tables against Aeneas constants",
-    "first_error": "unsolved goals\ncase isFalse.isFalse.isFalse.isFalse.isTrue.isTrue.isTrue.isTrue.isTrue.isTrue\nm : Achates.Mem\nh_statics : StaticsReady m\ncp : Achates.U32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\nh✝⁹ : ¬((11#32).toInt < 0 ∨ (11#32).toInt ≥ ↑32)\nh✝⁸ : ¬((6#32).toInt < 0 ∨ (6#32).toInt ≥ ↑32)\nh✝⁷ : ¬((3#32).toInt < 0 ∨ (3#32).toInt ≥ ↑32)\nh✝⁶ : ¬((0#32).toInt < 0 ∨ (0#32).toInt ≥ ↑32)\nh✝⁵ : (11#32).toInt ≥ 0\n"
+    "first_error": "unsolved goals\ncase isFalse.isFalse.isFalse.isFalse.isTrue.isTrue.isTrue.isTrue.isTrue.isTrue\nm : Achates.Mem\nh_statics : StaticsReady m\ncp : Achates.U32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\nh✝⁹ : ¬((11#32).toInt < 0 ∨ (11#32).toInt ≥ ↑32)\nh✝⁸ : ¬((6#32).toInt < 0 ∨ (6#32).toInt ≥ ↑32)\nh✝⁷ : ¬((3#32).toInt < 0 ∨ (3#32).toInt ≥ ↑32)\nh✝⁶ : ¬((0#32).toInt < 0 ∨ (0#32).toInt ≥ ↑32)\nh✝⁵ : (11#32).toInt ≥ 0\n",
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 266829,
+        "seconds": 20.6,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "ucdGraphemeJoins",
@@ -834,7 +1112,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "memory: static tables against Aeneas constants",
-    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nh_statics : StaticsReady m\nstate lead trail : Achates.I32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\nh✝ : (trail.bv &&& 15#32).smulOverflow 2#32 = true\n⊢ Agree (fun r m' y => Unchanged m m' ∧ y.bv = r.bv)\n    (do\n      let p ← StateT.run ((Achates.Ptr.obj 8 0).add 64 state.bv.toInt) m\n      let p ← StateT.run (p.1.add 4 (lead.bv &&& 15#32).toInt) p.2\n"
+    "first_error": "unsolved goals\ncase isTrue\nm : Achates.Mem\nh_statics : StaticsReady m\nstate lead trail : Achates.I32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\nh✝ : (trail.bv &&& 15#32).smulOverflow 2#32 = true\n⊢ Agree (fun r m' y => Unchanged m m' ∧ y.bv = r.bv)\n    (do\n      let p ← StateT.run ((Achates.Ptr.obj 8 0).add 64 state.bv.toInt) m\n      let p ← StateT.run (p.1.add 4 (lead.bv &&& 15#32).toInt) p.2\n",
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 78556,
+        "seconds": 8.3,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "ucdGraphemeDone",
@@ -847,7 +1135,17 @@
     "rust_axioms": [],
     "proved": "tier 0",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 0,
+        "budget": 400000,
+        "heartbeats": 363,
+        "seconds": 2.6,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "ucdToCharacterWidth",
@@ -860,7 +1158,17 @@
     "rust_axioms": [],
     "proved": "tier 1",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 1627,
+        "seconds": 2.4,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "is_valid_partial_sequence",
@@ -874,8 +1182,18 @@
     "assumptions": [],
     "rust_axioms": [],
     "proved": null,
-    "open_reason": "arithmetic or unfolding",
-    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+    "open_reason": "budget: out of heartbeats at the top tier for its shape",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 4000121,
+        "seconds": 278.0,
+        "result": "out of heartbeats at `whnf`"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "term_disp_width",
@@ -890,7 +1208,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_eatstart0",
@@ -905,7 +1225,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "queue_dtor",
@@ -918,7 +1240,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_create",
@@ -934,7 +1258,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_set_wakeup_fn",
@@ -947,7 +1273,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_set_onlock_fn",
@@ -960,7 +1288,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_append",
@@ -975,7 +1305,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_enqueue",
@@ -991,7 +1323,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_enqueue_autofree",
@@ -1007,7 +1341,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_enqueue_notify",
@@ -1023,7 +1359,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_cancel_fn",
@@ -1038,7 +1376,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_run",
@@ -1053,7 +1393,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_queue_process",
@@ -1068,7 +1410,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_interrupt",
@@ -1081,7 +1425,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_adjust_timeout",
@@ -1094,7 +1440,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_lock",
@@ -1109,7 +1457,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dispatch_unlock",
@@ -1124,7 +1474,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cond_broadcast",
@@ -1137,7 +1489,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cond_destroy",
@@ -1150,7 +1504,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cond_init",
@@ -1163,7 +1519,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cond_timedwait_until",
@@ -1176,7 +1534,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cond_timedwait",
@@ -1189,7 +1549,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cond_wait",
@@ -1202,7 +1564,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_mutex_init",
@@ -1215,7 +1579,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_hash_to_bstr",
@@ -1231,7 +1597,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_mkostemps",
@@ -1246,7 +1614,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_save_to_file",
@@ -1262,7 +1632,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "ta_oom_s",
@@ -1275,7 +1647,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "eat_c",
@@ -1288,7 +1662,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "eat_ws",
@@ -1301,7 +1677,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "json_skip_whitespace",
@@ -1314,7 +1692,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "read_id",
@@ -1330,7 +1710,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "read_str",
@@ -1343,7 +1725,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "read_sub",
@@ -1360,7 +1744,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "json_parse",
@@ -1377,7 +1763,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "write_json_str",
@@ -1393,7 +1781,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "add_indent",
@@ -1412,7 +1802,9 @@
     ],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "json_append",
@@ -1428,7 +1820,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "json_append_str",
@@ -1444,7 +1838,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "json_write",
@@ -1460,7 +1856,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "json_write_pretty",
@@ -1476,7 +1874,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_isalnum",
@@ -1489,7 +1889,17 @@
     "rust_axioms": [],
     "proved": "tier 1",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 3069481,
+        "seconds": 252.7,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "mp_isalpha",
@@ -1502,7 +1912,17 @@
     "rust_axioms": [],
     "proved": "tier 1",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 409243,
+        "seconds": 37.5,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "mp_isdigit",
@@ -1515,7 +1935,17 @@
     "rust_axioms": [],
     "proved": "tier 1",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 29957,
+        "seconds": 5.8,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "mp_islower",
@@ -1528,7 +1958,17 @@
     "rust_axioms": [],
     "proved": "tier 1",
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 29965,
+        "seconds": 4.9,
+        "result": "proved"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "lang_compare",
@@ -1541,7 +1981,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "canonicalize",
@@ -1554,7 +1996,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_match_lang",
@@ -1571,7 +2015,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_guess_lang_from_filename",
@@ -1584,7 +2030,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bsearch",
@@ -1597,7 +2045,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_natural_sort_cmp",
@@ -1613,7 +2063,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "loop: a C loop needs a fuel bound and an invariant",
-    "first_error": "Tactic `unfold` failed: did not unfold 'Equiv.IsBstr'\n\nm : Achates.Mem\nname1 : Achates.Ptr\ns_name1 : Aeneas.Std.Slice Aeneas.Std.U8\nh_name1 : IsCStr m name1 s_name1\nname2 : Achates.Ptr\ns_name2 : Aeneas.Std.Slice Aeneas.Std.U8\nh_name2 : IsCStr m name2 s_name2\n⊢ Equal (fun r m' y => Unchanged m m' ∧ y = i32 r)\n    (fun fuel => Misc.Misc.Natural_sort_c.mp_natural_sort_cmp fuel name1 name2) m\n    (rmpv_misc.natural_sort.mp_natural_sort_cmp s_name1 s_name2)\n"
+    "first_error": "unsolved goals\nm : Achates.Mem\nname1 : Achates.Ptr\ns_name1 : Aeneas.Std.Slice Aeneas.Std.U8\nh_name1 : IsCStr m name1 s_name1\nname2 : Achates.Ptr\ns_name2 : Aeneas.Std.Slice Aeneas.Std.U8\nh_name2 : IsCStr m name2 s_name2\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\n⊢ Agree (fun r m' y => Unchanged m m' ∧ y.bv = r.bv)\n    (do\n",
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 238198,
+        "seconds": 21.6,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "node_init",
@@ -1629,7 +2089,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "node_array_add",
@@ -1645,7 +2107,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "node_map_add",
@@ -1661,7 +2125,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "node_map_badd",
@@ -1677,7 +2143,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "node_map_add_string",
@@ -1693,7 +2161,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "node_map_add_bstr",
@@ -1709,7 +2179,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "node_map_add_int64",
@@ -1725,7 +2197,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "node_map_add_double",
@@ -1741,7 +2215,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "node_map_add_flag",
@@ -1757,7 +2233,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "node_map_get",
@@ -1772,7 +2250,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "node_map_bget",
@@ -1787,7 +2267,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "equal_mpv_value",
@@ -1802,7 +2284,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "equal_mpv_node",
@@ -1817,7 +2301,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_equals0",
@@ -1834,8 +2320,18 @@
     ],
     "rust_axioms": [],
     "proved": null,
-    "open_reason": "arithmetic or unfolding",
-    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+    "open_reason": "budget: out of heartbeats at the top tier for its shape",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 4000025,
+        "seconds": 364.8,
+        "result": "out of heartbeats at `whnf`"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstr_equals",
@@ -1852,8 +2348,18 @@
     ],
     "rust_axioms": [],
     "proved": null,
-    "open_reason": "arithmetic or unfolding",
-    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n"
+    "open_reason": "budget: out of heartbeats at the top tier for its shape",
+    "first_error": "(deterministic) timeout at `whnf`, maximum number of heartbeats (4000000) has been reached\n\nNote: Use `set_option maxHeartbeats <num>` to set the limit.\n\nHint: Additional diagnostic information may be available using the `set_option diagnostics true` command.\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 4000092,
+        "seconds": 358.5,
+        "result": "out of heartbeats at `whnf`"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "bstrto0",
@@ -1869,7 +2375,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_basename_bstr",
@@ -1882,7 +2390,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_basename",
@@ -1895,7 +2405,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_dirname",
@@ -1908,7 +2420,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_path_strip_trailing_separator",
@@ -1921,7 +2435,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "split_ext",
@@ -1934,7 +2450,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_strip_ext",
@@ -1947,7 +2465,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_get_ext",
@@ -1960,7 +2480,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_path_is_absolute",
@@ -1976,7 +2498,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "loop: a Rust recursion needs an induction",
-    "first_error": "unsolved goals\ncase isTrue.isFalse\nm : Achates.Mem\nh_statics : StaticsReady m\npath : Achates.Agg\ns_path : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : path.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr path 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 path 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_path).length)\nright✝ : Region m w✝ ↑s_path\nh_len : (↑s_path).length < 18446744073709551616\n"
+    "first_error": "unsolved goals\ncase isTrue.isFalse\nm : Achates.Mem\nh_statics : StaticsReady m\npath : Achates.Agg\ns_path : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : path.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr path 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 path 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_path).length)\nright✝ : Region m w✝ ↑s_path\nh_len : (↑s_path).length < 18446744073709551616\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 10179,
+        "seconds": 3.8,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "mp_path_join_bstr",
@@ -1992,7 +2524,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_path_join",
@@ -2008,7 +2542,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_getcwd",
@@ -2024,7 +2560,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_normalize_path",
@@ -2041,7 +2579,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_path_exists",
@@ -2054,7 +2594,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_path_isdir",
@@ -2067,7 +2609,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_is_url",
@@ -2085,7 +2629,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "loop: a C loop needs a fuel bound and an invariant",
-    "first_error": "unsolved goals\nm : Achates.Mem\nh_statics : StaticsReady m\npath : Achates.Agg\ns_path : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : path.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr path 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 path 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_path).length)\nright✝ : Region m w✝ ↑s_path\nh_len : (↑s_path).length < 18446744073709551616\nx✝¹ : ℕ\n"
+    "first_error": "unsolved goals\nm : Achates.Mem\nh_statics : StaticsReady m\npath : Achates.Agg\ns_path : Aeneas.Std.Slice Aeneas.Std.U8\nleft✝² : path.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr path 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 path 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_path).length)\nright✝ : Region m w✝ ↑s_path\nh_len : (↑s_path).length < 18446744073709551616\nx✝¹ : ℕ\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 301962,
+        "seconds": 25.2,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "mp_split_proto",
@@ -2100,7 +2654,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_mkdirp",
@@ -2116,7 +2672,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "bstr_find0",
@@ -2134,7 +2692,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "loop: a C loop needs a fuel bound and an invariant",
-    "first_error": "unsolved goals\nm : Achates.Mem\nhaystack : Achates.Agg\ns_haystack : Aeneas.Std.Slice Aeneas.Std.U8\nneedle : Achates.Ptr\ns_needle : Aeneas.Std.Slice Aeneas.Std.U8\nh_needle : IsCStr m needle s_needle\nleft✝² : haystack.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr haystack 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 haystack 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_haystack).length)\nright✝ : Region m w✝ ↑s_haystack\n"
+    "first_error": "unsolved goals\nm : Achates.Mem\nhaystack : Achates.Agg\ns_haystack : Aeneas.Std.Slice Aeneas.Std.U8\nneedle : Achates.Ptr\ns_needle : Aeneas.Std.Slice Aeneas.Std.U8\nh_needle : IsCStr m needle s_needle\nleft✝² : haystack.bytes.size = 16\nw✝ : Achates.Ptr\nleft✝¹ : Achates.Agg.get Achates.Ptr haystack 0 = Except.ok w✝\nleft✝ : Achates.Agg.get Achates.U64 haystack 8 = Except.ok (Achates.UInt.ofNat 64 (↑s_haystack).length)\nright✝ : Region m w✝ ↑s_haystack\n",
+    "tries": [
+      {
+        "tier": 2,
+        "budget": 4000000,
+        "heartbeats": 277409,
+        "seconds": 23.4,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "rotl_u64",
@@ -2147,7 +2715,17 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": "arithmetic or unfolding",
-    "first_error": "unsolved goals\nm : Achates.Mem\nx : Achates.U64\nk : Achates.I32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\n⊢ Agree (fun r m' y => Unchanged m m' ∧ y.bv = r.bv)\n    (do\n      let p ←\n        do\n          let a ←\n            if k.bv.toInt < 0 ∨ k.bv.toInt ≥ ↑64 then\n"
+    "first_error": "unsolved goals\nm : Achates.Mem\nx : Achates.U64\nk : Achates.I32\nx✝¹ : ℕ\nx✝ : 0 ≤ x✝¹\n⊢ Agree (fun r m' y => Unchanged m m' ∧ y.bv = r.bv)\n    (do\n      let p ←\n        do\n          let a ←\n            if k.bv.toInt < 0 ∨ k.bv.toInt ≥ ↑64 then\n",
+    "tries": [
+      {
+        "tier": 1,
+        "budget": 8000000,
+        "heartbeats": 129666,
+        "seconds": 11.3,
+        "result": "unsolved goals"
+      }
+    ],
+    "cached": false
   },
   {
     "c": "splitmix64",
@@ -2160,7 +2738,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_rand_seed",
@@ -2173,7 +2753,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_rand_next",
@@ -2186,7 +2768,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_rand_next_double",
@@ -2201,7 +2785,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_rand_in_range32",
@@ -2214,7 +2800,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_rendezvous",
@@ -2227,7 +2815,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "worker_thread",
@@ -2242,7 +2832,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "thread_pool_dtor",
@@ -2255,7 +2847,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "add_thread",
@@ -2271,7 +2865,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_thread_pool_create",
@@ -2287,7 +2883,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "thread_pool_add",
@@ -2303,7 +2901,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_thread_pool_queue",
@@ -2319,7 +2919,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_thread_pool_run",
@@ -2335,7 +2937,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cond_signal",
@@ -2348,7 +2952,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_thread_set_name",
@@ -2361,7 +2967,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_waiter_wait",
@@ -2374,7 +2982,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_waiter_wakeup",
@@ -2387,7 +2997,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_waiter_poll",
@@ -2400,7 +3012,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "cancel_destroy",
@@ -2415,7 +3029,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cancel_new",
@@ -2432,7 +3048,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "trigger_locked",
@@ -2447,7 +3065,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cancel_trigger",
@@ -2462,7 +3082,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cancel_reset",
@@ -2477,7 +3099,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cancel_test",
@@ -2492,7 +3116,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cancel_wait",
@@ -2507,7 +3133,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "retrigger_locked",
@@ -2522,7 +3150,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cancel_set_cb",
@@ -2537,7 +3167,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cancel_set_parent",
@@ -2552,7 +3184,9 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   },
   {
     "c": "mp_cancel_get_fd",
@@ -2567,6 +3201,8 @@
     "rust_axioms": [],
     "proved": null,
     "open_reason": null,
-    "first_error": null
+    "first_error": null,
+    "tries": [],
+    "cached": false
   }
 ]
