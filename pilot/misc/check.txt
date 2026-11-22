@@ -1,0 +1,426 @@
+../.mpv/misc/bstr.c:30 bstrcmp: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 6 of 8 generated (0 by timeout; 0 equivalent; 8 compiled, 8 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:33:18 (in bstrcmp) logical: `&&` -> `||`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:39:27 (in bstrcmp) comparison: `>` -> `>=`
+../.mpv/misc/bstr.c:47 bstrcasecmp: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 6 of 8 generated (0 by timeout; 0 equivalent; 8 compiled, 8 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:50:18 (in bstrcasecmp) logical: `&&` -> `||`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:56:27 (in bstrcasecmp) comparison: `>` -> `>=`
+../.mpv/misc/bstr.c:64 bstrchr: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 2 of 3 generated (0 by timeout; 0 equivalent; 2 compiled, 3 candidates)
+../.mpv/misc/bstr.c:72 bstrrchr: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 2 of 10 generated (0 by timeout; 7 equivalent; 2 compiled, 10 candidates)
+../.mpv/misc/bstr.c:87 bstrcspn: checked and sensitive; 10000 inputs, 9809 compared, 0 aborts confirmed, 191 undefined, 0 unsupported, out of contract 2%; mutants caught 4 of 4 generated (0 by timeout; 0 equivalent; 4 compiled, 4 candidates)
+../.mpv/misc/bstr.c:96 bstrspn: checked and sensitive; 10000 inputs, 9823 compared, 0 aborts confirmed, 177 undefined, 0 unsupported, out of contract 2%; mutants caught 4 of 4 generated (0 by timeout; 0 equivalent; 4 compiled, 4 candidates)
+../.mpv/misc/bstr.c:105 bstr_find: checked and sensitive; 10000 inputs, 9655 compared, 0 aborts confirmed, 345 undefined, 0 unsupported, out of contract 4%; mutants caught 9 of 20 generated (0 by timeout; 0 equivalent; 20 compiled, 20 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:9 (in bstr_splice) statement: `start += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:165:13 (in bstr_splice) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:165:15 (in bstr_splice) constant: `0` -> `1`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:9 (in bstr_splice) statement: `end += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:13 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:167:5 (in bstr_splice) statement: `end = MPMIN(end, str.len);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:168:5 (in bstr_splice) statement: `start = MPMAX(start, 0);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:169:5 (in bstr_splice) statement: `end = MPMAX(end, start);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:171:5 (in bstr_splice) statement: `str.len = end - start;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:171:19 (in bstr_splice) arithmetic: `-` -> `+`
+../.mpv/misc/bstr.c:113 bstr_lstrip: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 5 of 5 generated (0 by timeout; 0 equivalent; 5 compiled, 5 candidates)
+../.mpv/misc/bstr.c:122 bstr_strip: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 11 of 11 generated (0 by timeout; 0 equivalent; 11 compiled, 11 candidates)
+../.mpv/misc/bstr.c:130 bstr_split: checked and sensitive; 10000 inputs, 9440 compared, 0 aborts confirmed, 560 undefined, 0 unsupported, out of contract 6%; mutants caught 12 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 27 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:9 (in bstr_splice) statement: `start += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:165:13 (in bstr_splice) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:165:15 (in bstr_splice) constant: `0` -> `1`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:9 (in bstr_splice) statement: `end += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:13 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:167:5 (in bstr_splice) statement: `end = MPMIN(end, str.len);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:168:5 (in bstr_splice) statement: `start = MPMAX(start, 0);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:169:5 (in bstr_splice) statement: `end = MPMAX(end, start);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:170:5 (in bstr_splice) statement: `str.start += start;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:170:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:171:19 (in bstr_splice) arithmetic: `-` -> `+`
+../.mpv/misc/bstr.c:147 bstr_split_tok: checked and sensitive; 10000 inputs, 7923 compared, 0 aborts confirmed, 2077 undefined, 0 unsupported, out of contract 21%; mutants caught 17 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 28 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:107:23 (in bstr_find) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:110:13 (in bstr_find) constant: `1` -> `2`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:9 (in bstr_splice) statement: `start += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:13 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:168:5 (in bstr_splice) statement: `start = MPMAX(start, 0);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:169:5 (in bstr_splice) statement: `end = MPMAX(end, start);` -> `;`
+../.mpv/misc/bstr.c:158 bstr_splice: checked and sensitive; 10000 inputs, 5816 compared, 0 aborts confirmed, 4184 undefined, 0 unsupported, out of contract 42%; mutants caught 16 of 16 generated (0 by timeout; 0 equivalent; 16 compiled, 16 candidates)
+../.mpv/misc/bstr.c:175 bstrtoll: checked and sensitive; 10000 inputs, 3578 compared, 0 aborts confirmed, 397 undefined, 6025 unsupported, out of contract 4%; mutants caught 9 of 13 generated (0 by timeout; 0 equivalent; 12 compiled, 13 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:178:14 (in bstrtoll) constant: `51` -> `52`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:179:30 (in bstrtoll) constant: `50` -> `51`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:181:16 (in bstrtoll) constant: `0` -> `1`
+../.mpv/misc/bstr.c:189 bstrtod: not checkable: needs external strtod
+../.mpv/misc/bstr.c:203 bstr_splitchar: checked and sensitive; 10000 inputs, 9633 compared, 0 aborts confirmed, 367 undefined, 0 unsupported, out of contract 4%; mutants caught 13 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 25 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:9 (in bstr_splice) statement: `start += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:165:13 (in bstr_splice) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:165:15 (in bstr_splice) constant: `0` -> `1`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:9 (in bstr_splice) statement: `end += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:13 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:168:5 (in bstr_splice) statement: `start = MPMAX(start, 0);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:169:5 (in bstr_splice) statement: `end = MPMAX(end, start);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:170:5 (in bstr_splice) statement: `str.start += start;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:170:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:171:19 (in bstr_splice) arithmetic: `-` -> `+`
+../.mpv/misc/bstr.c:213 bstr_strip_linebreaks: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 14 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 24 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:9 (in bstr_splice) statement: `start += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:9 (in bstr_splice) statement: `end += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:13 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:167:5 (in bstr_splice) statement: `end = MPMIN(end, str.len);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:168:5 (in bstr_splice) statement: `start = MPMAX(start, 0);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:169:5 (in bstr_splice) statement: `end = MPMAX(end, start);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:170:5 (in bstr_splice) statement: `str.start += start;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:170:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:171:19 (in bstr_splice) arithmetic: `-` -> `+`
+../.mpv/misc/bstr.c:223 bstr_eatstart: checked and sensitive; 10000 inputs, 8746 compared, 0 aborts confirmed, 1254 undefined, 0 unsupported, out of contract 13%; mutants caught 1 of 1 generated (0 by timeout; 0 equivalent; 1 compiled, 1 candidates)
+../.mpv/misc/bstr.c:231 bstr_eatend: checked and sensitive; 10000 inputs, 8733 compared, 0 aborts confirmed, 1267 undefined, 0 unsupported, out of contract 13%; mutants caught 2 of 2 generated (0 by timeout; 0 equivalent; 2 compiled, 2 candidates)
+../.mpv/misc/bstr.c:239 bstr_lower: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 4 of 4 generated (0 by timeout; 0 equivalent; 4 compiled, 4 candidates)
+../.mpv/misc/bstr.c:245 bstr_sscanf: not emitted: variadic function definition: reading `...` arguments is not modelled; variadic argument handling (va_start and friends) is not modelled
+../.mpv/misc/bstr.c:256 bstr_parse_utf8_code_length: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 12 of 12 generated (0 by timeout; 0 equivalent; 12 compiled, 12 candidates)
+../.mpv/misc/bstr.c:264 bstr_decode_partial_utf8: checked and sensitive; 10000 inputs, 9154 compared, 0 aborts confirmed, 846 undefined, 0 unsupported, out of contract 9%; mutants caught 22 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 43 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:272:21 (in bstr_decode_partial_utf8) constant: `1` -> `2`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:288:66 (in bstr_decode_partial_utf8) constant: `4` -> `5`
+../.mpv/misc/bstr.c:295 bstr_decode_utf8: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 22 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 47 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:272:21 (in bstr_decode_partial_utf8) constant: `1` -> `2`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:288:66 (in bstr_decode_partial_utf8) constant: `4` -> `5`
+../.mpv/misc/bstr.c:303 bstr_split_utf8: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 13 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 26 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:298:18 (in bstr_decode_utf8) logical: `&&` -> `||`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:9 (in bstr_splice) statement: `start += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:165:13 (in bstr_splice) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:165:15 (in bstr_splice) constant: `0` -> `1`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:13 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:168:5 (in bstr_splice) statement: `start = MPMAX(start, 0);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:169:5 (in bstr_splice) statement: `end = MPMAX(end, start);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:170:5 (in bstr_splice) statement: `str.start += start;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:170:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:171:19 (in bstr_splice) arithmetic: `-` -> `+`
+../.mpv/misc/bstr.c:314 bstr_validate_utf8: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 20 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 35 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:321:23 (in bstr_validate_utf8) comparison: `>` -> `>=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:321:27 (in bstr_validate_utf8) logical: `&&` -> `||`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:321:36 (in bstr_validate_utf8) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:321:38 (in bstr_validate_utf8) constant: `6` -> `7`
+../.mpv/misc/bstr.c:339 bstr_sanitize_utf8_latin1: not checkable: needs external mp_append_utf8_bstr; parameter type: a `void *` that is not only handed to talloc as a parent
+../.mpv/misc/bstr.c:361 resize_append: checked and sensitive; 10000 inputs, 5619 compared, 2111 aborts confirmed, 835 undefined, 1435 unsupported, out of contract 30%; mutants caught 7 of 16 generated (0 by timeout; 0 equivalent; 16 compiled, 16 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:364:5 (in resize_append) statement: `mp_assert(s->len <= size);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:365:27 (in resize_append) arithmetic: `-` -> `+`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:366:24 (in resize_append) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:367:13 (in resize_append) statement: `append_min = size;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:18 (in resize_append) comparison: `>=` -> `>`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:30 (in resize_append) arithmetic: `/` -> `*`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:32 (in resize_append) constant: `2` -> `3`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:48 (in resize_append) comparison: `>=` -> `>`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:62 (in resize_append) constant: `2` -> `3`
+../.mpv/misc/bstr.c:374 bstr_xappend: checked and sensitive; 10000 inputs, 9218 compared, 0 aborts confirmed, 782 undefined, 0 unsupported, out of contract 8%; mutants caught 10 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 24 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:378:47 (in bstr_xappend) constant: `1` -> `2`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:381:5 (in bstr_xappend) statement: `s->start[s->len] = '\0';` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:364:5 (in resize_append) statement: `mp_assert(s->len <= size);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:365:20 (in resize_append) comparison: `>` -> `>=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:366:24 (in resize_append) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:367:13 (in resize_append) statement: `append_min = size;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:18 (in resize_append) comparison: `>=` -> `>`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:30 (in resize_append) arithmetic: `/` -> `*`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:32 (in resize_append) constant: `2` -> `3`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:34 (in resize_append) logical: `||` -> `&&`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:48 (in resize_append) comparison: `>=` -> `>`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:60 (in resize_append) arithmetic: `/` -> `*`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:368:62 (in resize_append) constant: `2` -> `3`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:369:13 (in resize_append) statement: `abort();` -> `;`
+../.mpv/misc/bstr.c:384 bstr_xappend_asprintf: not emitted: variadic function definition: reading `...` arguments is not modelled; variadic argument handling (va_start and friends) is not modelled
+../.mpv/misc/bstr.c:393 bstr_xappend_vasprintf: not emitted: variadic argument handling (va_start and friends) is not modelled
+../.mpv/misc/bstr.c:415 bstr_case_startswith: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 15 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 29 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:9 (in bstr_splice) statement: `start += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:164:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:9 (in bstr_splice) statement: `end += str.len;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:166:13 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:168:5 (in bstr_splice) statement: `start = MPMAX(start, 0);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:169:5 (in bstr_splice) statement: `end = MPMAX(end, start);` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:170:5 (in bstr_splice) statement: `str.start += start;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:170:15 (in bstr_splice) arithmetic: `+=` -> `-=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:171:19 (in bstr_splice) arithmetic: `-` -> `+`
+../.mpv/misc/bstr.c:421 bstr_case_endswith: checked and sensitive; 10000 inputs, 9581 compared, 0 aborts confirmed, 419 undefined, 0 unsupported, out of contract 5%; mutants caught 8 of 12 generated (0 by timeout; 0 equivalent; 12 compiled, 12 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:50:18 (in bstrcasecmp) logical: `&&` -> `||`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:56:27 (in bstrcasecmp) comparison: `>` -> `>=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:57:20 (in bstrcasecmp) constant: `1` -> `2`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:59:21 (in bstrcasecmp) constant: `1` -> `2`
+../.mpv/misc/bstr.c:427 h_to_i: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 17 of 17 generated (0 by timeout; 0 equivalent; 17 compiled, 17 candidates)
+../.mpv/misc/bstr.c:439 bstr_decode_hex: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 22 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 36 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:444:56 (in bstr_decode_hex) arithmetic: `/` -> `*`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:453:13 (in bstr_decode_hex) statement: `talloc_free(arr);` -> `;`
+../.mpv/misc/bstr.c:464 bstr_find_in_list0: not checkable: parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/bstr.c:473 bstr_in_list0: not checkable: parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/bstr.h:61 bstr0: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 1 of 1 generated (0 by timeout; 0 equivalent; 1 compiled, 1 candidates)
+../.mpv/misc/bstr.h:226 bstr_cut: checked and sensitive; 10000 inputs, 9587 compared, 0 aborts confirmed, 413 undefined, 0 unsupported, out of contract 5%; mutants caught 9 of 12 generated (0 by timeout; 0 equivalent; 12 compiled, 12 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.h:230:15 (in bstr_cut) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.h:230:17 (in bstr_cut) constant: `0` -> `1`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.h:233:21 (in bstr_cut) comparison: `>` -> `>=`
+../.mpv/misc/bstr.h:250 bstr_endswith: checked and sensitive; 10000 inputs, 9525 compared, 0 aborts confirmed, 475 undefined, 0 unsupported, out of contract 5%; mutants caught 3 of 3 generated (0 by timeout; 0 equivalent; 3 compiled, 3 candidates)
+../.mpv/misc/bstr.h:257 bstr_endswith0: checked and sensitive; 10000 inputs, 9725 compared, 0 aborts confirmed, 275 undefined, 0 unsupported, out of contract 3%; mutants caught 3 of 4 generated (0 by timeout; 0 equivalent; 4 compiled, 4 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.h:63:62 (in bstr0) constant: `0` -> `1`
+../.mpv/misc/bstr.h:238 bstr_startswith: checked and sensitive; 10000 inputs, 9517 compared, 0 aborts confirmed, 483 undefined, 0 unsupported, out of contract 5%; mutants caught 1 of 1 generated (0 by timeout; 0 equivalent; 1 compiled, 1 candidates)
+../.mpv/misc/bstr.h:280 bstrcasecmp0: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 7 of 9 generated (0 by timeout; 0 equivalent; 9 compiled, 9 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:50:18 (in bstrcasecmp) logical: `&&` -> `||`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:56:27 (in bstrcasecmp) comparison: `>` -> `>=`
+../.mpv/misc/bstr.h:262 bstrcmp0: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 7 of 9 generated (0 by timeout; 0 equivalent; 9 compiled, 9 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:33:18 (in bstrcmp) logical: `&&` -> `||`
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.c:39:27 (in bstrcmp) comparison: `>` -> `>=`
+../.mpv/misc/bstr.h:39 bstrdup0: checked, agreement not shown to be sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 0 of 0 generated (0 by timeout; 0 equivalent; 0 compiled, 0 candidates)
+../.mpv/misc/ctype.h:8 mp_isspace: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 11 of 11 generated (0 by timeout; 0 equivalent; 11 compiled, 11 candidates)
+../.mpv/misc/ctype.h:16 mp_tolower: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 5 of 5 generated (0 by timeout; 0 equivalent; 5 compiled, 5 candidates)
+../.mpv/misc/ctype.h:10 mp_isupper: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 3 of 3 generated (0 by timeout; 0 equivalent; 3 compiled, 3 candidates)
+../.mpv/ta/ta.h:161 ta_oom_p: not checkable: parameter type: a `void *` that is not only handed to talloc as a parent
+../.mpv/misc/charset_conv.c:41 mp_charset_is_utf8: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 6 of 6 generated (0 by timeout; 0 equivalent; 6 compiled, 6 candidates)
+../.mpv/misc/charset_conv.c:47 mp_charset_is_utf16: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 1 of 1 generated (0 by timeout; 0 equivalent; 1 compiled, 1 candidates)
+../.mpv/misc/charset_conv.c:57 ms_bom_guess: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 2 of 4 generated (0 by timeout; 0 equivalent; 4 compiled, 4 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/charset_conv.c:59:23 (in ms_bom_guess) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/charset_conv.c:59:25 (in ms_bom_guess) constant: `3` -> `4`
+../.mpv/misc/charset_conv.c:101 mp_charset_guess: not checkable: needs external mp_msg; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a pointer to struct mp_log: declared but not defined in this file
+../.mpv/misc/charset_conv.c:150 mp_iconv_to_utf8: not checkable: needs external mp_append_utf8_bstr; parameter type: a pointer to struct mp_log: declared but not defined in this file
+../.mpv/misc/bstr.h:245 bstr_startswith0: checked and sensitive; 10000 inputs, 9761 compared, 0 aborts confirmed, 239 undefined, 0 unsupported, out of contract 3%; mutants caught 1 of 2 generated (0 by timeout; 0 equivalent; 2 compiled, 2 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.h:63:62 (in bstr0) constant: `0` -> `1`
+../.mpv/misc/codepoint_width.c:617 ucdLookup: checked and sensitive; 10000 inputs, 6733 compared, 0 aborts confirmed, 3267 undefined, 0 unsupported, out of contract 33%; mutants caught 13 of 14 generated (0 by timeout; 0 equivalent; 14 compiled, 14 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/codepoint_width.c:622:43 (in ucdLookup) arithmetic: `>>` -> `<<`
+../.mpv/misc/codepoint_width.c:625 ucdGraphemeJoins: checked and sensitive; 10000 inputs, 748 compared, 0 aborts confirmed, 9252 undefined, 0 unsupported, out of contract 93%; mutants caught 5 of 5 generated (0 by timeout; 0 equivalent; 5 compiled, 5 candidates)
+../.mpv/misc/codepoint_width.c:631 ucdGraphemeDone: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 2 of 2 generated (0 by timeout; 0 equivalent; 2 compiled, 2 candidates)
+../.mpv/misc/codepoint_width.c:635 ucdToCharacterWidth: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 2 of 2 generated (0 by timeout; 0 equivalent; 2 compiled, 2 candidates)
+../.mpv/misc/codepoint_width.c:664 is_valid_partial_sequence: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 19 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 26 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/codepoint_width.c:670:29 (in is_valid_partial_sequence) comparison: `>=` -> `>`
+  survivor /home/user/rmpv/formal/.mpv/misc/codepoint_width.c:672:29 (in is_valid_partial_sequence) comparison: `<=` -> `<`
+  survivor /home/user/rmpv/formal/.mpv/misc/codepoint_width.c:674:29 (in is_valid_partial_sequence) comparison: `>=` -> `>`
+  survivor /home/user/rmpv/formal/.mpv/misc/codepoint_width.c:674:32 (in is_valid_partial_sequence) constant: `0x90` -> `0x91`
+  survivor /home/user/rmpv/formal/.mpv/misc/codepoint_width.c:676:29 (in is_valid_partial_sequence) comparison: `<=` -> `<`
+../.mpv/misc/codepoint_width.c:680 term_disp_width: checked and sensitive; 10000 inputs, 9743 compared, 0 aborts confirmed, 257 undefined, 0 unsupported, out of contract 3%; mutants caught 21 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 69 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/codepoint_width.c:737:21 (in term_disp_width) constant: `0` -> `1`
+  survivor /home/user/rmpv/formal/.mpv/misc/codepoint_width.c:750:17 (in term_disp_width) statement: `w = 2;` -> `;`
+  survivor /home/user/rmpv/formal/.mpv/misc/codepoint_width.c:761:22 (in term_disp_width) constant: `0` -> `1`
+../.mpv/misc/bstr.h:290 bstr_eatstart0: checked, agreement not shown to be sensitive; 10000 inputs, 8951 compared, 0 aborts confirmed, 1049 undefined, 0 unsupported, out of contract 11%; mutants caught 0 of 1 generated (0 by timeout; 0 equivalent; 1 compiled, 1 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.h:63:62 (in bstr0) constant: `0` -> `1`
+../.mpv/misc/dispatch.c:63 queue_dtor: not checkable: needs external pthread_cond_destroy; needs external pthread_mutex_destroy; parameter type: a `void *` that is not only handed to talloc as a parent
+../.mpv/misc/dispatch.c:83 mp_dispatch_create: not checkable: needs external pthread_cond_init; needs external pthread_condattr_destroy; needs external pthread_condattr_init; needs external pthread_condattr_setclock; needs external pthread_mutex_init; needs external pthread_mutexattr_destroy; needs external pthread_mutexattr_init; needs external pthread_mutexattr_settype
+../.mpv/misc/dispatch.c:102 mp_dispatch_set_wakeup_fn: not checkable: parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:118 mp_dispatch_set_onlock_fn: not checkable: parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:126 mp_dispatch_append: not checkable: needs external Misc.Thread_pool_c.thread_pool_dtor; needs external Misc.Thread_tools_c.cancel_destroy; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a pointer to struct mp_dispatch_item: member `fn` is a pointer member; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:168 mp_dispatch_enqueue: not checkable: needs external Misc.Thread_pool_c.thread_pool_dtor; needs external Misc.Thread_tools_c.cancel_destroy; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:184 mp_dispatch_enqueue_autofree: not checkable: needs external Misc.Thread_pool_c.thread_pool_dtor; needs external Misc.Thread_tools_c.cancel_destroy; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:197 mp_dispatch_enqueue_notify: not checkable: needs external Misc.Thread_pool_c.thread_pool_dtor; needs external Misc.Thread_tools_c.cancel_destroy; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:218 mp_dispatch_cancel_fn: not checkable: needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:241 mp_dispatch_run: not checkable: needs external Misc.Thread_pool_c.thread_pool_dtor; needs external Misc.Thread_tools_c.cancel_destroy; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_cond_wait; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:272 mp_dispatch_queue_process: not checkable: needs external Misc.Thread_pool_c.thread_pool_dtor; needs external Misc.Thread_tools_c.cancel_destroy; needs external clock_gettime; needs external mp_time_ns; needs external mp_time_ns_add; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_cond_timedwait; needs external pthread_cond_wait; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external pthread_self; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:331 mp_dispatch_interrupt: not checkable: needs external pthread_cond_broadcast; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:347 mp_dispatch_adjust_timeout: not checkable: needs external pthread_cond_broadcast; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:364 mp_dispatch_lock: not checkable: needs external Misc.Thread_pool_c.thread_pool_dtor; needs external Misc.Thread_tools_c.cancel_destroy; needs external pthread_cond_destroy; needs external pthread_cond_wait; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external pthread_self; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/misc/dispatch.c:402 mp_dispatch_unlock: not checkable: needs external pthread_cond_broadcast; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external pthread_self; parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+../.mpv/osdep/threads-posix.h:165 mp_cond_broadcast: not checkable: needs external pthread_cond_broadcast; parameter type: a pointer to struct (typedef mp_cond): member `cond` is union (typedef pthread_cond_t): a union
+../.mpv/osdep/threads-posix.h:159 mp_cond_destroy: not checkable: needs external pthread_cond_destroy; parameter type: a pointer to struct (typedef mp_cond): member `cond` is union (typedef pthread_cond_t): a union
+../.mpv/osdep/threads-posix.h:138 mp_cond_init: not checkable: needs external pthread_cond_init; needs external pthread_condattr_destroy; needs external pthread_condattr_init; needs external pthread_condattr_setclock; parameter type: a pointer to struct (typedef mp_cond): member `cond` is union (typedef pthread_cond_t): a union
+../.mpv/osdep/threads-posix.h:204 mp_cond_timedwait_until: not checkable: needs external clock_gettime; needs external mp_time_ns; needs external pthread_cond_timedwait; needs external pthread_cond_wait; parameter type: a pointer to struct (typedef mp_cond): member `cond` is union (typedef pthread_cond_t): a union; parameter type: a pointer to union (typedef pthread_mutex_t): a union
+../.mpv/osdep/threads-posix.h:183 mp_cond_timedwait: not checkable: needs external clock_gettime; needs external pthread_cond_timedwait; needs external pthread_cond_wait; parameter type: a pointer to struct (typedef mp_cond): member `cond` is union (typedef pthread_cond_t): a union; parameter type: a pointer to union (typedef pthread_mutex_t): a union
+../.mpv/osdep/threads-posix.h:177 mp_cond_wait: not checkable: needs external pthread_cond_wait; parameter type: a pointer to struct (typedef mp_cond): member `cond` is union (typedef pthread_cond_t): a union; parameter type: a pointer to union (typedef pthread_mutex_t): a union
+../.mpv/osdep/threads-posix.h:112 mp_mutex_init: not checkable: needs external pthread_mutex_init; needs external pthread_mutexattr_destroy; needs external pthread_mutexattr_init; needs external pthread_mutexattr_settype; parameter type: a pointer to union (typedef pthread_mutex_t): a union
+../.mpv/misc/hash.c:25 mp_hash_to_bstr: not checkable: needs external av_hash_alloc; needs external av_hash_final; needs external av_hash_freep; needs external av_hash_get_size; needs external av_hash_init; needs external av_hash_update; needs external bstr_xappend_asprintf; parameter type: ptr<const unsigned char:u8>: a pointer to bytes without an evident length
+../.mpv/misc/io_utils.c:34 mp_mkostemps: not checkable: needs external __errno_location; needs external av_random_bytes; needs external mp_raw_time_ns; needs external mp_tprintf_buf; needs external open
+../.mpv/misc/io_utils.c:61 mp_save_to_file: not checkable: needs external __errno_location; needs external av_random_bytes; needs external close; needs external fclose; needs external fdopen; needs external fwrite; needs external mp_raw_time_ns; needs external mp_tprintf_buf; needs external open; needs external rename; needs external ta_asprintf; needs external unlink; parameter type: a `void *` that is not only handed to talloc as a parent
+../.mpv/ta/ta.h:174 ta_oom_s: checked and sensitive; 10000 inputs, 9778 compared, 222 aborts confirmed, 0 undefined, 0 unsupported, out of contract 3%; mutants caught 1 of 1 generated (0 by timeout; 0 equivalent; 1 compiled, 1 candidates)
+../.mpv/misc/json.c:59 eat_c: not checkable: parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/json.c:68 eat_ws: not checkable: parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/json.c:78 json_skip_whitespace: not checkable: parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/json.c:83 read_id: not checkable: parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union; parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/json.c:101 read_str: not checkable: needs external mp_append_escaped_string; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union; parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/json.c:135 read_sub: not checkable: needs external __errno_location; needs external mp_append_escaped_string; needs external strtod; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union; parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/json.c:189 json_parse: not checkable: needs external __errno_location; needs external mp_append_escaped_string; needs external strtod; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union; parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/json.c:258 write_json_str: not checkable: needs external bstr_xappend_asprintf; parameter type: ptr<unsigned char:u8>: a pointer to bytes without an evident length
+../.mpv/misc/json.c:285 add_indent: disagrees; 10000 inputs, 7875 compared, 0 aborts confirmed, 658 undefined, 0 unsupported, out of contract 7%
+  1467 disagreement(s); first at input 5:
+    input: P H7a7e2b736c:16 1480570737
+    lean:  fuel
+    c:     not run
+../.mpv/misc/json.c:294 json_append: not checkable: needs external bstr_xappend_asprintf; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/json.c:341 json_append_str: not checkable: needs external bstr_xappend_asprintf; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union; parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/json.c:354 json_write: not checkable: needs external bstr_xappend_asprintf; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union; parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/json.c:360 json_write_pretty: not checkable: needs external bstr_xappend_asprintf; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union; parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+../.mpv/misc/ctype.h:14 mp_isalnum: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 5 of 5 generated (0 by timeout; 0 equivalent; 5 compiled, 5 candidates)
+../.mpv/misc/ctype.h:13 mp_isalpha: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 7 of 7 generated (0 by timeout; 0 equivalent; 7 compiled, 7 candidates)
+../.mpv/misc/ctype.h:12 mp_isdigit: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 3 of 3 generated (0 by timeout; 0 equivalent; 3 compiled, 3 candidates)
+../.mpv/misc/ctype.h:11 mp_islower: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 3 of 3 generated (0 by timeout; 0 equivalent; 3 compiled, 3 candidates)
+../.mpv/misc/language.c:241 lang_compare: not checkable: parameter type: a `void *` that is not only handed to talloc as a parent
+../.mpv/misc/language.c:247 canonicalize: not checkable: needs external Misc.Language_c.lang_compare
+../.mpv/misc/language.c:254 mp_match_lang: not emitted: an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
+../.mpv/misc/language.c:303 mp_guess_lang_from_filename: not checkable: parameter type: ptr<enum track_flags>: a pointer used as an array without an evident length; parameter type: ptr<int:i32>: a pointer used as an array without an evident length
+/usr/include/x86_64-linux-gnu/bits/stdlib-bsearch.h:20 bsearch: not checkable: needs external Misc.Language_c.lang_compare; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer
+../.mpv/misc/natural_sort.c:26 mp_natural_sort_cmp: checked and sensitive; 10000 inputs, 9583 compared, 0 aborts confirmed, 417 undefined, 0 unsupported, out of contract 5%; mutants caught 20 of 24 generated (0 by timeout; 0 equivalent; 21 compiled, 56 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/natural_sort.c:28:21 (in mp_natural_sort_cmp) logical: `&&` -> `||`
+../.mpv/misc/node.c:12 node_init: not checkable: parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/node.c:36 node_array_add: not emitted: an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
+../.mpv/misc/node.c:48 node_map_add: not checkable: needs external node_map_badd; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/node.c:54 node_map_badd: not emitted: an expression whose operands C does not sequence may interfere, so its value could depend on the compiler's order
+../.mpv/misc/node.c:70 node_map_add_string: not checkable: needs external node_map_badd; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/node.c:79 node_map_add_bstr: not checkable: needs external node_map_badd; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/node.c:88 node_map_add_int64: not checkable: needs external node_map_badd; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/node.c:93 node_map_add_double: not checkable: needs external node_map_badd; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/node.c:98 node_map_add_flag: not checkable: needs external node_map_badd; parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/node.c:103 node_map_get: not checkable: parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/node.c:108 node_map_bget: not checkable: parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/node.c:123 equal_mpv_value: not checkable: parameter type: a `void *` that is not only handed to talloc as a parent
+../.mpv/misc/node.c:166 equal_mpv_node: not checkable: parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+../.mpv/misc/bstr.h:275 bstr_equals0: checked and sensitive; 10000 inputs, 9704 compared, 0 aborts confirmed, 0 undefined, 296 unsupported, out of contract 0%; mutants caught 6 of 6 generated (0 by timeout; 0 equivalent; 6 compiled, 6 candidates)
+../.mpv/misc/bstr.h:267 bstr_equals: checked and sensitive; 10000 inputs, 9700 compared, 0 aborts confirmed, 0 undefined, 300 unsupported, out of contract 0%; mutants caught 5 of 5 generated (0 by timeout; 0 equivalent; 5 compiled, 5 candidates)
+../.mpv/misc/bstr.h:45 bstrto0: checked, agreement not shown to be sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 0 of 0 generated (0 by timeout; 0 equivalent; 0 compiled, 0 candidates)
+../.mpv/misc/path_utils.c:42 mp_basename_bstr: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 5 of 17 generated (0 by timeout; 12 equivalent; 5 compiled, 17 candidates)
+../.mpv/misc/path_utils.c:62 mp_basename: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 5 of 17 generated (0 by timeout; 12 equivalent; 5 compiled, 17 candidates)
+../.mpv/misc/path_utils.c:67 mp_dirname: checked and sensitive; 10000 inputs, 9803 compared, 0 aborts confirmed, 197 undefined, 0 unsupported, out of contract 2%; mutants caught 2 of 3 generated (0 by timeout; 0 equivalent; 2 compiled, 3 candidates)
+../.mpv/misc/path_utils.c:85 mp_path_strip_trailing_separator: checked and sensitive; 10000 inputs, 9778 compared, 0 aborts confirmed, 222 undefined, 0 unsupported, out of contract 3%; mutants caught 7 of 8 generated (0 by timeout; 0 equivalent; 8 compiled, 8 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:88:13 (in mp_path_strip_trailing_separator) comparison: `>` -> `>=`
+../.mpv/misc/path_utils.c:96 split_ext: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 13 of 24 generated (0 by timeout; 8 equivalent; 15 compiled, 30 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:105:17 (in split_ext) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:105:19 (in split_ext) constant: `0` -> `1`
+../.mpv/misc/path_utils.c:113 mp_strip_ext: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 10 of 15 generated (0 by timeout; 0 equivalent; 14 compiled, 15 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:115:18 (in mp_strip_ext) constant: `0` -> `1`
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:105:17 (in split_ext) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:105:19 (in split_ext) constant: `0` -> `1`
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:106:23 (in split_ext) constant: `0` -> `1`
+../.mpv/misc/path_utils.c:120 mp_get_ext: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 8 of 13 generated (0 by timeout; 0 equivalent; 12 compiled, 13 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:105:17 (in split_ext) comparison: `<` -> `<=`
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:105:19 (in split_ext) constant: `0` -> `1`
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:109:46 (in split_ext) arithmetic: `-` -> `+`
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:109:48 (in split_ext) constant: `1` -> `2`
+../.mpv/misc/path_utils.c:125 mp_path_is_absolute: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 2 of 9 generated (0 by timeout; 7 equivalent; 2 compiled, 9 candidates)
+../.mpv/misc/path_utils.c:142 mp_path_join_bstr: not checkable: needs external ta_asprintf
+../.mpv/misc/path_utils.c:163 mp_path_join: not checkable: needs external ta_asprintf
+../.mpv/misc/path_utils.c:168 mp_getcwd: not checkable: needs external __errno_location; needs external getcwd; needs external getenv; needs external stat
+../.mpv/misc/path_utils.c:190 mp_normalize_path: not checkable: needs external __errno_location; needs external getcwd; needs external getenv; needs external realpath; needs external stat; needs external ta_asprintf; needs external ta_talloc_strdup_append_buffer; needs external ta_talloc_strndup_append_buffer
+../.mpv/misc/path_utils.c:276 mp_path_exists: not checkable: needs external stat
+../.mpv/misc/path_utils.c:282 mp_path_isdir: not checkable: needs external stat
+../.mpv/misc/path_utils.c:289 mp_is_url: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 15 of 15 generated (0 by timeout; 0 equivalent; 15 compiled, 15 candidates)
+../.mpv/misc/path_utils.c:309 mp_split_proto: checked and sensitive; 10000 inputs, 10000 compared, 0 aborts confirmed, 0 undefined, 0 unsupported, out of contract 0%; mutants caught 16 of 17 generated (0 by timeout; 0 equivalent; 17 compiled, 17 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/path_utils.c:314:65 (in mp_split_proto) constant: `0` -> `1`
+../.mpv/misc/path_utils.c:318 mp_mkdirp: not checkable: needs external mkdir; needs external stat
+../.mpv/misc/bstr.h:285 bstr_find0: checked, agreement not shown to be sensitive; 10000 inputs, 9844 compared, 0 aborts confirmed, 156 undefined, 0 unsupported, out of contract 2%; mutants caught 0 of 1 generated (0 by timeout; 0 equivalent; 1 compiled, 1 candidates)
+  survivor /home/user/rmpv/formal/.mpv/misc/bstr.h:63:62 (in bstr0) constant: `0` -> `1`
+../.mpv/misc/random.c:31 rotl_u64: checked and sensitive; 10000 inputs, 4494 compared, 0 aborts confirmed, 5506 undefined, 0 unsupported, out of contract 55%; mutants caught 4 of 4 generated (0 by timeout; 0 equivalent; 4 compiled, 4 candidates)
+../.mpv/misc/random.c:36 splitmix64: checked and sensitive; 10000 inputs, 9164 compared, 0 aborts confirmed, 836 undefined, 0 unsupported, out of contract 9%; mutants caught 12 of 12 generated (0 by timeout; 0 equivalent; 12 compiled, 12 candidates)
+../.mpv/misc/random.c:44 mp_rand_seed: not checkable: needs external av_random_bytes; needs external mp_raw_time_ns
+../.mpv/misc/random.c:67 mp_rand_next: checked and sensitive; 10000 inputs, 9181 compared, 0 aborts confirmed, 819 undefined, 0 unsupported, out of contract 9%; mutants caught 23 of 24 generated (0 by timeout; 0 equivalent; 23 compiled, 28 candidates)
+../.mpv/misc/random.c:85 mp_rand_next_double: checked and sensitive; 10000 inputs, 9158 compared, 0 aborts confirmed, 842 undefined, 0 unsupported, out of contract 9%; mutants caught 24 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 32 candidates)
+../.mpv/misc/random.c:92 mp_rand_in_range32: checked and sensitive; 10000 inputs, 4437 compared, 5143 aborts confirmed, 420 undefined, 0 unsupported, out of contract 56%; mutants caught 24 of 24 generated (0 by timeout; 0 equivalent; 24 compiled, 36 candidates)
+../.mpv/misc/rendezvous.c:32 mp_rendezvous: not checkable: needs external pthread_cond_broadcast; needs external pthread_cond_wait; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a `void *` that is not only handed to talloc as a parent
+../.mpv/misc/thread_pool.c:51 worker_thread: not checkable: needs external Misc.Thread_tools_c.cancel_destroy; needs external clock_gettime; needs external mp_time_ns; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_cond_timedwait; needs external pthread_cond_wait; needs external pthread_detach; needs external pthread_join; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external pthread_self; needs external pthread_setname_np; needs external strncpy; parameter type: a `void *` that is not only handed to talloc as a parent
+../.mpv/misc/thread_pool.c:115 thread_pool_dtor: not checkable: needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_join; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a `void *` that is not only handed to talloc as a parent
+../.mpv/misc/thread_pool.c:142 add_thread: not checkable: needs external pthread_create; parameter type: a pointer to struct mp_thread_pool: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_pool.c:153 mp_thread_pool_create: not checkable: needs external pthread_cond_init; needs external pthread_condattr_destroy; needs external pthread_condattr_init; needs external pthread_condattr_setclock; needs external pthread_create; needs external pthread_mutex_init; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external pthread_mutexattr_destroy; needs external pthread_mutexattr_init; needs external pthread_mutexattr_settype
+../.mpv/misc/thread_pool.c:181 thread_pool_add: not checkable: needs external pthread_cond_signal; needs external pthread_create; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_thread_pool: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_pool.c:213 mp_thread_pool_queue: not checkable: needs external pthread_cond_signal; needs external pthread_create; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_thread_pool: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_pool.c:219 mp_thread_pool_run: not checkable: needs external pthread_cond_signal; needs external pthread_create; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_thread_pool: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/osdep/threads-posix.h:171 mp_cond_signal: not checkable: needs external pthread_cond_signal; parameter type: a pointer to struct (typedef mp_cond): member `cond` is union (typedef pthread_cond_t): a union
+../.mpv/osdep/threads-posix.h:221 mp_thread_set_name: not checkable: needs external pthread_self; needs external pthread_setname_np; needs external strncpy
+../.mpv/misc/thread_tools.c:35 mp_waiter_wait: not checkable: needs external pthread_cond_destroy; needs external pthread_cond_wait; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a pointer to struct mp_waiter: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:60 mp_waiter_wakeup: not checkable: needs external pthread_cond_signal; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a pointer to struct mp_waiter: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:70 mp_waiter_poll: not checkable: needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a pointer to struct mp_waiter: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:101 cancel_destroy: not checkable: needs external close; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_join; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external write; parameter type: a `void *` that is not only handed to talloc as a parent
+../.mpv/misc/thread_tools.c:123 mp_cancel_new: not checkable: needs external pthread_cond_init; needs external pthread_condattr_destroy; needs external pthread_condattr_init; needs external pthread_condattr_setclock; needs external pthread_mutex_init; needs external pthread_mutexattr_destroy; needs external pthread_mutexattr_init; needs external pthread_mutexattr_settype
+../.mpv/misc/thread_tools.c:136 trigger_locked: not checkable: needs external close; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_join; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external write; parameter type: a pointer to struct mp_cancel: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:157 mp_cancel_trigger: not checkable: needs external close; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_join; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external write; parameter type: a pointer to struct mp_cancel: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:164 mp_cancel_reset: not checkable: needs external __errno_location; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external read; parameter type: a pointer to struct mp_cancel: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:187 mp_cancel_test: not checkable: parameter type: a pointer to struct mp_cancel: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:192 mp_cancel_wait: not checkable: needs external clock_gettime; needs external mp_time_ns; needs external mp_time_ns_add; needs external pthread_cond_timedwait; needs external pthread_cond_wait; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; parameter type: a pointer to struct mp_cancel: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:207 retrigger_locked: not checkable: needs external close; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_join; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external write; parameter type: a pointer to struct mp_cancel: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:213 mp_cancel_set_cb: not checkable: needs external close; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_join; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external write; parameter type: a `void *` that is not only handed to talloc as a parent; parameter type: a function pointer; parameter type: a pointer to struct mp_cancel: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:222 mp_cancel_set_parent: not checkable: needs external close; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_join; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external write; parameter type: a pointer to struct mp_cancel: member `lock` is union (typedef pthread_mutex_t): a union
+../.mpv/misc/thread_tools.c:243 mp_cancel_get_fd: not checkable: needs external close; needs external mp_make_wakeup_pipe; needs external pthread_cond_broadcast; needs external pthread_cond_destroy; needs external pthread_join; needs external pthread_mutex_destroy; needs external pthread_mutex_lock; needs external pthread_mutex_unlock; needs external write; parameter type: a pointer to struct mp_cancel: member `lock` is union (typedef pthread_mutex_t): a union
+
+Selected functions by status (141 in all):
+    54  checked and sensitive
+     0  checked, agreement not shown to be sensitive
+     1  disagrees
+    80  not checkable
+     6  not emitted
+
+Header functions by status (33 in all):
+    18  checked and sensitive
+     4  checked, agreement not shown to be sensitive
+     0  disagrees
+    11  not checkable
+     0  not emitted
+
+Reasons a function is not checkable, by number of functions:
+    30  needs external pthread_mutex_lock
+    30  needs external pthread_mutex_unlock
+    26  parameter type: a `void *` that is not only handed to talloc as a parent
+    20  needs external pthread_cond_broadcast
+    19  needs external pthread_cond_destroy
+    18  needs external pthread_mutex_destroy
+    18  parameter type: a pointer to struct mpv_node: member `u` is union (anonymous at ../.mpv/include/mpv/client.h:765:5): a union
+    13  parameter type: a pointer to struct mp_dispatch_queue: member `head` is a pointer member
+    12  parameter type: a function pointer
+    12  parameter type: ptr<ptr<char:i8>>: a pointer to a pointer that the function reads or passes on
+    10  needs external pthread_cond_wait
+     9  needs external pthread_join
+     9  parameter type: a pointer to struct mp_cancel: member `lock` is union (typedef pthread_mutex_t): a union
+     8  needs external Misc.Thread_tools_c.cancel_destroy
+     8  needs external close
+     7  needs external Misc.Thread_pool_c.thread_pool_dtor
+     7  needs external __errno_location
+     7  needs external write
+     7  parameter type: a pointer to struct (typedef mp_cond): member `cond` is union (typedef pthread_cond_t): a union
+     6  needs external bstr_xappend_asprintf
+     6  needs external node_map_badd
+     5  needs external clock_gettime
+     5  needs external pthread_cond_signal
+     5  needs external pthread_cond_timedwait
+     5  needs external pthread_create
+     5  needs external pthread_self
+     5  needs external stat
+     4  needs external mp_time_ns
+     4  needs external pthread_cond_init
+     4  needs external pthread_condattr_destroy
+     4  needs external pthread_condattr_init
+     4  needs external pthread_condattr_setclock
+     4  needs external pthread_mutex_init
+     4  needs external pthread_mutexattr_destroy
+     4  needs external pthread_mutexattr_init
+     4  needs external pthread_mutexattr_settype
+     4  needs external ta_asprintf
+     4  parameter type: a pointer to struct mp_thread_pool: member `lock` is union (typedef pthread_mutex_t): a union
+     4  parameter type: a pointer to union (typedef pthread_mutex_t): a union
+     3  needs external av_random_bytes
+     3  needs external mp_append_escaped_string
+     3  needs external mp_raw_time_ns
+     3  needs external strtod
+     3  parameter type: a pointer to struct mp_waiter: member `lock` is union (typedef pthread_mutex_t): a union
+     2  needs external Misc.Language_c.lang_compare
+     2  needs external getcwd
+     2  needs external getenv
+     2  needs external mp_append_utf8_bstr
+     2  needs external mp_time_ns_add
+     2  needs external mp_tprintf_buf
+     2  needs external open
+     2  needs external pthread_setname_np
+     2  needs external strncpy
+     2  parameter type: a pointer to struct mp_log: declared but not defined in this file
+     1  needs external av_hash_alloc
+     1  needs external av_hash_final
+     1  needs external av_hash_freep
+     1  needs external av_hash_get_size
+     1  needs external av_hash_init
+     1  needs external av_hash_update
+     1  needs external fclose
+     1  needs external fdopen
+     1  needs external fwrite
+     1  needs external mkdir
+     1  needs external mp_make_wakeup_pipe
+     1  needs external mp_msg
+     1  needs external pthread_detach
+     1  needs external read
+     1  needs external realpath
+     1  needs external rename
+     1  needs external ta_talloc_strdup_append_buffer
+     1  needs external ta_talloc_strndup_append_buffer
+     1  needs external unlink
+     1  parameter type: a pointer to struct mp_dispatch_item: member `fn` is a pointer member
+     1  parameter type: ptr<const unsigned char:u8>: a pointer to bytes without an evident length
+     1  parameter type: ptr<enum track_flags>: a pointer used as an array without an evident length
+     1  parameter type: ptr<int:i32>: a pointer used as an array without an evident length
+     1  parameter type: ptr<unsigned char:u8>: a pointer to bytes without an evident length
+
+Inputs: 770000 run through the model for 77 functions; 713517 compared with compiled C, 7476 aborts confirmed, 39484 undefined, 8056 unsupported, 1467 disagreements.
+Mutants: 854 generated of 1043 candidates, 46 set aside as equivalent, 797 compiled, 647 caught (0 of them by timeout only), 150 survived (0 timed out where that does not count).
+Seed 1, 10000 inputs per function, at most 24 mutants per function. Time: 1642 s, of which 2 s building the Lean driver.
