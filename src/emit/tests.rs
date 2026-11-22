@@ -297,6 +297,7 @@ cases! {
     t_order_allocation_beside_reads => SameAsC,
     t_order_two_allocations => SameAsC,
     t_order_indirect_readers => SameAsC,
+    t_nan_bytes => Stops("unsupported store of a NaN"),
     t_va_qualified_pointer => Stops("unsupported va_arg of type const char * for an argument of type char *"),
 }
 

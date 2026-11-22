@@ -13,6 +13,8 @@ class CVal (α : Type) where
   align : Nat
   encode : α → Array MByte
   decode : Array MByte → Except Err α
+  /-- Why the model cannot give a value's bytes, when it cannot. -/
+  noBytes : α → Option String := fun _ => none
 
 def leBytes (n : Nat) (v : Nat) : Array MByte :=
   Array.ofFn (n := n) fun i => .byte (UInt8.ofNat (v >>> (8 * i.val)))
@@ -54,17 +56,25 @@ instance : CVal Bool where
     | 1 => pure true
     | n => throw (.ub s!"read of a _Bool object holding {n}")
 
+/-- Lean's `Float` keeps one NaN: it does not keep the sign and payload
+that C's NaNs carry (on x86-64, `0.0 / 0.0` has its sign bit set). Bytes of
+a NaN would not be the C bytes, so storing one is unsupported. -/
+def nanStore : String :=
+  "store of a NaN: the model does not keep the sign and payload of a NaN, which C does"
+
 instance : CVal Float where
   size := 8
   align := 8
   encode x := leBytes 8 x.toBits.toNat
   decode bs := do pure (Float.ofBits (UInt64.ofNat (← leNat bs)))
+  noBytes x := if x.isNaN then some nanStore else none
 
 instance : CVal Float32 where
   size := 4
   align := 4
   encode x := leBytes 4 x.toBits.toNat
   decode bs := do pure (Float32.ofBits (UInt32.ofNat (← leNat bs)))
+  noBytes x := if x.isNaN then some nanStore else none
 
 def Ptr.decode (bs : Array MByte) : Except Err Ptr :=
   match (bs[0]? : Option MByte) with
@@ -174,7 +184,8 @@ def load (α : Type) [CVal α] (p : Ptr) : M α := do
   let bs ← loadBytes p (CVal.size α) (CVal.align α)
   CVal.decode bs
 
-def store {α : Type} [CVal α] (p : Ptr) (v : α) : M Unit :=
+def store {α : Type} [CVal α] (p : Ptr) (v : α) : M Unit := do
+  if let some why := CVal.noBytes v then unsupported why
   storeBytes p (CVal.encode v) (CVal.align α)
 
 def loadAgg (p : Ptr) (size align : Nat) : M Agg := do
@@ -191,7 +202,8 @@ def zero (p : Ptr) (n : Nat) : M Unit := fill p n (.byte 0)
 indeterminate again. -/
 def undefine (p : Ptr) (n : Nat) : M Unit := fill p n .undef
 
-def storeList {α : Type} [CVal α] (p : Ptr) (vs : List α) : M Unit :=
+def storeList {α : Type} [CVal α] (p : Ptr) (vs : List α) : M Unit := do
+  if let some why := vs.findSome? CVal.noBytes then unsupported why
   storeBytes p (vs.foldl (init := #[]) fun acc v => acc ++ CVal.encode v) (CVal.align α)
 
 /-- Stores plain bytes, as a string literal initialises a character array. -/

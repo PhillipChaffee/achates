@@ -571,3 +571,11 @@ ll t_order_indirect_readers(void) {
     int x = 5;
     return order_fns[0](&x, 1, 2) * 100 + order_fns[1](&x, 3, 4);
 }
+/* The model keeps no NaN payload or sign, so it cannot give a NaN's bytes. */
+ll t_nan_bytes(void) {
+    volatile double zero = 0.0;
+    double d = zero / zero;
+    unsigned char b[8];
+    memcpy(b, &d, 8);
+    return b[7];
+}
