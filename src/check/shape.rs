@@ -167,17 +167,29 @@ fn is_param(e: &Expr, index: usize) -> bool {
 fn uses(f: &Function, index: usize) -> Uses {
     let mut u = Uses::default();
     // The left sides of assignments, by identity: a dereference there is a
-    // write, anywhere else a read.
+    // write, anywhere else a read. The operand of `+=` or `++` is both.
     let mut targets: HashSet<*const Expr> = HashSet::new();
-    for_each_expr(&f.body, &mut |e| {
-        if let ExprKind::Assign { lhs, .. } = &e.kind {
+    let mut updated: HashSet<*const Expr> = HashSet::new();
+    for_each_expr(&f.body, &mut |e| match &e.kind {
+        ExprKind::Assign { lhs, .. } => {
             targets.insert(std::ptr::from_ref::<Expr>(lhs));
         }
+        ExprKind::CompoundAssign { lhs: x, .. }
+        | ExprKind::Unary {
+            op: UnaryOp::PreInc | UnaryOp::PreDec | UnaryOp::PostInc | UnaryOp::PostDec,
+            operand: x,
+        } => {
+            updated.insert(std::ptr::from_ref::<Expr>(x));
+        }
+        _ => {}
     });
     for_each_expr(&f.body, &mut |e| {
         let here = std::ptr::from_ref::<Expr>(e);
         let mut deref = || {
-            if targets.contains(&here) {
+            if updated.contains(&here) {
+                u.writes += 1;
+                u.reads += 1;
+            } else if targets.contains(&here) {
                 u.writes += 1;
             } else {
                 u.reads += 1;
@@ -474,6 +486,25 @@ impl<'a> Shapes<'a> {
             {
                 let c_type = to_c(t).ok_or("no C name")?;
                 Ok(Shape::StrList { c_type })
+            }
+            // A cursor into a string, `char **s` read and moved through `*s`.
+            Type::Pointer(inner)
+                if matches!(
+                    inner.ty,
+                    Type::Int(IntType {
+                        kind: IntKind::Char,
+                        ..
+                    })
+                ) && u.arithmetic == 0
+                    && u.args.is_empty()
+                    && u.other() == 0
+                    && u.reads > 0 =>
+            {
+                Ok(Shape::Ptr {
+                    pointee: Box::new(Shape::CStr),
+                    size: 8,
+                    align: 8,
+                })
             }
             Type::Pointer(_) => {
                 if u.reads == 0 && u.arithmetic == 0 && u.args.is_empty() && u.other() == 0 {
