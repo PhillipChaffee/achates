@@ -5,6 +5,7 @@ mod compdb;
 mod convert;
 mod dump;
 mod emit;
+mod equiv;
 mod frontend;
 mod ir;
 mod probe;
@@ -60,6 +61,30 @@ enum Command {
         #[arg(long)]
         runtime: Option<PathBuf>,
     },
+    /// Write, for each C function with a Rust counterpart in the Aeneas
+    /// output, the Lean theorem that the two are equal, and try to prove
+    /// each by fixed tactic tiers.
+    Equiv {
+        #[arg(long)]
+        compile_commands: PathBuf,
+        #[arg(long)]
+        select: String,
+        /// The project `achates emit` wrote for the selection.
+        #[arg(long)]
+        c_project: PathBuf,
+        /// The Lean file Aeneas wrote for the port.
+        #[arg(long)]
+        rust_lean: PathBuf,
+        /// The bridge Lake project that builds both sides.
+        #[arg(long)]
+        lake_dir: PathBuf,
+        /// Run the proof tiers; without it only the statements are written.
+        #[arg(long)]
+        prove: bool,
+        /// Lean processes to run at once.
+        #[arg(long, default_value_t = 4)]
+        jobs: usize,
+    },
     /// Print one function's IR.
     Dump {
         #[arg(long)]
@@ -108,6 +133,28 @@ fn run(cli: Cli) -> Result<String> {
             let runtime = runtime
                 .unwrap_or_else(|| PathBuf::from(concat!(env!("CARGO_MANIFEST_DIR"), "/lean")));
             emit::run(&picked, &emit::Options { out, name, runtime })
+        }
+        Command::Equiv {
+            compile_commands,
+            select,
+            c_project,
+            rust_lean,
+            lake_dir,
+            prove,
+            jobs,
+        } => {
+            let entries = compdb::load(&compile_commands)?;
+            let picked = compdb::select(&entries, &select)?;
+            equiv::run(
+                &picked,
+                &equiv::Options {
+                    c_project,
+                    rust_lean,
+                    lake_dir,
+                    prove,
+                    jobs,
+                },
+            )
         }
         Command::Dump {
             compile_commands,
